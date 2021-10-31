@@ -8,9 +8,9 @@ import (
 
 //初始化支付
 func InitPay(c *gin.Context) {
-	service := service.InitPayService{}
-	if err:=c.ShouldBind(&service);err==nil {
-		res := service.Init()
+	initPayService := service.InitPayService{}
+	if err:=c.ShouldBind(&initPayService);err==nil {
+		res := initPayService.Init()
 		c.JSON(200, res)
 	} else {
 		c.JSON(200,ErrorResponse(err))
@@ -20,9 +20,9 @@ func InitPay(c *gin.Context) {
 
 //接受FM支付回调接口
 func ConfirmPay(c *gin.Context) {
-	service := service.ConfirmPayService{}
-	if err := c.ShouldBind(&service); err == nil {
-		service.Confirm()
+	confirmPayService := service.ConfirmPayService{}
+	if err := c.ShouldBind(&confirmPayService); err == nil {
+		confirmPayService.Confirm()
 		c.String(200, "success")
 	} else {
 		c.String(200, "success")
@@ -31,9 +31,9 @@ func ConfirmPay(c *gin.Context) {
 }
 
 func OrderPay(c *gin.Context) {
-	service := service.OrderPay{}
-	if err := c.ShouldBind(&service);err==nil {
-		res := service.PayDowm()
+	orderPay := service.OrderPay{}
+	if err := c.ShouldBind(&orderPay);err==nil {
+		res := orderPay.PayDowm()
 		c.JSON(200,res)
 	}else{
 		logging.Info(err)

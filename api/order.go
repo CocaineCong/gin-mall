@@ -7,9 +7,9 @@ import (
 )
 
 func CreateOrder(c *gin.Context) {
-	service := service.CreateOrderService{}
-	if err := c.ShouldBind(&service);err==nil{
-		res:=service.Create()
+	createOrderService := service.CreateOrderService{}
+	if err := c.ShouldBind(&createOrderService);err==nil{
+		res:= createOrderService.Create()
 		c.JSON(200,res)
 	}else {
 		c.JSON(200,ErrorResponse(err))
@@ -18,9 +18,9 @@ func CreateOrder(c *gin.Context) {
 }
 
 func ListOrders(c *gin.Context) {
-	service := service.ListOrdersService{}
-	if err := c.ShouldBind(&service);err==nil{
-		res:=service.List(c.Param("id"))
+	listOrdersService := service.ListOrdersService{}
+	if err := c.ShouldBind(&listOrdersService);err==nil{
+		res:= listOrdersService.List(c.Param("id"))
 		c.JSON(200,res)
 	}else {
 		c.JSON(200,ErrorResponse(err))

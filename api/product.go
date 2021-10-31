@@ -6,7 +6,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-//TODO
 
 // 创建商品
 func CreateProduct(c *gin.Context) {

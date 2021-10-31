@@ -8,9 +8,9 @@ import (
 
 // CreateCategory 创建分类
 func CreateCategory(c *gin.Context) {
-	service := service.CreateCategoryService{}
-	if err := c.ShouldBind(&service); err == nil {
-		res := service.Create()
+	createCategoryService := service.CreateCategoryService{}
+	if err := c.ShouldBind(&createCategoryService); err == nil {
+		res := createCategoryService.Create()
 		c.JSON(200, res)
 	} else {
 		c.JSON(200, ErrorResponse(err))
@@ -20,9 +20,9 @@ func CreateCategory(c *gin.Context) {
 
 // ListCategories 分类列表接口
 func ListCategories(c *gin.Context) {
-	service := service.ListCategoriesService{}
-	if err := c.ShouldBind(&service); err == nil {
-		res := service.List()
+	listCategoriesService := service.ListCategoriesService{}
+	if err := c.ShouldBind(&listCategoriesService); err == nil {
+		res := listCategoriesService.List()
 		c.JSON(200, res)
 	} else {
 		c.JSON(200, ErrorResponse(err))

@@ -7,21 +7,21 @@ import (
 
 //排行
 func ListRanking(c *gin.Context) {
-	service := service.ListRankingService{}
-	res := service.List()
+	listRankingService := service.ListRankingService{}
+	res := listRankingService.List()
 	c.JSON(200, res)
 }
 
 //家电排行
 func ListElecRanking(c *gin.Context) {
-	service := service.ListElecRankingService{}
-	res := service.List()
+	listElecRankingService := service.ListElecRankingService{}
+	res := listElecRankingService.List()
 	c.JSON(200, res)
 }
 
 //配件排行
 func ListAcceRanking(c *gin.Context) {
-	service := service.ListAcceRankingService{}
-	res := service.List()
+	listAcceRankingService := service.ListAcceRankingService{}
+	res := listAcceRankingService.List()
 	c.JSON(200, res)
 }

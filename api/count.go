@@ -6,7 +6,7 @@ import (
 )
 
 func ShowCount(c *gin.Context) {
-	service := service.ShowCountService{}
-	res:= service.Show(c.Param("id"))
+	showCountService := service.ShowCountService{}
+	res:= showCountService.Show(c.Param("id"))
 	c.JSON(200,res)
 }

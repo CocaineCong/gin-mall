@@ -7,9 +7,9 @@ import (
 )
 
 func CreateCart(c *gin.Context) {
-	service := service.CreateCartService{}
-	if err := c.ShouldBind(&service); err == nil {
-		res := service.Create()
+	createCartService := service.CreateCartService{}
+	if err := c.ShouldBind(&createCartService); err == nil {
+		res := createCartService.Create()
 		c.JSON(200, res)
 	} else {
 		c.JSON(200, ErrorResponse(err))
@@ -19,8 +19,8 @@ func CreateCart(c *gin.Context) {
 
 //购物车详细信息
 func ShowCarts(c *gin.Context) {
-	service := service.ShowCartsService{}
-	res := service.Show(c.Param("id"))
+	showCartsService := service.ShowCartsService{}
+	res := showCartsService.Show(c.Param("id"))
 	c.JSON(200, res)
 }
 
