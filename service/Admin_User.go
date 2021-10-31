@@ -17,25 +17,6 @@ type ListUsersService struct {
 	Type  int `form:"type" json:"type"`
 }
 
-func (service *ListUserService) List() serializer.Response {
-	var Users model.User
-	code := e.SUCCESS
-	err := model.DB.First(&Users).Error
-	if err != nil {
-		logging.Info(err)
-		code = e.ErrorAdminFindUser
-		return serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Error:  err.Error(),
-		}
-	}
-	return serializer.Response{
-		Status: code,
-		Data:   serializer.BuildUser(Users),
-		Msg:    e.GetMsg(code),
-	}
-}
 
 func (service *ListUsersService) List() serializer.Response {
 	users := []model.User{}
