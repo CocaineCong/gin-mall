@@ -34,6 +34,7 @@ var MsgFlags = map[int]string{
 	ErrorCallApi:                   "调用接口失败",
 	ErrorUnmarshalJson:             "解码JSON失败",
 
+	ErrorUploadFile :"上传失败",
 	ErrorAdminFindUser: "管理员查询用户失败",
 
 	ErrorDatabase: "数据库操作出错,请重试",

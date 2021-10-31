@@ -1,7 +1,7 @@
 package service
 
 import (
-	"FanOneMall/conf"
+	"FanOneMall/cache"
 	"FanOneMall/model"
 	"FanOneMall/pkg/e"
 	"FanOneMall/pkg/logging"
@@ -63,9 +63,7 @@ func (service *CreateOrderService) Create() serializer.Response {
 			Error:  err.Error(),
 		}
 	}
-	order.AddressName = address.Name
-	order.AddressPhone = address.Phone
-	order.Address = address.Address
+	order.AddressID = address.ID
 	number := fmt.Sprintf("%09v",rand.New(rand.NewSource(time.Now().UnixNano())).Int31n(1000000000))
 	productNum := strconv.Itoa(int(service.ProductID))
 	userNum := strconv.Itoa(int(service.UserID))
@@ -96,7 +94,7 @@ func (service *CreateOrderService) Create() serializer.Response {
 		Score:  float64(time.Now().Unix()) + 15*time.Minute.Seconds(),
 		Member: orderNum,
 	}
-	conf.RedisClient.ZAdd("3",data)
+	cache.RedisClient.ZAdd("3",data)
 	return serializer.Response{
 		Status: code,
 		Msg:    e.GetMsg(code),
@@ -158,6 +156,7 @@ func (service *ListOrdersService) List(id string) serializer.Response{
 func (service *ShowOrderService) Show(num string) serializer.Response {
 	var order model.Order
 	var product model.Product
+	var address model.Address
 	code := e.SUCCESS
 
 	if err := model.DB.Where("order_num=?",num).First(&order).Error;err!=nil{
@@ -168,7 +167,7 @@ func (service *ShowOrderService) Show(num string) serializer.Response {
 			Msg:    e.GetMsg(code),
 		}
 	}
-
+	model.DB.Where("id = ?",order.AddressID).First(&address)
 	if err := model.DB.Where("id=?",order.ProductID).First(&product).Error;err!=nil{
 		if gorm.IsRecordNotFoundError(err){
 			logging.Info(err)
@@ -188,7 +187,7 @@ func (service *ShowOrderService) Show(num string) serializer.Response {
 	return serializer.Response{
 		Status:code,
 		Msg:e.GetMsg(code),
-		Data:serializer.BuildOrder(order,product),
+		Data:serializer.BuildOrder(order,product,address),
 	}
 }
 

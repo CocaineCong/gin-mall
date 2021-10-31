@@ -2,7 +2,6 @@ package service
 
 import (
 	"FanOneMall/cache"
-	"FanOneMall/conf"
 	"FanOneMall/model"
 	"FanOneMall/pkg/e"
 	"FanOneMall/pkg/logging"
@@ -27,7 +26,7 @@ type ListAcceRankingService struct {
 func (service *ListRankingService) List() serializer.Response {
 	var products []model.Product
 	code := e.SUCCESS
-	pros, _ := conf.RedisClient.ZRevRange(cache.RankKey, 0, 9).Result()
+	pros, _ := cache.RedisClient.ZRevRange(cache.RankKey, 0, 9).Result()
 	if len(pros) > 1 {
 		order := fmt.Sprintf("FIELD(id,%s)", strings.Join(pros, ","))
 		err := model.DB.Where("id in (?)", pros).Order(order).Find(&products).Error
@@ -52,7 +51,7 @@ func (service *ListRankingService) List() serializer.Response {
 func (service *ListElecRankingService) List() serializer.Response {
 	var products []model.Product
 	code := e.SUCCESS
-	pros, _ := conf.RedisClient.ZRevRange(cache.ElectricalRank, 0, 6).Result()
+	pros, _ := cache.RedisClient.ZRevRange(cache.ElectricalRank, 0, 6).Result()
 	if len(pros) > 1 {
 		order := fmt.Sprintf("FIELD(id,%s)", strings.Join(pros, ","))
 		err := model.DB.Where("id in (?)", pros).Order(order).Find(&products).Error
@@ -78,7 +77,7 @@ func (service *ListAcceRankingService) List() serializer.Response {
 	var products []model.Product
 	code := e.SUCCESS
 	// 从redis读取点击前十
-	pros, _ := conf.RedisClient.ZRevRange(cache.AccessoryRank, 0, 6).Result()
+	pros, _ := cache.RedisClient.ZRevRange(cache.AccessoryRank, 0, 6).Result()
 
 	if len(pros) > 1 {
 		order := fmt.Sprintf("FIELD(id, %s)", strings.Join(pros, ","))

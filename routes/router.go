@@ -27,7 +27,7 @@ func NewRouter() *gin.Engine {
 		v1.GET("imgs/:id", api.ShowProductImgs)     //商品图片
 		v1.GET("info-imgs/:id", api.ShowInfoImgs)   //商品详情图片操作
 		v1.GET("param-imgs/:id", api.ShowParamImgs) //商品参数图片操作
-		v1.GET("categories", api.ListCategories)    //商品分类操作
+		v1.GET("categories", api.ListCategories)    //商品分类
 		v1.GET("carousels", api.ListCarousels)      //轮播图
 
 		//排行

@@ -4,14 +4,11 @@ import (
 	"FanOneMall/model"
 	"FanOneMall/pkg/logging"
 	"fmt"
-	"github.com/go-redis/redis"
 	"gopkg.in/ini.v1"
-	"strconv"
 	"strings"
 )
 
 var (
-	RedisClient *redis.Client		//RedisClient Redis缓存客户端单例
 
 	AppMode  			string
 	HttpPort 			string
@@ -23,10 +20,10 @@ var (
 	DbPassWord 			string
 	DbName     			string
 
-	RedisDb    			string
-	RedisAddr  			string
-	RedisPw    			string
-	RedisDbName    		string
+	AccessKey      string
+	SerectKey      string
+	Bucket     	string
+	QiniuServer      string
 )
 
 func Init() {
@@ -37,7 +34,7 @@ func Init() {
 	}
 	LoadServer(file)
 	LoadMysqlData(file)
-	LoadRedisData(file)
+	LoadQiniu(file)
 	if err := LoadLocales("conf/locales/zh-cn.yaml"); err != nil {
 		logging.Info(err) //日志内容
 		panic(err)
@@ -45,25 +42,8 @@ func Init() {
 	//MySQL
 	path := strings.Join([]string{DbUser, ":", DbPassWord, "@tcp(", DbHost, ":", DbPort, ")/", DbName, "?charset=utf8&parseTime=true"}, "")
 	model.Database(path)
-	//redis
-	Redis()
 }
 
-
-func Redis() {
-	db, _ := strconv.ParseUint(RedisDbName, 10, 64)
-	client := redis.NewClient(&redis.Options{
-		Addr:     RedisAddr,
-		Password: "",
-		DB:       int(db),
-	})
-	_, err := client.Ping().Result()
-	if err != nil {
-		logging.Info(err)
-		panic(err)
-	}
-	RedisClient = client
-}
 
 func LoadServer(file *ini.File) {
 	AppMode = file.Section("service").Key("AppMode").String()
@@ -80,9 +60,10 @@ func LoadMysqlData(file *ini.File) {
 	DbName = file.Section("mysql").Key("DbName").String()
 }
 
-func LoadRedisData(file *ini.File) {
-	RedisDb = file.Section("redis").Key("RedisDb").String()
-	RedisAddr = file.Section("redis").Key("RedisAddr").String()
-	RedisPw = file.Section("redis").Key("RedisPw").String()
-	RedisDbName = file.Section("redis").Key("RedisDbName").String()
+
+func LoadQiniu(file *ini.File) {
+	AccessKey = file.Section("qiniu").Key("AccessKey").String()
+	SerectKey = file.Section("qiniu").Key("SerectKey").String()
+	Bucket = file.Section("qiniu").Key("Bucket").String()
+	QiniuServer = file.Section("qiniu").Key("QiniuServer").String()
 }

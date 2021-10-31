@@ -17,6 +17,5 @@ func migration() {
 		AutoMigrate(&Cart{}).
 		AutoMigrate(&Admin{}).
 		AutoMigrate(&Address{}).
-		AutoMigrate(&Notice{}).
-		AutoMigrate(&UserAuth{})
+		AutoMigrate(&Notice{})
 }

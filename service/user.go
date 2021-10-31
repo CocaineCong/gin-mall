@@ -7,6 +7,7 @@ import (
 	"FanOneMall/pkg/util"
 	"FanOneMall/serializer"
 	"github.com/jinzhu/gorm"
+	"mime/multipart"
 )
 
 //UserRegisterService 管理用户注册服务
@@ -17,6 +18,9 @@ type UserRegisterService struct {
 	Challenge string `form:"challenge" json:"challenge"`
 	Validate  string `form:"validate" json:"validate"`
 	Seccode   string `form:"seccode" json:"seccode"`
+}
+
+type UploadAvatarService struct {
 }
 
 //valid 验证表单 验证用户是否存在
@@ -185,6 +189,27 @@ func (service *UserUpdateService) Update() serializer.Response {
 			Error:  err.Error(),
 		}
 	}
+	return serializer.Response{
+		Status: code,
+		Data:   serializer.BuildUser(user),
+		Msg:    e.GetMsg(code),
+	}
+}
+
+func (service *UploadAvatarService) Post(id string, file multipart.File,fileSize int64) serializer.Response {
+	var user model.User
+	code := e.SUCCESS
+	status , info := util.UploadToQiNiu(file,fileSize)
+	if status != 200 {
+		return serializer.Response{
+			Status:  status  ,
+			Data:      e.GetMsg(status),
+			Error:info,
+		}
+	}
+	model.DB.Where("id=?",id).First(&user)
+	user.Avatar = info
+	model.DB.Save(&user)
 	return serializer.Response{
 		Status: code,
 		Data:   serializer.BuildUser(user),

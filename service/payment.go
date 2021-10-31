@@ -1,7 +1,7 @@
 package service
 
 import (
-	"FanOneMall/conf"
+	"FanOneMall/cache"
 	"FanOneMall/model"
 	"FanOneMall/pkg/e"
 	"FanOneMall/pkg/logging"
@@ -150,7 +150,7 @@ func (service *ConfirmPayService) Confirm() {
 			if err := model.DB.Model(model.Order{}).Where("order_num=?", service.OrderNo).Update("type", 2).Error; err != nil {
 				logging.Info(err)
 			}
-			if err := conf.RedisClient.ZRem(os.Getenv("REDIS_ZSET_KEY"), service.OrderNo).Err(); err != nil {
+			if err := cache.RedisClient.ZRem(os.Getenv("REDIS_ZSET_KEY"), service.OrderNo).Err(); err != nil {
 				logging.Info(err)
 			}
 		}

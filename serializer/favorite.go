@@ -19,7 +19,7 @@ type Favorite struct {
 }
 
 //序列化收藏夹
-func BuildFavorite(item1 model.Favorite, item2 model.Product, item3 model.Boss) Favorite {
+func BuildFavorite(item1 model.Favorite, item2 model.Product, item3 model.User) Favorite {
 	return Favorite{
 		UserID:        item1.UserID,
 		ProductID:     item1.ProductID,
@@ -41,7 +41,7 @@ func BuildFavorite(item1 model.Favorite, item2 model.Product, item3 model.Boss) 
 func BuildFavorites(items []model.Favorite) (favorites []Favorite) {
 	for _, item1 := range items {
 		item2 := model.Product{}
-		item3 := model.Boss{}
+		item3 := model.User{}
 		err := model.DB.First(&item2, item1.ProductID).Error
 		if err != nil {
 			continue

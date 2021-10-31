@@ -14,7 +14,6 @@ type Category struct {
 func BuildCategory(item model.Category) Category {
 	return Category{
 		ID:           item.ID,
-		CategoryID:   item.CategoryID,
 		CategoryName: item.CategoryName,
 		CreateAt:     item.CreatedAt.Unix(),
 	}

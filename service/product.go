@@ -2,7 +2,6 @@ package service
 
 import (
 	"FanOneMall/cache"
-	"FanOneMall/conf"
 	"FanOneMall/model"
 	"FanOneMall/pkg/e"
 	"FanOneMall/pkg/logging"
@@ -343,7 +342,7 @@ func ListenOrder() {
 				Offset: 0,
 				Count:  10,
 			}
-			orderList, err := conf.RedisClient.ZRangeByScore("SOMETHING", opt).Result()
+			orderList, err := cache.RedisClient.ZRangeByScore("SOMETHING", opt).Result()
 			if err != nil {
 				logging.Info("redis err: ", err)
 			}
@@ -359,7 +358,7 @@ func ListenOrder() {
 				if err := model.DB.Delete(&model.Order{}, "order_num IN (?)", numList).Error; err != nil {
 					logging.Info("myql err:", err)
 				}
-				if err := conf.RedisClient.ZRem("SOMETHING", orderList).Err(); err != nil {
+				if err := cache.RedisClient.ZRem("SOMETHING", orderList).Err(); err != nil {
 					logging.Info("redis err:", err)
 				}
 			}
@@ -370,7 +369,7 @@ func ListenOrder() {
 
 func (Product *Product) View() uint64 {
 	//增加视频点击数
-	countStr, _ := conf.RedisClient.Get(cache.ProductViewKey(Product.ID)).Result()
+	countStr, _ := cache.RedisClient.Get(cache.ProductViewKey(Product.ID)).Result()
 	count, _ := strconv.ParseUint(countStr, 10, 64)
 	return count
 }
@@ -378,21 +377,21 @@ func (Product *Product) View() uint64 {
 //AddView 视频游览
 func (Product *Product) AddView() {
 	//增加视频点击数
-	conf.RedisClient.Incr(cache.ProductViewKey(Product.ID))
+	cache.RedisClient.Incr(cache.ProductViewKey(Product.ID))
 	//增加排行点击数
-	conf.RedisClient.ZIncrBy(cache.RankKey, 1, strconv.Itoa(int(Product.ID)))
+	cache.RedisClient.ZIncrBy(cache.RankKey, 1, strconv.Itoa(int(Product.ID)))
 }
 
 //AddElecRank 增加加点排行点击数
 func (Product *Product) AddElecRank() {
 	//增加家电排汗点击数
-	conf.RedisClient.ZIncrBy(cache.ElectricalRank, 1, strconv.Itoa(int(Product.ID)))
+	cache.RedisClient.ZIncrBy(cache.ElectricalRank, 1, strconv.Itoa(int(Product.ID)))
 }
 
 //AddAcceRank 增加配件排行点击数
 func (Product *Product) AddAcceRank() {
 	//增加配件排行点击数
-	conf.RedisClient.ZIncrBy(cache.AccessoryRank, 1, strconv.Itoa(int(Product.ID)))
+	cache.RedisClient.ZIncrBy(cache.AccessoryRank, 1, strconv.Itoa(int(Product.ID)))
 }
 
 type CreateProductService struct {

@@ -20,7 +20,6 @@ type ListCategoriesService struct {
 //创建分类
 func (service *CreateCategoryService) Create() serializer.Response {
 	category := model.Category{
-		CategoryID:   service.CategoryID,
 		CategoryName: service.CategoryName,
 	}
 	code := e.SUCCESS

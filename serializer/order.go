@@ -20,7 +20,7 @@ type Order struct {
 	DiscountPrice string `json:"discount_price"`
 }
 
-func BuildOrder(item1 model.Order, item2 model.Product) Order {
+func BuildOrder(item1 model.Order, item2 model.Product, item3 model.Address) Order {
 	return Order{
 		ID:            item1.ID,
 		OrderNum:      item1.OrderNum,
@@ -30,9 +30,9 @@ func BuildOrder(item1 model.Order, item2 model.Product) Order {
 		ProductID:     item1.ProductID,
 		BossID :	   item1.BossID,
 		Num:           item1.Num,
-		AddressName:   item1.AddressName,
-		AddressPhone:  item1.AddressPhone,
-		Address:       item1.Address,
+		AddressName:   item3.Name,
+		AddressPhone:  item3.Phone,
+		Address:       item3.Address,
 		Type:          item1.Type,
 		Name:          item2.Name,
 		ImgPath:       item2.ImgPath,
@@ -43,11 +43,13 @@ func BuildOrder(item1 model.Order, item2 model.Product) Order {
 func BuildOrders(items []model.Order) (orders []Order) {
 	for _, item1 := range items {
 		item2 := model.Product{}
+		item3 := model.Address{}
 		err := model.DB.First(&item2, item1.ProductID).Error
+		err = model.DB.First(&item3, item1.AddressID).Error
 		if err != nil {
 			continue
 		}
-		order := BuildOrder(item1, item2)
+		order := BuildOrder(item1, item2, item3)
 		orders = append(orders, order)
 	}
 	return orders
