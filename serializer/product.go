@@ -16,7 +16,7 @@ type Product struct {
 	View         uint64 `json:"view"`
 	CreatedAt    int64  `json:"created_at"`
 	Num 		 int 	`json:"num"`
-	OnSale 		 string `json:"on_sale"`
+	OnSale 		 bool `json:"on_sale"`
 	BossID       int    `json:"boss_id"`
 	BossName     string `json:"boss_name"`
 	BossAvatar   string `json:"boss_avatar"`

@@ -15,7 +15,7 @@ type Favorite struct {
 	DiscountPrice string `json:"discount_price"`
 	BossID        uint   `json:"boss_id"`
 	Num 		  int 	 `json:"num"`
-	OnSale 		  string `json:"on_sale"`
+	OnSale 		  bool `json:"on_sale"`
 }
 
 //序列化收藏夹

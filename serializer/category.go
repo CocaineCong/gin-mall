@@ -5,7 +5,6 @@ import "FanOneMall/model"
 //分类序列化器
 type Category struct {
 	ID           uint   `json:"id"`
-	CategoryID   uint   `json:"category_id"`
 	CategoryName string `json:"category_name"`
 	CreateAt     int64  `json:"create_at"`
 }

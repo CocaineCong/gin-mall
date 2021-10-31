@@ -247,7 +247,7 @@ func (service *OrderPay) PayDowm() serializer.Response {
 	var productTest model.Product
 	productTest.Num=service.Num
 	productTest.BossID=service.BuyerID
-	productTest.OnSale = "1"
+	productTest.OnSale = false
 	productTest.ImgPath = productTemp.ImgPath
 	productTest.Price = productTemp.Price
 	productTest.Info = productTemp.Info

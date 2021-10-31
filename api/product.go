@@ -9,9 +9,11 @@ import (
 
 // 创建商品
 func CreateProduct(c *gin.Context) {
+	file , fileHeader ,_ := c.Request.FormFile("file")
+	fileSize := fileHeader.Size
 	createProductService := service.CreateProductService{}
 	if err := c.ShouldBind(&createProductService); err == nil {
-		res := createProductService.Create()
+		res := createProductService.Create(file,fileSize)
 		c.JSON(200, res)
 	} else {
 		c.JSON(200, ErrorResponse(err))

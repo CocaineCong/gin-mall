@@ -15,9 +15,6 @@ type UserRegisterService struct {
 	Nickname  string `form:"nickname" json:"nickname" binding:"required,min=2,max=10"`
 	UserName  string `form:"user_name" json:"user_name" binding:"required,min=5,max=15"`
 	Password  string `form:"password" json:"password" binding:"required,min=8,max=16"`
-	Challenge string `form:"challenge" json:"challenge"`
-	Validate  string `form:"validate" json:"validate"`
-	Seccode   string `form:"seccode" json:"seccode"`
 }
 
 type UploadAvatarService struct {
@@ -62,17 +59,13 @@ func (service *UserRegisterService) Valid(userId, status interface{}) *serialize
 }
 
 //Register 用户注册
-func (service *UserRegisterService) Register(userID, status interface{}) *serializer.Response {
+func (service *UserRegisterService) Register() *serializer.Response {
 	user := model.User{
 		Nickname: service.Nickname,
 		UserName: service.UserName,
 		Status:   model.Active,
 	}
 	code := e.SUCCESS
-	//表单验证
-	if res := service.Valid(userID, status); res != nil {
-		return res
-	}
 	//加密密码
 	if err := user.SetPassword(service.Password); err != nil {
 		logging.Info(err)

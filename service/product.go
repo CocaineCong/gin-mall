@@ -5,10 +5,10 @@ import (
 	"FanOneMall/model"
 	"FanOneMall/pkg/e"
 	"FanOneMall/pkg/logging"
+	"FanOneMall/pkg/util"
 	"FanOneMall/serializer"
-	"fmt"
 	"github.com/go-redis/redis"
-	"github.com/tealeg/xlsx"
+	"mime/multipart"
 	"strconv"
 	"time"
 )
@@ -33,7 +33,7 @@ type UpdateProductService struct {
 	ImgPath       string `form:"img_path" json:"img_path"`
 	Price         string `form:"price" json:"price"`
 	DiscountPrice string `form:"discount_price" json:"discount_price"`
-	OnSale string `form:"on_sale" json:"on_sale"`
+	OnSale bool `form:"on_sale" json:"on_sale"`
 	Num string `form:"num" json:"num"`
 }
 
@@ -47,7 +47,7 @@ type UpProductService struct {
 	ImgPath       string `form:"img_path" json:"img_path"`
 	Price         string `form:"price" json:"price"`
 	DiscountPrice string `form:"discount_price" json:"discount_price"`
-	OnSale string `form:"on_sale" json:"on_sale"`
+	OnSale bool `form:"on_sale" json:"on_sale"`
 	Num string `form:"num" json:"num"`
 }
 
@@ -78,17 +78,25 @@ func (service *ShowProductService) Show(id string) serializer.Response {
 }
 
 //创建商品
-func (service *CreateProductService) Create() serializer.Response {
-	boss_id,_ := strconv.Atoi(service.BossID)
+func (service *CreateProductService) Create(file multipart.File,fileSize int64) serializer.Response {
+	bossId,_ := strconv.Atoi(service.BossID)
+	status , info := util.UploadToQiNiu(file,fileSize)
+	if status != 200 {
+		return serializer.Response{
+			Status:  status  ,
+			Data:      e.GetMsg(status),
+			Error:info,
+		}
+	}
 	product := model.Product{
 		Name:          service.Name,
 		CategoryID:    service.CategortID,
 		Title:         service.Title,
 		Info:          service.Info,
-		ImgPath:       service.ImgPath,
+		ImgPath:       info,
 		Price:         service.Price,
 		DiscountPrice: service.DiscoutPrice,
-		BossID:        boss_id,
+		BossID:        bossId,
 		BossName:      service.BossName,
 		BossAvatar:    service.BossAvatar,
 	}
@@ -142,7 +150,7 @@ func (service *ListProductsService) List() serializer.Response {
 		}
 	} else {
 		if err := model.DB.Model(model.Product{}).
-			Where("category_id=?", service.CategoryID).
+			Where("category_id = ?", service.CategoryID).
 			Count(&total).Error; err != nil {
 			logging.Info(err)
 			code = e.ErrorDatabase
@@ -166,44 +174,10 @@ func (service *ListProductsService) List() serializer.Response {
 			}
 		}
 	}
-	//res,_ := json.Marshal(data)
-	//fmt.Println(string(res))
 	var productList  []serializer.Product
 	for _, item := range products {
 		products := serializer.BuildProduct(item)
 		productList = append(productList, products)
-	}
-	//for _,productL := range productList{
-	//	fmt.Println(productL.Num)
-	//}
-	// 生成一个新的文件
-	//file := xlsx.NewFile()
-	file := xlsx.File{}
-	// 添加sheet页
-	sheet, _ := file.AddSheet("Sheet1")
-	// 插入表头
-	titleRow := sheet.AddRow()
-	titleRow.AddCell().Value = "product"
-	titleRow.AddCell().Value = "title"
-	titleRow.AddCell().Value = "info"
-	titleRow.AddCell().Value = "img_path"
-	titleRow.AddCell().Value = "price"
-	titleRow.AddCell().Value = "discount"
-	titleRow.AddCell().Value = "boss_id"
-	titleRow.AddCell().Value = "boss_name"
-	// 插入内容
-	for a := 0; a <= len(productList); a++ {
-		row := sheet.AddRow()
-		row.WriteSlice(productList[0],a)
-	}
-	// 保存文件
-	Time := time.Now()
-	year := Time.Year()
-	month := Time.Month()
-	fileName := fmt.Sprintf("%d年%d月",year,month)
-	err := file.Save(fileName+".xlsx")
-	if err != nil {
-		panic(err)
 	}
 	return serializer.BuildListResponse(serializer.BuildProducts(products), uint(total))
 }
