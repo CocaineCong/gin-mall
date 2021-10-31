@@ -19,7 +19,7 @@ func NewRouter() *gin.Engine {
 		v1.POST("user/register", api.UserRegister) //用户注册
 		v1.POST("user/login", api.UserLogin)       //用户登陆
 		//邮箱绑定解绑接口
-		v1.POST("user/vaild-email", api.VaildEmail)
+		v1.POST("user/vaild-email", api.ValidEmail)
 		//商品操作
 		v1.GET("products", api.ListProducts)
 		v1.GET("products/:id", api.ShowProduct)

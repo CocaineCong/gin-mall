@@ -70,8 +70,8 @@ func SendEmail(c *gin.Context) {
 	}
 }
 
-//VaildEmail  绑定和解绑邮箱接口
-func VaildEmail(c *gin.Context) {
+//ValidEmail  绑定和解绑邮箱接口
+func ValidEmail(c *gin.Context) {
 	var vaildEmailService service.VaildEmailService
 	if err := c.ShouldBind(&vaildEmailService); err == nil {
 		res := vaildEmailService.Vaild()
