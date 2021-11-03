@@ -3,7 +3,6 @@ package api
 import (
 	"FanOneMall/serializer"
 	"FanOneMall/service"
-	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	logging "github.com/sirupsen/logrus"
 )
@@ -22,12 +21,9 @@ func UserRegister(c *gin.Context) {
 
 //UserLogin 用户登陆接口
 func UserLogin(c *gin.Context) {
-	session := sessions.Default(c)
-	status := 200
-	userID := session.Get("userId")
 	var userLoginService service.UserLoginService
 	if err := c.ShouldBind(&userLoginService); err == nil {
-		res := userLoginService.Login(userID, status)
+		res := userLoginService.Login()
 		c.JSON(200, res)
 	} else {
 		c.JSON(200, ErrorResponse(err))

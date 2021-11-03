@@ -3,7 +3,7 @@ package service
 import (
 	"FanOneMall/model"
 	"FanOneMall/pkg/e"
-	"FanOneMall/pkg/logging"
+	logging "github.com/sirupsen/logrus"
 	"FanOneMall/serializer"
 )
 

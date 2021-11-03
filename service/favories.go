@@ -3,8 +3,8 @@ package service
 import (
 	"FanOneMall/model"
 	"FanOneMall/pkg/e"
-	"FanOneMall/pkg/logging"
 	"FanOneMall/serializer"
+	logging "github.com/sirupsen/logrus"
 )
 
 type ShowFavoritesService struct {

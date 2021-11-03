@@ -3,10 +3,10 @@ package service
 import (
 	"FanOneMall/model"
 	"FanOneMall/pkg/e"
-	logging "github.com/sirupsen/logrus"
 	"FanOneMall/pkg/util"
 	"FanOneMall/serializer"
 	"github.com/jinzhu/gorm"
+	logging "github.com/sirupsen/logrus"
 	"mime/multipart"
 )
 
@@ -95,13 +95,10 @@ func (service *UserRegisterService) Register() *serializer.Response {
 type UserLoginService struct {
 	UserName  string `form:"user_name" json:"user_name" binding:"required,min=5,max=15"`
 	Password  string `form:"password" json:"password" binding:"required,min=8,max=16"`
-	Challenge string `form:"challenge" json:"challenge"`
-	Validate  string `form:"validate" json:"validate"`
-	Seccode   string `form:"seccode" json:"seccode"`
 }
 
 //Login 用户登陆函数
-func (service *UserLoginService) Login(userID, status interface{}) serializer.Response {
+func (service *UserLoginService) Login() serializer.Response {
 	var user model.User
 	code := e.SUCCESS
 	if err := model.DB.Where("user_name=?", service.UserName).First(&user).Error; err != nil {
