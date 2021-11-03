@@ -2,6 +2,7 @@ package routes
 
 import (
 	"FanOneMall/api"
+	"FanOneMall/conf"
 	"FanOneMall/middleware"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
@@ -12,6 +13,7 @@ import (
 func NewRouter() *gin.Engine {
 	r := gin.Default()
 	store := cookie.NewStore([]byte("something-very-secret"))
+	middleware.HttpLogToFile(conf.AppMode)
 	//r.Use(middleware.Cors())
 	r.Use(sessions.Sessions("mysession", store))
 	v1 := r.Group("api/v1")
