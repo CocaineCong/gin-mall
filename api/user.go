@@ -1,11 +1,11 @@
 package api
 
 import (
-	"FanOneMall/pkg/logging"
 	"FanOneMall/serializer"
 	"FanOneMall/service"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+	logging "github.com/sirupsen/logrus"
 )
 
 //UserRegister 用户注册

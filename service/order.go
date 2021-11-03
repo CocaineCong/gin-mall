@@ -4,7 +4,7 @@ import (
 	"FanOneMall/cache"
 	"FanOneMall/model"
 	"FanOneMall/pkg/e"
-	"FanOneMall/pkg/logging"
+	logging "github.com/sirupsen/logrus"
 	"FanOneMall/serializer"
 	"fmt"
 	"github.com/go-redis/redis"

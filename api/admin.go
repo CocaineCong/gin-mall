@@ -1,9 +1,9 @@
 package api
 
 import (
-	"FanOneMall/pkg/logging"
 	"FanOneMall/service"
 	"github.com/gin-gonic/gin"
+	logging "github.com/sirupsen/logrus"
 )
 
 //注册接口

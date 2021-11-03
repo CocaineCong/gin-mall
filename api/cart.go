@@ -1,7 +1,7 @@
 package api
 
 import (
-	"FanOneMall/pkg/logging"
+	logging "github.com/sirupsen/logrus"
 	"FanOneMall/service"
 	"github.com/gin-gonic/gin"
 )

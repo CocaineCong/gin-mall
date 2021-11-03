@@ -1,10 +1,10 @@
 package api
 
 import (
-	"FanOneMall/pkg/logging"
 	"FanOneMall/pkg/util"
 	"FanOneMall/service"
 	"github.com/gin-gonic/gin"
+	logging "github.com/sirupsen/logrus"
 )
 
 //上传授权

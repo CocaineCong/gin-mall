@@ -2,7 +2,7 @@ package conf
 
 import (
 	"FanOneMall/model"
-	"FanOneMall/pkg/logging"
+	logging "github.com/sirupsen/logrus"
 	"fmt"
 	"gopkg.in/ini.v1"
 	"strings"
