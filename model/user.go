@@ -10,14 +10,12 @@ import (
 type User struct {
 	gorm.Model
 	UserName       string `gorm:"unique"`
-	Email          string //`gorm:"unique"`
+	Email          string  //`gorm:"unique"`
 	PasswordDigest string
-	Nickname       string `gorm:"unique"`
+	Nickname       string `gorm:"not null"`
 	Status         string
-	Limit          int    // 0 非管理员  1 管理员
-	Type           int    // 0表示用户  1表示商家
 	Avatar         string `gorm:"size:1000"`
-	Monery 		   int
+	Money          int
 }
 
 const (

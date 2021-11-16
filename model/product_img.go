@@ -6,7 +6,7 @@ type ProductImg struct {
 	gorm.Model
 	ProductID  uint
 	ImgPath    string
-	BossID     int
-	BossName   string
-	BossAvatar string
+	//BossID     int
+	//BossName   string
+	//BossAvatar string
 }

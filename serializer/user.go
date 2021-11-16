@@ -20,11 +20,10 @@ func BuildUser(user model.User) User {
 		ID:       user.ID,
 		UserName: user.UserName,
 		NickName: user.Nickname,
-		Type:     user.Type,
 		Email:    user.Email,
 		Status:   user.Status,
 		Avatar:   user.AvatarURL(),
-		Monery: user.Monery,
+		Monery: user.Money,
 		CreateAt: user.CreatedAt.Unix(),
 	}
 }

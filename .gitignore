@@ -15,3 +15,4 @@
 # vendor/
 conf/config.ini
 go.sum
+main

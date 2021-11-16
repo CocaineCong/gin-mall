@@ -90,7 +90,7 @@ func (service *CreateProductService) Create(file multipart.File,fileSize int64) 
 	}
 	product := model.Product{
 		Name:          service.Name,
-		CategoryID:    service.CategortID,
+		CategoryID:    uint(service.CategortID),
 		Title:         service.Title,
 		Info:          service.Info,
 		ImgPath:       info,
@@ -248,7 +248,7 @@ func (service *DeleteProductService) Delete(id string) serializer.Response {
 func (service *UpdateProductService) Update() serializer.Response {
 	product := model.Product{
 		Name:          service.Name,
-		CategoryID:    service.CategoryID,
+		CategoryID:    uint(service.CategoryID),
 		Title:         service.Title,
 		Info:          service.Info,
 		ImgPath:       service.ImgPath,

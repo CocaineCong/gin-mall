@@ -19,9 +19,9 @@ func BuildImg(item model.ProductImg) ProductImg {
 		ProductID:  item.ProductID,
 		ImgPath:    item.ImgPath,
 		CreateAt:   item.CreatedAt.Unix(),
-		BossID:     item.BossID,
-		BossName:   item.BossName,
-		BossAvatar: item.BossAvatar,
+		//BossID:     item.BossID,
+		//BossName:   item.BossName,
+		//BossAvatar: item.BossAvatar,
 	}
 }
 

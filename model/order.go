@@ -7,13 +7,12 @@ import (
 //Order 订单信息
 type Order struct {
 	gorm.Model
-	UserID       uint
-	ProductID    uint
-	BossID		 uint
-	AddressID    uint
+	UserID       uint `gorm:"ForeignKey:UserID"`
+	ProductID    uint `gorm:"ForeignKey:ProductID"`
+	BossID		 uint `gorm:"ForeignKey:BossID"`
+	AddressID    uint `gorm:"ForeignKey:AddressID"`
 	Num          uint
 	OrderNum     uint64
 	Type         uint
 	Money 		 int
 }
-

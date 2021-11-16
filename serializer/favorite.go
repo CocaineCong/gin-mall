@@ -7,7 +7,7 @@ type Favorite struct {
 	ProductID     uint   `json:"product_id"`
 	CreatedAt     int64  `json:"create_at"`
 	Name          string `json:"name"`
-	CategoryID    int    `json:"category_id"`
+	CategoryID    uint    `json:"category_id"`
 	Title         string `json:"title"`
 	Info          string `json:"info"`
 	ImgPath       string `json:"img_path"`
