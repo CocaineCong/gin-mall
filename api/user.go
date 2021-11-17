@@ -53,24 +53,24 @@ func CheckToken(c *gin.Context) {
 
 //SendEmail 发送邮件接口
 func SendEmail(c *gin.Context) {
-	var sendEmailService service.SendEmailService
-	if err := c.ShouldBind(&sendEmailService); err == nil {
-		res := sendEmailService.Send()
-		c.JSON(200, res)
-	} else {
-		c.JSON(200, ErrorResponse(err))
-		logging.Info(err)
-	}
+	//var sendEmailService service.SendEmailService
+	//if err := c.ShouldBind(&sendEmailService); err == nil {
+	//	res := sendEmailService.Send()
+	//	c.JSON(200, res)
+	//} else {
+	//	c.JSON(200, ErrorResponse(err))
+	//	logging.Info(err)
+	//}
 }
 
 //ValidEmail  绑定和解绑邮箱接口
 func ValidEmail(c *gin.Context) {
-	var vaildEmailService service.VaildEmailService
-	if err := c.ShouldBind(&vaildEmailService); err == nil {
-		res := vaildEmailService.Vaild()
-		c.JSON(200, res)
-	} else {
-		c.JSON(200, ErrorResponse(err))
-		logging.Info(err)
-	}
+	//var vaildEmailService service.VaildEmailService
+	//if err := c.ShouldBind(&vaildEmailService); err == nil {
+	//	res := vaildEmailService.Vaild()
+	//	c.JSON(200, res)
+	//} else {
+	//	c.JSON(200, ErrorResponse(err))
+	//	logging.Info(err)
+	//}
 }

@@ -6,7 +6,8 @@ import "github.com/jinzhu/gorm"
 type Cart struct {
 	gorm.Model
 	UserID    uint
-	ProductID uint `gorm:"ForeignKey:ProductID"`
+	Product Product `gorm:"ForeignKey:ProductID"`
+	ProductID uint `gorm:"not null"`
 	BossID    uint
 	Num       uint
 	MaxNum    uint

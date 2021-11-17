@@ -16,19 +16,18 @@ func migration() {
 		AutoMigrate(&Order{}).
 		AutoMigrate(&Cart{}).
 		AutoMigrate(&Admin{}).
-		AutoMigrate(&Address{}).
-		AutoMigrate(&Notice{})
-	DB.Model(&Favorite{}).AddForeignKey("user_id","User(id)","CASCADE","CASCADE")
-	DB.Model(&Favorite{}).AddForeignKey("product_id","Product(id)","CASCADE","CASCADE")
-	DB.Model(&Cart{}).AddForeignKey("user_id","User(id)","CASCADE","CASCADE")
+		AutoMigrate(&Address{})
 	DB.Model(&Cart{}).AddForeignKey("product_id","Product(id)","CASCADE","CASCADE")
 	DB.Model(&Order{}).AddForeignKey("user_id","User(id)","CASCADE","CASCADE")
 	DB.Model(&Order{}).AddForeignKey("address_id","Address(id)","CASCADE","CASCADE")
-	DB.Model(&Order{}).AddForeignKey("address_id","Address(id)","CASCADE","CASCADE")
+	DB.Model(&Order{}).AddForeignKey("product_id","Product(id)","CASCADE","CASCADE")
+	DB.Model(&Order{}).AddForeignKey("boss_id","User(id)","CASCADE","CASCADE")
+	DB.Model(&Favorite{}).AddForeignKey("boss_id","User(id)","CASCADE","CASCADE")
+	DB.Model(&Favorite{}).AddForeignKey("user_id","User(id)","CASCADE","CASCADE")
+	DB.Model(&Favorite{}).AddForeignKey("product_id","Product(id)","CASCADE","CASCADE")
 	DB.Model(&Product{}).AddForeignKey("category_id","Category(id)","CASCADE","CASCADE")
 	DB.Model(&ProductImg{}).AddForeignKey("product_id","Product(id)","CASCADE","CASCADE")
 	DB.Model(&ProductInfoImg{}).AddForeignKey("product_id","Product(id)","CASCADE","CASCADE")
 	DB.Model(&ProductParamImg{}).AddForeignKey("product_id","Product(id)","CASCADE","CASCADE")
-	DB.Model(&Product{}).AddForeignKey("category_id","Category(id)","CASCADE","CASCADE")
 	DB.Model(&Address{}).AddForeignKey("user_id","User(id)","CASCADE","CASCADE")
 }
