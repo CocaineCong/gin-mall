@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"gopkg.in/ini.v1"
 	"mall/model"
+	util "mall/pkg/utils"
 	"strings"
 )
 
@@ -29,6 +30,8 @@ var (
 	SmtpHost string
 	SmtpEmail string
 	SmtpPass string
+
+	Encryption 		util.Encryption
 )
 
 func Init() {

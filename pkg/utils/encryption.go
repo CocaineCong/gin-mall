@@ -7,8 +7,8 @@ import (
 	"errors"
 )
 
-// AES 加密算法
 
+// AES 加密算法
 type Encryption struct {
 	key string
 }
@@ -29,7 +29,7 @@ func (k *Encryption) AesEncoding (src string) string {
 		return src
 	}
 	// 密码填充
-	NewSrcByte := PadPwd(srcByte, block.BlockSize())  //由于字节长度不够，所以要进行字节的填充
+	NewSrcByte := PadPwd(srcByte, block.BlockSize()) //由于字节长度不够，所以要进行字节的填充
 	dst := make([]byte, len(NewSrcByte))
 	block.Encrypt(dst, NewSrcByte)
 	// base64 编码
@@ -80,4 +80,3 @@ func (k *Encryption) AesDecoding (pwd string) string {
 func (k *Encryption) SetKey (key string) {
 	k.key = key
 }
-

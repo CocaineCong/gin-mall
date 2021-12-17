@@ -1,18 +1,10 @@
 package service
 
 import (
-	"bytes"
-	"crypto/md5"
-	"encoding/json"
-	"fmt"
 	logging "github.com/sirupsen/logrus"
-	"io/ioutil"
-	"mall/cache"
 	"mall/model"
 	"mall/pkg/e"
 	"mall/serializer"
-	"net/http"
-	"os"
 )
 
 
@@ -33,7 +25,7 @@ type OrderPay struct {
 }
 
 
-func (service *OrderPay) PayDowm() serializer.Response {
+func (service *OrderPay) PayDown() serializer.Response {
 	var order model.Order
 	code := e.SUCCESS
 	err := model.DB.Where("user_id=? AND product_id=?",service.BuyerID,service.ProductID).Find(&order).Error
