@@ -29,8 +29,7 @@ func NewRouter() *gin.Engine {
 		v1.GET("categories", api.ListCategories) //商品分类
 		v1.GET("carousels", api.ListCarousels)   //轮播图
 
-		// 支付功能
-		v1.POST("paydown", api.OrderPay)
+
 
 		//v1.POST("payments",api.InitPay)
 		authed := v1.Group("/") //需要登陆保护
@@ -73,10 +72,8 @@ func NewRouter() *gin.Engine {
 			authed.PUT("addresses/:id", api.UpdateAddress)
 			authed.DELETE("addresses/:id", api.DeleteAddress)
 
-			//		//支付功能
-			//		authed.POST("payments",api.InitPay)
-			//		authed.POST("OrderPayment",api.OrderPay)
-			//	}
+			// 支付功能
+			authed.POST("paydown", api.OrderPay)
 		}
 	}
 	return r
