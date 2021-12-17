@@ -22,7 +22,6 @@ func Database(connString string) {
 	db.DB().SetMaxIdleConns(20)  	//设置连接池，空闲
 	db.DB().SetMaxOpenConns(100) 	//打开
 	db.DB().SetConnMaxLifetime(time.Second * 30)
-	//db.Model(&Boss{}).AddForeignKey("ProductID", "Product(ProductID)", "RESTRICT", "RESTRICT")
 	DB = db
 	migration()
 }

@@ -1,6 +1,6 @@
 package serializer
 
-import "FanOneMall/model"
+import "mall/model"
 
 type Favorite struct {
 	UserID        uint   `json:"user_id"`

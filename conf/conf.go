@@ -1,10 +1,10 @@
 package conf
 
 import (
-	"FanOneMall/model"
 	logging "github.com/sirupsen/logrus"
 	"fmt"
 	"gopkg.in/ini.v1"
+	"mall/model"
 	"strings"
 )
 
@@ -24,6 +24,11 @@ var (
 	SerectKey      string
 	Bucket     	string
 	QiniuServer      string
+
+	ValidEmail string
+	SmtpHost string
+	SmtpEmail string
+	SmtpPass string
 )
 
 func Init() {
@@ -35,6 +40,7 @@ func Init() {
 	LoadServer(file)
 	LoadMysqlData(file)
 	LoadQiniu(file)
+	LoadEmail(file)
 	if err := LoadLocales("conf/locales/zh-cn.yaml"); err != nil {
 		logging.Info(err) //日志内容
 		panic(err)
@@ -61,9 +67,16 @@ func LoadMysqlData(file *ini.File) {
 }
 
 
-func LoadQiniu(file *ini.File) {
-	AccessKey = file.Section("qiniu").Key("AccessKey").String()
-	SerectKey = file.Section("qiniu").Key("SerectKey").String()
-	Bucket = file.Section("qiniu").Key("Bucket").String()
-	QiniuServer = file.Section("qiniu").Key("QiniuServer").String()
+	func LoadQiniu(file *ini.File) {
+		AccessKey = file.Section("qiniu").Key("AccessKey").String()
+		SerectKey = file.Section("qiniu").Key("SerectKey").String()
+		Bucket = file.Section("qiniu").Key("Bucket").String()
+		QiniuServer = file.Section("qiniu").Key("QiniuServer").String()
+	}
+
+func LoadEmail(file *ini.File) {
+	ValidEmail = file.Section("email").Key("ValidEmail").String()
+	SmtpHost= file.Section("email").Key("SmtpHost").String()
+	SmtpEmail= file.Section("email").Key("SmtpEmail").String()
+	SmtpPass= file.Section("email").Key("SmtpPass").String()
 }

@@ -1,14 +1,14 @@
 package service
 
 import (
-	"FanOneMall/cache"
-	"FanOneMall/model"
-	"FanOneMall/pkg/e"
-	"FanOneMall/serializer"
 	"fmt"
 	"github.com/go-redis/redis"
 	"github.com/jinzhu/gorm"
 	logging "github.com/sirupsen/logrus"
+	"mall/cache"
+	"mall/model"
+	"mall/pkg/e"
+	"mall/serializer"
 	"math/rand"
 	"strconv"
 	"time"
@@ -16,19 +16,18 @@ import (
 
 //Create
 type CreateOrderService struct {
-	UserID uint `form:"user_id" json:"user_id"`
-	ProductID uint `form:"product_id" json:"product_id"`
-	Num uint `form:"num" json:"num"`
-	AddressID uint `form:"num" json:"address_id"`
-	Money int `form:"money" json:"money"`
-	BossID uint `form:"user_id" json:"boss_id"`
+	ProductID 	uint `form:"product_id" json:"product_id"`
+	Num 		uint `form:"num" json:"num"`
+	AddressID 	uint `form:"address_id" json:"address_id"`
+	Money 		int  `form:"money" json:"money"`
+	BossID 		uint `form:"boss_id" json:"boss_id"`
 }
 
 //Search
 type ListOrdersService struct {
-	Limit int `form:"limit" json:"limit"`
-	Start int `form:"start" json:"start"`
-	Type int `form:"type" json:"type"`
+	PageNum     	int 	  `form:"pageNum"`
+	PageSize    	int 	  `form:"pageSize"`
+	Type 		 	int 	  `form:"type" json:"type"`
 }
 
 //Detail
@@ -37,19 +36,21 @@ type ShowOrderService struct {
 }
 
 type DeleteOrderService struct {
-	UserID    uint `form:"user_id" json:"user_id"`
-	ProductID uint `form:"product_id" json:"product_id"`
-	OrderNum uint `form:"order_num" json:"order_num"`
+	UserID    	uint `form:"user_id" json:"user_id"`
+	ProductID 	uint `form:"product_id" json:"product_id"`
+	OrderNum 	uint `form:"order_num" json:"order_num"`
 }
 
 
-func (service *CreateOrderService) Create() serializer.Response {
+func (service *CreateOrderService) Create(id uint) serializer.Response {
+	var product model.Product
+	model.DB.First(&product,service.ProductID)
 	order := model.Order{
-		UserID:    service.UserID,
+		UserID:    id,
 		ProductID: service.ProductID,
 		BossID:    service.BossID,
 		Num:       service.Num,
-		Money: 	   service.Money,
+		Money:     service.Money,
 		Type:      1,
 	}
 	address := model.Address{}
@@ -66,7 +67,7 @@ func (service *CreateOrderService) Create() serializer.Response {
 	order.AddressID = address.ID
 	number := fmt.Sprintf("%09v",rand.New(rand.NewSource(time.Now().UnixNano())).Int31n(1000000000))
 	productNum := strconv.Itoa(int(service.ProductID))
-	userNum := strconv.Itoa(int(service.UserID))
+	userNum := strconv.Itoa(int(id))
 	number = number+productNum+userNum
 	orderNum,err := strconv.ParseUint(number,10,64)
 	if err != nil {
@@ -102,15 +103,16 @@ func (service *CreateOrderService) Create() serializer.Response {
 }
 
 
-func (service *ListOrdersService) List(id string) serializer.Response{
+func (service *ListOrdersService) List(id uint) serializer.Response{
 	var orders []model.Order
 	total := 0
 	code := e.SUCCESS
-	if service.Limit == 0{
-		service.Limit =5
+	if service.PageSize == 0{
+		service.PageSize = 5
 	}
 	if service.Type == 0{
-		if err := model.DB.Model(&orders).Where("user_id=?",id).Count(&total).Error;err!=nil{
+		if err := model.DB.Model(&orders).Where("user_id=?",id).
+			Count(&total).Error;err!=nil{
 			logging.Info(err)
 			code = e.ErrorDatabase
 			return serializer.Response{
@@ -119,7 +121,8 @@ func (service *ListOrdersService) List(id string) serializer.Response{
 				Error:  err.Error(),
 			}
 		}
-		if err := model.DB.Where("user_id=?",id).Limit(service.Limit).Offset(service.Start).Order("created_at desc").Find(&orders).Error;err!=nil{
+		if err := model.DB.Where("user_id = ?",id).Offset((service.PageNum - 1) * service.PageSize).
+			Limit(service.PageSize).Order("created_at desc").Find(&orders).Error;err!=nil{
 			logging.Info(err)
 			code = e.ErrorDatabase
 			return serializer.Response{
@@ -129,7 +132,8 @@ func (service *ListOrdersService) List(id string) serializer.Response{
 			}
 		}
 	}else {
-		if err := model.DB.Model(&orders).Where("user_id=? AND type = ?" ,id,service.Type).Count(&total).Error;err!=nil{
+		if err := model.DB.Model(&orders).Where("user_id=? AND type = ?" ,id,service.Type).
+			Count(&total).Error;err!=nil{
 			logging.Info(err)
 			code = e.ErrorDatabase
 			return serializer.Response{
@@ -138,7 +142,9 @@ func (service *ListOrdersService) List(id string) serializer.Response{
 				Error:  err.Error(),
 			}
 		}
-		if err := model.DB.Where("user_id=? AND type=?",id,service.Type).Limit(service.Limit).Offset(service.Start).Order("created_at desc").Find(&orders).Error; err != nil {
+		if err := model.DB.Where("user_id=? AND type=?",id,service.Type).
+			Offset((service.PageNum - 1) * service.PageSize).
+			Limit(service.PageSize).Order("created_at desc").Find(&orders).Error; err != nil {
 				logging.Info(err)
 				code = e.ErrorDatabase
 				return serializer.Response{
@@ -152,14 +158,12 @@ func (service *ListOrdersService) List(id string) serializer.Response{
 }
 
 
-
-func (service *ShowOrderService) Show(num string) serializer.Response {
+func (service *ShowOrderService) Show(id string) serializer.Response {
 	var order model.Order
 	var product model.Product
 	var address model.Address
 	code := e.SUCCESS
-
-	if err := model.DB.Where("order_num=?",num).First(&order).Error;err!=nil{
+	if err := model.DB.Model(&model.Order{}).First(&order,id).Error;err!=nil{
 		logging.Info(err)
 		code = e.ErrorDatabase
 		return serializer.Response{
@@ -191,10 +195,10 @@ func (service *ShowOrderService) Show(num string) serializer.Response {
 	}
 }
 
-func (service *DeleteOrderService) Delete() serializer.Response {
+func (service *DeleteOrderService) Delete(id string) serializer.Response {
 	var order model.Order
 	code := e.SUCCESS
-	err := model.DB.Where("order_num=?", service.OrderNum).Find(&order).Error
+	err := model.DB.First(&order,id).Error
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase

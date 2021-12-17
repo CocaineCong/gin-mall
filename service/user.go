@@ -1,76 +1,73 @@
 package service
 
 import (
-	"FanOneMall/model"
-	"FanOneMall/pkg/e"
-	"FanOneMall/pkg/util"
-	"FanOneMall/serializer"
+	"fmt"
 	"github.com/jinzhu/gorm"
 	logging "github.com/sirupsen/logrus"
+	"gopkg.in/mail.v2"
+	"mall/conf"
+	"mall/model"
+	"mall/pkg/e"
+	util "mall/pkg/utils"
+	"mall/serializer"
 	"mime/multipart"
+	"strings"
+	"time"
 )
 
 //UserRegisterService 管理用户注册服务
 type UserRegisterService struct {
-	Nickname  string `form:"nickname" json:"nickname" binding:"required,min=2,max=10"`
+	NickName  string `form:"nick_name" json:"nick_name" binding:"required,min=2,max=10"`
 	UserName  string `form:"user_name" json:"user_name" binding:"required,min=5,max=15"`
 	Password  string `form:"password" json:"password" binding:"required,min=8,max=16"`
+}
+
+type UserLoginService struct {
+	UserName  string `form:"user_name" json:"user_name" binding:"required,min=5,max=15"`
+	Password  string `form:"password" json:"password" binding:"required,min=8,max=16"`
+}
+
+//用户修改信息的服务
+type UserUpdateService struct {
+	NickName string `form:"nick_name" json:"nick_name" binding:"required,min=5,max=10"`
 }
 
 type UploadAvatarService struct {
 }
 
-//valid 验证表单 验证用户是否存在
-func (service *UserRegisterService) Valid(userId, status interface{}) *serializer.Response {
-	var code int
-	count := 0
-	err := model.DB.Model(&model.User{}).Where("nickname=?", service.Nickname).Count(&count).Error
-	if err != nil {
-		code = e.ErrorDatabase
-		return &serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-		}
-	}
-	if count > 0 {
-		code = e.ErrorExistNick
-		return &serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-		}
-	}
-	count = 0
-	err = model.DB.Model(&model.User{}).Where("user_name=?", service.UserName).Count(&count).Error
-	if err != nil {
-		code = e.ErrorDatabase
-		return &serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-		}
-	}
-	if count > 0 {
-		code = e.ErrorExistUser
-		return &serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-		}
-	}
-	return nil
+type SendEmailService struct {
+	Email    string `form:"email" json:"email"`
+	Password string `form:"password" json:"password"`
+	//OpertionType 1:绑定邮箱 2：解绑邮箱 3：改密码
+	OperationType uint `form:"operation_type" json:"operation_type"`
 }
 
-//Register 用户注册
-func (service *UserRegisterService) Register() *serializer.Response {
-	user := model.User{
-		Nickname: service.Nickname,
+type VaildEmailService struct {
+}
+
+func (service UserRegisterService) Register() serializer.Response {
+	var user model.User
+	var count int
+	code := e.SUCCESS
+	model.DB.Model(&model.User{}).Where("user_name=?",service.UserName).Count(&count)
+	if count == 1 {
+		code = e.ErrorExistUser
+		return serializer.Response{
+			Status: code,
+			Msg:    e.GetMsg(code),
+		}
+	}
+	user = model.User{
+		Nickname: service.NickName,
 		UserName: service.UserName,
 		Status:   model.Active,
+		Money:    10000,
 	}
-	code := e.SUCCESS
 	//加密密码
 	if err := user.SetPassword(service.Password); err != nil {
 		logging.Info(err)
 		code = e.ErrorFailEncryption
-		return &serializer.Response{
+		return serializer.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
 		}
@@ -80,25 +77,20 @@ func (service *UserRegisterService) Register() *serializer.Response {
 	if err := model.DB.Create(&user).Error; err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
-		return &serializer.Response{
+		return serializer.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
 		}
 	}
-	return &serializer.Response{
+	return serializer.Response{
 		Status: code,
 		Msg:    e.GetMsg(code),
 	}
 }
 
-//UserLoginService 管理用户登陆的服务
-type UserLoginService struct {
-	UserName  string `form:"user_name" json:"user_name" binding:"required,min=5,max=15"`
-	Password  string `form:"password" json:"password" binding:"required,min=8,max=16"`
-}
 
 //Login 用户登陆函数
-func (service *UserLoginService) Login() serializer.Response {
+func (service UserLoginService) Login() serializer.Response {
 	var user model.User
 	code := e.SUCCESS
 	if err := model.DB.Where("user_name=?", service.UserName).First(&user).Error; err != nil {
@@ -125,7 +117,7 @@ func (service *UserLoginService) Login() serializer.Response {
 			Msg:    e.GetMsg(code),
 		}
 	}
-	token, err := util.GenerateToken(service.UserName, service.Password, 0)
+	token, err := util.GenerateToken(user.ID, service.UserName, 0)
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorAuthToken
@@ -141,20 +133,12 @@ func (service *UserLoginService) Login() serializer.Response {
 	}
 }
 
-//用户修改信息的服务
-type UserUpdateService struct {
-	ID       uint   `form:"id" json:"id"`
-	NickName string `form:"nickname" json:"nickname" binding:"required,min=2,max=10"`
-	UserName string `form:"user_name" json:"user_name" binding:"required,min=5,max=15"`
-	Avatar   string `form:"avatar" json:"avatar"`
-}
-
 //Update 用户修改信息
-func (service *UserUpdateService) Update() serializer.Response {
+func (service UserUpdateService) Update(id uint) serializer.Response {
 	var user model.User
 	code := e.SUCCESS
 	//找到用户
-	err := model.DB.First(&user, service.ID).Error
+	err := model.DB.First(&user, id).Error
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
@@ -164,10 +148,8 @@ func (service *UserUpdateService) Update() serializer.Response {
 			Error:  err.Error(),
 		}
 	}
-	user.Nickname = service.NickName
-	user.UserName = service.UserName
-	if service.Avatar != "" {
-		user.Avatar = service.Avatar
+	if service.NickName != "" {
+		user.Nickname = service.NickName
 	}
 	err = model.DB.Save(&user).Error
 	if err != nil {
@@ -179,6 +161,7 @@ func (service *UserUpdateService) Update() serializer.Response {
 			Error:  err.Error(),
 		}
 	}
+
 	return serializer.Response{
 		Status: code,
 		Data:   serializer.BuildUser(user),
@@ -186,23 +169,173 @@ func (service *UserUpdateService) Update() serializer.Response {
 	}
 }
 
-func (service *UploadAvatarService) Post(id string, file multipart.File,fileSize int64) serializer.Response {
+
+func (service *UploadAvatarService) Post(id uint, file multipart.File,fileSize int64) serializer.Response {
 	var user model.User
 	code := e.SUCCESS
-	status , info := util.UploadToQiNiu(file,fileSize)
+	status, info := util.UploadToQiNiu(file, fileSize)
 	if status != 200 {
 		return serializer.Response{
-			Status:  status  ,
-			Data:      e.GetMsg(status),
-			Error:info,
+			Status: status,
+			Data:   e.GetMsg(status),
+			Error:  info,
 		}
 	}
-	model.DB.Where("id=?",id).First(&user)
+	model.DB.Where("id=?", id).First(&user)
 	user.Avatar = info
 	model.DB.Save(&user)
 	return serializer.Response{
 		Status: code,
 		Data:   serializer.BuildUser(user),
 		Msg:    e.GetMsg(code),
+	}
+}
+
+// Send 发送邮件
+func (service *SendEmailService) Send(id uint) serializer.Response {
+	code := e.SUCCESS
+	var address string
+	var notice model.Notice
+	token, err := util.GenerateEmailToken(id, service.OperationType, service.Email, service.Password)
+	if err != nil {
+		logging.Info(err)
+		code = e.ErrorAuthToken
+		return serializer.Response{
+			Status: code,
+			Msg:    e.GetMsg(code),
+		}
+	}
+	//数据库里 对应邮件id = operation_type+1
+	if err := model.DB.First(&notice, service.OperationType+1).Error; err != nil {
+		logging.Info(err)
+		code = e.ErrorDatabase
+		return serializer.Response{
+			Status: code,
+			Msg:    e.GetMsg(code),
+			Error:  err.Error(),
+		}
+	}
+	address = conf.ValidEmail + token
+	fmt.Println(address)
+	mailStr := notice.Text
+	mailText := strings.Replace(mailStr, "VaildAddress", address, -1)
+	fmt.Println(mailText)
+	m := mail.NewMessage()
+	m.SetHeader("From", conf.SmtpEmail)
+	m.SetHeader("To", service.Email)
+	m.SetHeader("Subject", "FanOne")
+	m.SetBody("text/html", mailText)
+	d := mail.NewDialer(conf.SmtpHost, 465, conf.SmtpEmail, conf.SmtpPass)
+	d.StartTLSPolicy = mail.MandatoryStartTLS
+	if err := d.DialAndSend(m); err != nil {
+		logging.Info(err)
+		code = e.ErrorSendEmail
+		return serializer.Response{
+			Status: code,
+			Msg:    e.GetMsg(code),
+		}
+	}
+	return serializer.Response{
+		Status: code,
+		Msg:    e.GetMsg(code),
+	}
+}
+
+//验证内容
+func (service VaildEmailService) Valid(token string) serializer.Response {
+	var userID uint
+	var email string
+	var password string
+	var operationType uint
+	code := e.SUCCESS
+	//验证token
+	if token == "" {
+		code = e.InvalidParams
+	} else {
+		claims, err := util.ParseEmailToken(token)
+		if err != nil {
+			logging.Info(err)
+			code = e.ErrorAuthCheckTokenFail
+		} else if time.Now().Unix() > claims.ExpiresAt {
+			code = e.ErrorAuthCheckTokenTimeout
+		} else {
+			userID = claims.UserID
+			email = claims.Email
+			password = claims.Password
+			operationType = claims.OperationType
+		}
+	}
+
+	if code != e.SUCCESS {
+		return serializer.Response{
+			Status: code,
+			Msg:    e.GetMsg(code),
+		}
+	}
+
+	if operationType == 1 {
+		//1:绑定邮箱
+		if err := model.DB.Table("user").Where("id=?", userID).Update("email", email).Error; err != nil {
+			logging.Info(err)
+			code = e.ErrorDatabase
+			return serializer.Response{
+				Status: code,
+				Msg:    e.GetMsg(code),
+				Error:  err.Error(),
+			}
+		}
+	} else if operationType == 2 {
+		//2：解绑邮箱
+		if err := model.DB.Table("user").Where("id=?", userID).Update("email", "").Error; err != nil {
+			logging.Info(err)
+			code = e.ErrorDatabase
+			return serializer.Response{
+				Status: code,
+				Msg:    e.GetMsg(code),
+				Error:  err.Error(),
+			}
+		}
+	}
+	//获取该用户信息
+	var user model.User
+	if err := model.DB.First(&user, userID).Error; err != nil {
+		logging.Info(err)
+		code = e.ErrorDatabase
+		return serializer.Response{
+			Status: code,
+			Msg:    e.GetMsg(code),
+		}
+	}
+	//3：修改密码
+	if operationType == 3 {
+		// 加密密码
+		if err := user.SetPassword(password); err != nil {
+			logging.Info(err)
+			code = e.ErrorFailEncryption
+			return serializer.Response{
+				Status: code,
+				Msg:    e.GetMsg(code),
+			}
+		}
+		if err := model.DB.Save(&user).Error; err != nil {
+			logging.Info(err)
+			code = e.ErrorDatabase
+			return serializer.Response{
+				Status: code,
+				Msg:    e.GetMsg(code),
+			}
+		}
+		code = e.UpdatePasswordSuccess
+		//返回修改密码成功信息
+		return serializer.Response{
+			Status: code,
+			Msg:    e.GetMsg(code),
+		}
+	}
+	//返回用户信息
+	return serializer.Response{
+		Status: code,
+		Msg:    e.GetMsg(code),
+		Data:   serializer.BuildUser(user),
 	}
 }

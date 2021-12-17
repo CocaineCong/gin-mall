@@ -1,6 +1,6 @@
 package serializer
 
-import "FanOneMall/model"
+import "mall/model"
 
 type User struct {
 	ID       uint   `json:"id"`
@@ -10,7 +10,7 @@ type User struct {
 	Email    string `json:"email"`
 	Status   string `json:"status"`
 	Avatar   string `json:"avatar"`
-	Monery   int `json:"monery"`
+	Monery   int 	`json:"monery"`
 	CreateAt int64  `json:"create_at"`
 }
 

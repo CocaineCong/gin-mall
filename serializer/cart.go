@@ -1,7 +1,7 @@
 package serializer
 
 import (
-	"FanOneMall/model"
+	"mall/model"
 )
 
 //购物车

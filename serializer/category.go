@@ -1,15 +1,13 @@
 package serializer
 
-import "FanOneMall/model"
+import "mall/model"
 
-//分类序列化器
 type Category struct {
 	ID           uint   `json:"id"`
 	CategoryName string `json:"category_name"`
 	CreateAt     int64  `json:"create_at"`
 }
 
-//序列化分类
 func BuildCategory(item model.Category) Category {
 	return Category{
 		ID:           item.ID,
@@ -18,7 +16,6 @@ func BuildCategory(item model.Category) Category {
 	}
 }
 
-//序列化分类列表
 func BuildCategories(items []model.Category) (categories []Category) {
 	for _, item := range items {
 		category := BuildCategory(item)
@@ -26,3 +23,4 @@ func BuildCategories(items []model.Category) (categories []Category) {
 	}
 	return categories
 }
+

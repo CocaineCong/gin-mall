@@ -1,6 +1,6 @@
 package serializer
 
-import "FanOneMall/model"
+import "mall/model"
 
 type Address struct {
 	ID       uint   `json:"id"`

@@ -1,15 +1,14 @@
 package service
 
 import (
-	"FanOneMall/model"
-	"FanOneMall/pkg/e"
-	"FanOneMall/serializer"
 	logging "github.com/sirupsen/logrus"
+	"mall/model"
+	"mall/pkg/e"
+	"mall/serializer"
+	"strconv"
 )
 
-//收货地址
 type CreateAddressService struct {
-	UserID  uint   `form:"user_id" json:"user_id"`
 	Name    string `form:"name" json:"name"`
 	Phone   string `form:"phone" json:"phone"`
 	Address string `form:"address" json:"address"`
@@ -17,22 +16,18 @@ type CreateAddressService struct {
 type ShowAddressService struct {
 }
 type UpdateAddressService struct {
-	ID      uint   `form:"id" json:"id"`
-	UserID  uint   `form:"user_id" json:"user_id"`
 	Name    string `form:"name" json:"name"`
 	Phone   string `form:"phone" json:"phone"`
 	Address string `form:"address" json:"address"`
 }
 type DeleteAddressService struct {
-	AddressID uint `form:"address_id" json:"address_id"`
 }
 
-//创建购物车
-func (service *CreateAddressService) Create() serializer.Response {
+func (service *CreateAddressService) Create(id uint) serializer.Response {
 	var address model.Address
 	code := e.SUCCESS
 	address = model.Address{
-		UserID:  service.UserID,
+		UserID:  id,
 		Name:    service.Name,
 		Phone:   service.Phone,
 		Address: service.Address,
@@ -48,7 +43,7 @@ func (service *CreateAddressService) Create() serializer.Response {
 		}
 	}
 	var addresses []model.Address
-	err = model.DB.Where("user_id=?", service.UserID).Order("created_at desc").Find(&addresses).Error
+	err = model.DB.Model(model.Address{}).Where("user_id = ?", id).Order("created_at desc").Find(&addresses).Error
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
@@ -65,11 +60,10 @@ func (service *CreateAddressService) Create() serializer.Response {
 	}
 }
 
-//订单
 func (service *ShowAddressService) Show(id string) serializer.Response {
 	var addresses []model.Address
 	code := e.SUCCESS
-	err := model.DB.Where("user_id=?", id).Order("created_at desc").Find(&addresses).Error
+	err := model.DB.Where("user_id = ?", id).Order("created_at desc").Find(&addresses).Error
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
@@ -86,10 +80,10 @@ func (service *ShowAddressService) Show(id string) serializer.Response {
 	}
 }
 
-func (service *DeleteAddressService) Delete() serializer.Response {
+func (service *DeleteAddressService) Delete(id string) serializer.Response {
 	var address model.Address
 	code := e.SUCCESS
-	err := model.DB.Where("id=?", service.AddressID).Find(&address).Error
+	err := model.DB.Where("id = ?", id).First(&address).Error
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
@@ -115,15 +109,16 @@ func (service *DeleteAddressService) Delete() serializer.Response {
 	}
 }
 
-func (service *UpdateAddressService) Update() serializer.Response {
+func (service *UpdateAddressService) Update(uid uint,aid string) serializer.Response {
+	code := e.SUCCESS
 	address := model.Address{
-		UserID:  service.UserID,
+		UserID:  uid,
 		Name:    service.Name,
 		Phone:   service.Phone,
 		Address: service.Address,
 	}
-	address.ID = service.ID
-	code := e.SUCCESS
+	aidInt,_ := strconv.Atoi(aid)
+	address.ID = uint(aidInt)
 	err := model.DB.Save(&address).Error
 	if err != nil {
 		logging.Info(err)
@@ -135,7 +130,8 @@ func (service *UpdateAddressService) Update() serializer.Response {
 		}
 	}
 	var addresses []model.Address
-	err = model.DB.Where("user_id=？", service.UserID).Order("created_at desc").Find(&addresses).Error
+	err = model.DB.Model(model.Address{}).Where("user_id = ?", uid).
+		Order("created_at desc").Find(&addresses).Error
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase

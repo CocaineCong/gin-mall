@@ -16,4 +16,5 @@ conf/config.ini
 # vendor/
 conf/config.ini
 go.sum
+ci
 main

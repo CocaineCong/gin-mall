@@ -7,16 +7,12 @@ import (
 //Order 订单信息
 type Order struct {
 	gorm.Model
-	User 		 User 	 	`gorm:"ForeignKey:UserID"`
-	UserID       uint 		`gorm:"not null"`
-	Product    	 Product 	`gorm:"ForeignKey:ProductID"`
-	ProductID    uint 		`gorm:"not null"`
-	Boss		 User 		`gorm:"ForeignKey:BossID"`
-	BossID		 uint 		`gorm:"not null"`
-	Address 	 Address 	`gorm:"ForeignKey:AddressID"`
-	AddressID    uint 		`gorm:"not null"`
-	Num          uint
-	OrderNum     uint64
-	Type         uint
-	Money 		 int
+	UserID    uint `gorm:"not null"`
+	ProductID uint `gorm:"not null"`
+	BossID    uint `gorm:"not null"`
+	AddressID uint `gorm:"not null"`
+	Num       uint   // 数量
+	OrderNum  uint64 // 订单号
+	Type      uint  // 1 未支付  2 已支付
+	Money     int
 }

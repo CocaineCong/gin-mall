@@ -1,38 +1,35 @@
 package service
 
 import (
-	"FanOneMall/model"
-	"FanOneMall/pkg/e"
-	"FanOneMall/serializer"
 	logging "github.com/sirupsen/logrus"
+	"mall/model"
+	"mall/pkg/e"
+	"mall/serializer"
 )
 
 type ShowFavoritesService struct {
-	Limit int `form:"limit"`
-	Start int `form:"start"`
+	PageNum     	int 	  `form:"pageNum"`
+	PageSize    	int 	  `form:"pageSize"`
 }
 
 type CreateFavoritesService struct {
-	UserID    uint `form:"user_id" json:"user_id"`
 	ProductID uint `form:"product_id" json:"product_id"`
-	BossID    uint `form:"boss_id" json:"boss_id"`
+	BossID    uint ` form:"boss_id" json:"boss_id"`
 }
 
 type DeleteFavoriteService struct {
-	UserID    uint `form:"user_id" json:"user_id"`
-	ProductID uint `form:"product_id" json:"product_id"`
-	BossID    uint `form:"boss_id" json:"boss_id"`
 }
 
 //商品收藏夹
-func (service *ShowFavoritesService) Show(id string) serializer.Response {
+func (service *ShowFavoritesService) Show(id uint) serializer.Response {
 	var favorites []model.Favorite
 	total := 0
 	code := e.SUCCESS
-	if service.Limit == 0 {
-		service.Limit = 12
+	if service.PageSize == 0 {
+		service.PageSize = 15
 	}
-	if err := model.DB.Model(&favorites).Where("user_id=?", id).Count(&total).Error; err != nil {
+	if err := model.DB.Model(&favorites).Preload("User").
+		Where("user_id=?", id).Count(&total).Error; err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
 		return serializer.Response{
@@ -41,7 +38,9 @@ func (service *ShowFavoritesService) Show(id string) serializer.Response {
 			Error:  err.Error(),
 		}
 	}
-	err := model.DB.Where("user_id=?", id).Limit(service.Limit).Offset(&service.Start).Find(&favorites).Error
+	err := model.DB.Model(model.User{}).Preload("User").Where("user_id=?", id).
+		Offset((service.PageNum - 1) * service.PageSize).
+		Limit(service.PageSize).Find(&favorites).Error
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
@@ -55,15 +54,24 @@ func (service *ShowFavoritesService) Show(id string) serializer.Response {
 }
 
 //创建收藏夹
-func (service *CreateFavoritesService) Create() serializer.Response {
+func (service *CreateFavoritesService) Create(id uint) serializer.Response {
 	var favorite model.Favorite
+	var user model.User
+	var boss model.User
+	var product model.Product
 	code := e.SUCCESS
-	model.DB.Where("user_id=? AND product_id=?", service.UserID, service.ProductID).Find(&favorite)
+	model.DB.Where("user_id=? AND product_id=?",id, service.ProductID).Find(&favorite)
+	model.DB.Model(model.User{}).First(&user,id)
+	model.DB.Model(model.User{}).First(&boss,service.BossID)
+	model.DB.Model(model.Product{}).First(&product,service.ProductID)
 	if favorite == (model.Favorite{}) {
 		favorite = model.Favorite{
-			UserID:    service.UserID,
-			ProductID: service.ProductID,
-			BossID:    service.BossID,
+			UserID:     id,
+			User:		user,
+			ProductID:  service.ProductID,
+			Product:	product,
+			BossID:     service.BossID,
+			Boss:		boss,
 		}
 		if err := model.DB.Create(&favorite).Error; err != nil {
 			logging.Info(err)
@@ -88,10 +96,10 @@ func (service *CreateFavoritesService) Create() serializer.Response {
 }
 
 //删除收藏夹
-func (service *DeleteFavoriteService) Delete() serializer.Response {
+func (service *DeleteFavoriteService) Delete(uid uint,pid string) serializer.Response {
 	var favorite model.Favorite
 	code := e.SUCCESS
-	err := model.DB.Where("user_id=? AND product_id=?", service.UserID, service.ProductID).Find(&favorite).Error
+	err := model.DB.Where("user_id=? AND product_id=?", uid, pid).Find(&favorite).Error
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase

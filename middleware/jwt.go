@@ -1,9 +1,9 @@
 package middleware
 
 import (
-	"FanOneMall/pkg/e"
-	"FanOneMall/pkg/util"
 	"github.com/gin-gonic/gin"
+	"mall/pkg/e"
+	"mall/pkg/utils"
 	"time"
 )
 

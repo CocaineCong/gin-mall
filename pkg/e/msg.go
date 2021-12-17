@@ -17,12 +17,12 @@ var MsgFlags = map[int]string{
 	ErrorNotExistAddress:    "该收获地址不存在",
 	ErrorExistFavorite:      "已收藏该商品",
 
-	ERROR_BOSS_CHECK_TOKEN_FAIL:       "商家的Token鉴权失败",
-	ERROR_BOSS_CHECK_TOKEN_TIMEOUT:    "商家TOken已超时",
-	ERROR_BOSS_TOKEN:                  "商家的Token生成失败",
-	ERROR_BOSS:                        "商家Token错误",
-	ERROR_BOSS_INSUFFICIENT_AUTHORITY: "商家权限不足",
-	ERROR_BOSS_PRODUCT:                "商家读文件错误",
+	ErrorBossCheckTokenFail:        "商家的Token鉴权失败",
+	ErrorBossCheckTokenTimeout:     "商家TOken已超时",
+	ErrorBossToken:                 "商家的Token生成失败",
+	ErrorBoss:                      "商家Token错误",
+	ErrorBossInsufficientAuthority: "商家权限不足",
+	ErrorBossProduct:               "商家读文件错误",
 
 	ErrorAuthCheckTokenFail:        "Token鉴权失败",
 	ErrorAuthCheckTokenTimeout:     "TOken已超时",

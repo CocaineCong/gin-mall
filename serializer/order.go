@@ -1,16 +1,16 @@
 package serializer
 
-import "FanOneMall/model"
+import "mall/model"
 
 type Order struct {
-	ID uint `json:"id"`
-	OrderNum uint64 `json:"order_num"`
-	CreatedAt int64 `json:"created_at"`
-	UpdatedAt int64 `json:"updated_at"`
-	UserID uint `json:"user_id"`
-	ProductID uint `json:"product_id"`
-	BossID uint `json:"boss_id"`
-	Num uint `json:"num"`
+	ID 			uint `json:"id"`
+	OrderNum 	uint64 `json:"order_num"`
+	CreatedAt 	int64 `json:"created_at"`
+	UpdatedAt 	int64 `json:"updated_at"`
+	UserID 		uint `json:"user_id"`
+	ProductID 	uint `json:"product_id"`
+	BossID 		uint `json:"boss_id"`
+	Num 		uint `json:"num"`
 	AddressName string `json:"address_name"`
 	AddressPhone string `json:"address_phone"`
 	Address string `json:"address"`

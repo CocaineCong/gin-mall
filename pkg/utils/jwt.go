@@ -2,30 +2,29 @@ package util
 
 import (
 	"github.com/dgrijalva/jwt-go"
-	"os"
 	"time"
 )
 
-var jwtSecret = []byte(os.Getenv("JWT_SECRET"))
+var jwtSecret = []byte("FanOne")
 
 type Claims struct {
+	ID 		  uint 	`json:"id"`
 	Username  string `json:"username"`
-	Password  string `json:"password"`
 	Authority int    `json:"authority"`
 	jwt.StandardClaims
 }
 
 //GenerateToken 签发用户Token
-func GenerateToken(username, password string, authority int) (string, error) {
+func GenerateToken(id uint, username string, authority int) (string, error) {
 	nowTime := time.Now()
 	expireTime := nowTime.Add(24 * time.Hour)
 	claims := Claims{
+		ID:id,
 		Username:  username,
-		Password:  password,
 		Authority: authority,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expireTime.Unix(),
-			Issuer:    "cmall",
+			Issuer:    "mall",
 		},
 	}
 	tokenClaims := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

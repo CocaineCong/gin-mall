@@ -1,17 +1,15 @@
 package service
 
 import (
-	"FanOneMall/model"
-	"FanOneMall/pkg/e"
 	logging "github.com/sirupsen/logrus"
-	"FanOneMall/serializer"
-	"fmt"
+	"mall/model"
+	"mall/pkg/e"
+	"mall/serializer"
+	"strconv"
 )
 
 //创建购物车
 type CreateCartService struct {
-	UserID    uint `form:"user_id" json:"user_id"`
-	ProductID uint `form:"product_id" json:"product_id"`
 	BossID    uint `form:"boss_id" json:"boss_id"`
 }
 
@@ -21,21 +19,17 @@ type ShowCartsService struct {
 
 //购物车修改
 type UpdateCartService struct {
-	UserID    uint `form:"user_id" json:"user_id"`
-	ProductID uint `form:"product_id" json:"product_id"`
 	Num       uint `form:"num" json:"num"`
 }
 
 //删除购物车的服务
 type DeleteCartService struct {
-	UserID    uint `form:"user_id" json:"user_id"`
-	ProductID uint `form:"product_id" json:"product_id"`
 }
 
-func (service *CreateCartService) Create() serializer.Response {
+func (service *CreateCartService) Create(id string,uid uint) serializer.Response {
 	var product model.Product
 	code := e.SUCCESS
-	err := model.DB.First(&product, service.ProductID).Error
+	err := model.DB.First(&product, id).Error
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
@@ -54,13 +48,14 @@ func (service *CreateCartService) Create() serializer.Response {
 			Error:  err.Error(),
 		}
 	}
+	idInt ,_ := strconv.Atoi(id)
 	var cart model.Cart
-	model.DB.Where("user_id=? AND product_id=? AND boss_id=?", service.UserID, service.ProductID, service.BossID).Find(&cart)
+	model.DB.Where("user_id=? AND product_id=? AND boss_id=?", uid,id, product.BossID).Find(&cart)
 	if cart == (model.Cart{}) {
 		cart = model.Cart{
-			UserID:    service.UserID,
-			ProductID: service.ProductID,
-			BossID:    service.BossID,
+			UserID:    uid,
+			ProductID: uint(idInt),
+			BossID:    uint(product.BossID),
 			Num:       1,
 			MaxNum:    10,
 			Check:     false,
@@ -75,8 +70,6 @@ func (service *CreateCartService) Create() serializer.Response {
 				Error:  err.Error(),
 			}
 		}
-		fmt.Println("TEST")
-		fmt.Println(serializer.BuildCart(cart, product, service.BossID))
 		return serializer.Response{
 			Status: code,
 			Data:   serializer.BuildCart(cart, product, service.BossID),
@@ -128,10 +121,10 @@ func (service *ShowCartsService) Show(id string) serializer.Response {
 }
 
 //修改购物车信息
-func (service *UpdateCartService) Update() serializer.Response {
+func (service *UpdateCartService) Update(id string) serializer.Response {
 	var cart model.Cart
 	code := e.SUCCESS
-	err := model.DB.Where("user_id=? AND product_id=?", service.UserID, service.ProductID).Find(&cart).Error
+	err := model.DB.Where("id=?",id).Find(&cart).Error
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
@@ -159,10 +152,10 @@ func (service *UpdateCartService) Update() serializer.Response {
 }
 
 //删除购物车
-func (service *DeleteCartService) Delete() serializer.Response {
+func (service *DeleteCartService) Delete(pid string,uid uint) serializer.Response {
 	var cart model.Cart
 	code := e.SUCCESS
-	err := model.DB.Where("user_id=? AND product_id=?", service.UserID, service.ProductID).Error
+	err := model.DB.Where("user_id=? AND product_id=?", uid, pid).Error
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase

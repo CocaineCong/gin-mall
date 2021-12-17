@@ -1,6 +1,6 @@
 package serializer
 
-import "FanOneMall/model"
+import "mall/model"
 
 type Carousel struct {
 	ID        uint   `json:"id"`

@@ -1,15 +1,15 @@
 package util
 
 import (
-	"FanOneMall/conf"
-	"FanOneMall/pkg/e"
 	"context"
 	"github.com/qiniu/go-sdk/v7/auth/qbox"
 	"github.com/qiniu/go-sdk/v7/storage"
+	"mall/conf"
+	"mall/pkg/e"
 	"mime/multipart"
 )
 
-// 封装上传图片到七牛云然后返回状态和图片的url
+// 封装上传图片到七牛云然后返回状态和图片的url，单张
 func UploadToQiNiu(file multipart.File ,fileSize int64) (int,string) {
 	var AccessKey = conf.AccessKey
 	var SerectKey = conf.SerectKey

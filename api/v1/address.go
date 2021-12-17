@@ -1,19 +1,21 @@
-package api
+package v1
 
 import (
-	service2 "FanOneMall/service"
 	"github.com/gin-gonic/gin"
 	logging "github.com/sirupsen/logrus"
+	util "mall/pkg/utils"
+	service2 "mall/service"
 )
 
 //新增收货地址
 func CreateAddress(c *gin.Context) {
 	service := service2.CreateAddressService{}
+	claim ,_ := util.ParseToken(c.GetHeader("Authorization"))
 	if err := c.ShouldBind(&service); err == nil {
-		res := service.Create()
+		res := service.Create(claim.ID)
 		c.JSON(200, res)
 	} else {
-		c.JSON(200, ErrorResponse(err))
+		c.JSON(400, ErrorResponse(err))
 		logging.Info(err)
 	}
 }
@@ -28,11 +30,12 @@ func ShowAddresses(c *gin.Context) {
 //修改收货地址
 func UpdateAddress(c *gin.Context) {
 	service := service2.UpdateAddressService{}
+	claim ,_ := util.ParseToken(c.GetHeader("Authorization"))
 	if err := c.ShouldBind(&service); err == nil {
-		res := service.Update()
+		res := service.Update(claim.ID,c.Param("id"))
 		c.JSON(200, res)
 	} else {
-		c.JSON(200, ErrorResponse(err))
+		c.JSON(400, ErrorResponse(err))
 		logging.Info(err)
 	}
 }
@@ -41,10 +44,10 @@ func UpdateAddress(c *gin.Context) {
 func DeleteAddress(c *gin.Context) {
 	service := service2.DeleteAddressService{}
 	if err := c.ShouldBind(&service); err == nil {
-		res := service.Delete()
+		res := service.Delete(c.Param("id"))
 		c.JSON(200, res)
 	} else {
-		c.JSON(200, ErrorResponse(err))
+		c.JSON(400, ErrorResponse(err))
 		logging.Info(err)
 	}
 }

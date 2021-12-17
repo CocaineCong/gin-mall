@@ -19,12 +19,12 @@ const (
 	ErrorExistFavorite      = 10009
 
 	//店家错误
-	ERROR_BOSS_CHECK_TOKEN_FAIL       = 20001
-	ERROR_BOSS_CHECK_TOKEN_TIMEOUT    = 20002
-	ERROR_BOSS_TOKEN                  = 20003
-	ERROR_BOSS                        = 20004
-	ERROR_BOSS_INSUFFICIENT_AUTHORITY = 20005
-	ERROR_BOSS_PRODUCT                = 20006
+	ErrorBossCheckTokenFail        = 20001
+	ErrorBossCheckTokenTimeout     = 20002
+	ErrorBossToken                 = 20003
+	ErrorBoss                      = 20004
+	ErrorBossInsufficientAuthority = 20005
+	ErrorBossProduct               = 20006
 
 	//管理员错误
 	ErrorAuthCheckTokenFail        = 30001 //token 错误
