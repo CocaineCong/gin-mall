@@ -17,9 +17,10 @@ import (
 
 //UserRegisterService 管理用户注册服务
 type UserRegisterService struct {
-	NickName  string `form:"nick_name" json:"nick_name" binding:"required,min=2,max=10"`
-	UserName  string `form:"user_name" json:"user_name" binding:"required,min=5,max=15"`
-	Password  string `form:"password" json:"password" binding:"required,min=8,max=16"`
+	NickName string `form:"nick_name" json:"nick_name" binding:"required,min=2,max=10"`
+	UserName string `form:"user_name" json:"user_name" binding:"required,min=5,max=15"`
+	Password string `form:"password" json:"password" binding:"required,min=8,max=16"`
+	Key      string `form:"key" json:"key" binding:"required"`
 }
 
 type UserLoginService struct {
@@ -42,13 +43,22 @@ type SendEmailService struct {
 	OperationType uint `form:"operation_type" json:"operation_type"`
 }
 
-type VaildEmailService struct {
+type ValidEmailService struct {
 }
 
 func (service UserRegisterService) Register() serializer.Response {
 	var user model.User
 	var count int
 	code := e.SUCCESS
+	if service.Key=="" || len(service.Key)!=16 {
+		code = e.ERROR
+		return serializer.Response{
+			Status: code,
+			Msg:    e.GetMsg(code),
+			Data:   "密钥长度不足",
+		}
+	}
+	conf.Encryption.SetKey(service.Key)
 	model.DB.Model(&model.User{}).Where("user_name=?",service.UserName).Count(&count)
 	if count == 1 {
 		code = e.ErrorExistUser
@@ -61,7 +71,7 @@ func (service UserRegisterService) Register() serializer.Response {
 		Nickname: service.NickName,
 		UserName: service.UserName,
 		Status:   model.Active,
-		Money:    10000,
+		Money:    conf.Encryption.AesDecoding("10000"),
 	}
 	//加密密码
 	if err := user.SetPassword(service.Password); err != nil {
@@ -173,7 +183,7 @@ func (service UserUpdateService) Update(id uint) serializer.Response {
 func (service *UploadAvatarService) Post(id uint, file multipart.File,fileSize int64) serializer.Response {
 	var user model.User
 	code := e.SUCCESS
-	status, info := util.UploadToQiNiu(file, fileSize)
+	status, info := UploadToQiNiu(file, fileSize)
 	if status != 200 {
 		return serializer.Response{
 			Status: status,
@@ -242,7 +252,7 @@ func (service *SendEmailService) Send(id uint) serializer.Response {
 }
 
 //验证内容
-func (service VaildEmailService) Valid(token string) serializer.Response {
+func (service ValidEmailService) Valid(token string) serializer.Response {
 	var userID uint
 	var email string
 	var password string

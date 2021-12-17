@@ -52,7 +52,7 @@ func (service *OrderPay) PayDown() serializer.Response {
 			Error:  err.Error(),
 		}
 	}
-	user.Money =user.Money -money
+	//user.Money =user.Money -money
 	err = model.DB.Save(&user).Error
 	if err != nil {
 		logging.Info(err)
@@ -65,7 +65,7 @@ func (service *OrderPay) PayDown() serializer.Response {
 	}
 	var userboss model.User
 	err = model.DB.First(&userboss, service.BossID).Error
-	userboss.Money += money
+	//userboss.Money += money
 	err = model.DB.Save(&userboss).Error
 	if err != nil {
 		logging.Info(err)

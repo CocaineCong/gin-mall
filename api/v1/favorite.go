@@ -15,7 +15,7 @@ func CreateFavorite(c *gin.Context) {
 		res := service.Create(claim.ID)
 		c.JSON(200, res)
 	} else {
-		c.JSON(200, ErrorResponse(err))
+		c.JSON(400, ErrorResponse(err))
 		logging.Info(err)
 	}
 }
@@ -28,7 +28,7 @@ func ShowFavorites(c *gin.Context) {
 		res := service.Show(claim.ID)
 		c.JSON(200, res)
 	} else {
-		c.JSON(200, ErrorResponse(err))
+		c.JSON(400, ErrorResponse(err))
 		logging.Info(err)
 	}
 }
@@ -40,7 +40,7 @@ func DeleteFavorite(c *gin.Context) {
 		res := service.Delete(claim.ID,c.Param("id"))
 		c.JSON(200, res)
 	} else {
-		c.JSON(200, ErrorResponse(err))
+		c.JSON(400, ErrorResponse(err))
 		logging.Info(err)
 	}
 }

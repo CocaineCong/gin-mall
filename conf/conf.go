@@ -1,11 +1,11 @@
 package conf
 
 import (
-	logging "github.com/sirupsen/logrus"
 	"fmt"
+	logging "github.com/sirupsen/logrus"
 	"gopkg.in/ini.v1"
 	"mall/model"
-	util "mall/pkg/utils"
+	"mall/pkg/utils"
 	"strings"
 )
 
@@ -21,17 +21,17 @@ var (
 	DbPassWord 			string
 	DbName     			string
 
-	AccessKey      string
-	SerectKey      string
-	Bucket     	string
-	QiniuServer      string
+	AccessKey      		string
+	SerectKey      		string
+	Bucket     			string
+	QiniuServer      	string
 
-	ValidEmail string
-	SmtpHost string
-	SmtpEmail string
-	SmtpPass string
+	ValidEmail 			string
+	SmtpHost 			string
+	SmtpEmail 			string
+	SmtpPass 			string
 
-	Encryption 		util.Encryption
+	Encryption 			util.Encryption
 )
 
 func Init() {

@@ -4,7 +4,6 @@ import (
 	logging "github.com/sirupsen/logrus"
 	"mall/model"
 	"mall/pkg/e"
-	"mall/pkg/utils"
 	"mall/serializer"
 	"mime/multipart"
 )
@@ -84,7 +83,7 @@ func (service *CreateProductService)Create(id uint,files []*multipart.FileHeader
 	var boss model.User
 	model.DB.Model(&model.User{}).Where("id = ?",id).First(&boss)
 	tmp,_ := files[0].Open()
-	status , info := util.UploadToQiNiu(tmp,files[0].Size)
+	status , info := UploadToQiNiu(tmp,files[0].Size)
 	if status != 200 {
 		return serializer.Response{
 			Status:  status  ,
@@ -118,7 +117,7 @@ func (service *CreateProductService)Create(id uint,files []*multipart.FileHeader
 	}
 	for _,file := range files {
 		tmp, _ := file.Open()
-		status, info := util.UploadToQiNiu(tmp, file.Size)
+		status, info := UploadToQiNiu(tmp, file.Size)
 		if status != 200 {
 			return serializer.Response{
 				Status: status,
@@ -293,6 +292,7 @@ func (service *SearchProductsService) Search() serializer.Response {
 	return serializer.BuildListResponse(serializer.BuildProducts(products), uint(len(products)))
 }
 
+//获取商品列表图片
 func (service *ListProductImgService) List(id string)serializer.Response {
 	var productImgList []model.ProductImg
 	model.DB.Model(model.ProductImg{}).Where("product_id=?",id).Find(&productImgList)

@@ -10,7 +10,6 @@ type User struct {
 	Email    string `json:"email"`
 	Status   string `json:"status"`
 	Avatar   string `json:"avatar"`
-	Monery   int 	`json:"monery"`
 	CreateAt int64  `json:"create_at"`
 }
 
@@ -23,7 +22,6 @@ func BuildUser(user model.User) User {
 		Email:    user.Email,
 		Status:   user.Status,
 		Avatar:   user.AvatarURL(),
-		Monery: user.Money,
 		CreateAt: user.CreatedAt.Unix(),
 	}
 }
