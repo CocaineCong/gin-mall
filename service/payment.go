@@ -1,17 +1,20 @@
 package service
 
 import (
+	"fmt"
 	logging "github.com/sirupsen/logrus"
+	"mall/conf"
 	"mall/model"
 	"mall/pkg/e"
 	"mall/serializer"
+	"strconv"
 )
 
 
 
 type OrderPay struct {
 	MerchantNum  int    `form:"merchantNum" json:"merchantNum"`
-	Money        int    `form:"money" json:"money"`
+	Money        float64    `form:"money" json:"money"`
 	OrderNo      string `form:"orderNo" json:"orderNo"`
 	ProductID    int    `form:"product_id" json:"product_id"`
 	PayTime      string `form:"payTime" json:"payTime" `
@@ -22,13 +25,15 @@ type OrderPay struct {
 	BossName     string `form:"boss_name" json:"boss_name"`
 	ProductMoney int    `form:"product_money" json:"product_money"`
 	Num          int    `form:"num" json:"num"`
+	Key          string `json:"key" form:"key"`
 }
 
 
 func (service *OrderPay) PayDown() serializer.Response {
+	conf.Encryption.SetKey(service.Key)
 	var order model.Order
 	code := e.SUCCESS
-	err := model.DB.Where("user_id=? AND product_id=?",service.BuyerID,service.ProductID).Find(&order).Error
+	err := model.DB.Where("user_id=? AND product_id=?", service.BuyerID, service.ProductID).Find(&order).Error
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
@@ -41,7 +46,8 @@ func (service *OrderPay) PayDown() serializer.Response {
 	var user model.User
 	money := service.Money
 	num := service.Num
-	money = money*num
+	numFloat := float64(num)
+	money = money * numFloat
 	err = model.DB.First(&user, service.BuyerID).Error
 	if err != nil {
 		logging.Info(err)
@@ -52,7 +58,10 @@ func (service *OrderPay) PayDown() serializer.Response {
 			Error:  err.Error(),
 		}
 	}
-	//user.Money =user.Money -money
+	moneyStr := conf.Encryption.AesDecoding(user.Money)
+	moneyFloat, _ := strconv.ParseFloat(moneyStr, 64)
+	finMoney := fmt.Sprintf("%f", moneyFloat-money)
+	user.Money = conf.Encryption.AesEncoding(finMoney)
 	err = model.DB.Save(&user).Error
 	if err != nil {
 		logging.Info(err)
@@ -63,10 +72,13 @@ func (service *OrderPay) PayDown() serializer.Response {
 			Error:  err.Error(),
 		}
 	}
-	var userboss model.User
-	err = model.DB.First(&userboss, service.BossID).Error
-	//userboss.Money += money
-	err = model.DB.Save(&userboss).Error
+	var boss model.User
+	err = model.DB.First(&boss, service.BossID).Error
+	moneyStr = conf.Encryption.AesDecoding(user.Money)
+	moneyFloat, _ = strconv.ParseFloat(moneyStr, 64)
+	finMoney = fmt.Sprintf("%f", moneyFloat+money)
+	boss.Money = conf.Encryption.AesEncoding(finMoney)
+	err = model.DB.Save(&boss).Error
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
@@ -77,7 +89,7 @@ func (service *OrderPay) PayDown() serializer.Response {
 		}
 	}
 	var product model.Product
-	model.DB.First(&product).Where("product_id=? AND boss_id=?",service.ProductID,service.BossID)
+	model.DB.First(&product).Where("product_id=? AND boss_id=?", service.ProductID, service.BossID)
 	product.Num -= num
 	err = model.DB.Save(&product).Error
 	if err != nil {
@@ -89,7 +101,17 @@ func (service *OrderPay) PayDown() serializer.Response {
 			Error:  err.Error(),
 		}
 	}
-	err = model.DB.Find(&order).Where("boss_id=? AND user_id=? AND product_id=?",service.BossID,service.BuyerID,service.ProductID).Error
+	err = model.DB.Find(&order).Where("boss_id=? AND user_id=? AND product_id=?", service.BossID, service.BuyerID, service.ProductID).Error
+	if err != nil {
+		logging.Info(err)
+		code = e.ErrorDatabase
+		return serializer.Response{
+			Status: code,
+			Msg:    e.GetMsg(code),
+			Error:  err.Error(),
+		}
+	}
+	err = model.DB.Delete(&order).Error
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
@@ -100,7 +122,7 @@ func (service *OrderPay) PayDown() serializer.Response {
 		}
 	}
 	var productTemp model.Product
-	err = model.DB.Where("product_id=?",service.ProductID).Find(&productTemp).Error
+	err = model.DB.Where("product_id=?", service.ProductID).Find(&productTemp).Error
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
@@ -111,10 +133,10 @@ func (service *OrderPay) PayDown() serializer.Response {
 		}
 	}
 	var productBoss model.User
-	model.DB.Find(&productBoss).Where("id=?",service.BuyerID)
+	model.DB.Find(&productBoss).Where("id=?", service.BuyerID)
 	var productTest model.Product
-	productTest.Num=service.Num
-	productTest.BossID=service.BuyerID
+	productTest.Num = service.Num
+	productTest.BossID = service.BuyerID
 	productTest.OnSale = false
 	productTest.ImgPath = productTemp.ImgPath
 	productTest.Price = productTemp.Price
@@ -135,18 +157,8 @@ func (service *OrderPay) PayDown() serializer.Response {
 			Error:  err.Error(),
 		}
 	}
-	err = model.DB.Delete(&order).Error
-	if err != nil {
-		logging.Info(err)
-		code = e.ErrorDatabase
-		return serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Error:  err.Error(),
-		}
-	}
 	return serializer.Response{
-		Status:code,
-		Msg:e.GetMsg(code),
+		Status: code,
+		Msg:    e.GetMsg(code),
 	}
 }

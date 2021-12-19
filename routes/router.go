@@ -29,9 +29,6 @@ func NewRouter() *gin.Engine {
 		v1.GET("categories", api.ListCategories) //商品分类
 		v1.GET("carousels", api.ListCarousels)   //轮播图
 
-
-
-		//v1.POST("payments",api.InitPay)
 		authed := v1.Group("/") //需要登陆保护
 		authed.Use(middleware.JWT())
 		{
