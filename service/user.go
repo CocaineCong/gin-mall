@@ -71,7 +71,7 @@ func (service UserRegisterService) Register() serializer.Response {
 		Nickname: service.NickName,
 		UserName: service.UserName,
 		Status:   model.Active,
-		Money:    conf.Encryption.AesDecoding("10000"),
+		Money:    conf.Encryption.AesEncoding("10000"),
 	}
 	//加密密码
 	if err := user.SetPassword(service.Password); err != nil {

@@ -55,9 +55,6 @@ func UnPadPwd(dst []byte) ([]byte,error) {
 
 // 解密
 func (k *Encryption) AesDecoding (pwd string) string {
-	if pwd == "" {
-		return "0"
-	}
 	pwdByte := []byte(pwd)
 	pwdByte, err := base64.StdEncoding.DecodeString(pwd)
 	if err != nil {
@@ -69,7 +66,7 @@ func (k *Encryption) AesDecoding (pwd string) string {
 	}
 	dst := make([]byte, len(pwdByte))
 	block.Decrypt(dst, pwdByte)
-	dst, err = UnPadPwd(dst) 			// 填充的要去掉
+	dst, err = UnPadPwd(dst) // 填充的要去掉
 	if err != nil {
 		return "0"
 	}

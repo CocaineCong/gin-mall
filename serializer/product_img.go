@@ -14,7 +14,7 @@ func BuildProductImg(item model.ProductImg) ProductImg {
 	}
 }
 
-//序列化商品列表
+
 func BuildProductImgs(items []model.ProductImg) (productImgs []ProductImg) {
 	for _, item := range items {
 		product := BuildProductImg(item)
