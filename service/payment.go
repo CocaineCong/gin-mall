@@ -13,27 +13,23 @@ import (
 
 
 type OrderPay struct {
-	MerchantNum  int    `form:"merchantNum" json:"merchantNum"`
 	Money        float64    `form:"money" json:"money"`
 	OrderNo      string `form:"orderNo" json:"orderNo"`
 	ProductID    int    `form:"product_id" json:"product_id"`
 	PayTime      string `form:"payTime" json:"payTime" `
 	Sign         string `form:"sign" json:"sign" `
-	BuyerID      int    `form:"user_id" json:"user_id"`
-	BuyerName    string `form:"buyer_name" json:"buyer_name"`
 	BossID       int    `form:"boss_id" json:"boss_id"`
 	BossName     string `form:"boss_name" json:"boss_name"`
-	ProductMoney int    `form:"product_money" json:"product_money"`
 	Num          int    `form:"num" json:"num"`
 	Key          string `json:"key" form:"key"`
 }
 
 
-func (service *OrderPay) PayDown() serializer.Response {
+func (service *OrderPay) PayDown(id uint) serializer.Response {
 	conf.Encryption.SetKey(service.Key)
 	var order model.Order
 	code := e.SUCCESS
-	err := model.DB.Where("user_id=? AND product_id=?", service.BuyerID, service.ProductID).Find(&order).Error
+	err := model.DB.Where("user_id=? AND product_id=?", id, service.ProductID).Find(&order).Error
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
@@ -48,7 +44,7 @@ func (service *OrderPay) PayDown() serializer.Response {
 	num := service.Num
 	numFloat := float64(num)
 	money = money * numFloat
-	err = model.DB.First(&user, service.BuyerID).Error
+	err = model.DB.First(&user, id).Error
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
@@ -101,7 +97,7 @@ func (service *OrderPay) PayDown() serializer.Response {
 			Error:  err.Error(),
 		}
 	}
-	err = model.DB.Find(&order).Where("boss_id=? AND user_id=? AND product_id=?", service.BossID, service.BuyerID, service.ProductID).Error
+	err = model.DB.Find(&order).Where("boss_id=? AND user_id=? AND product_id=?", service.BossID, id, service.ProductID).Error
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
@@ -122,7 +118,7 @@ func (service *OrderPay) PayDown() serializer.Response {
 		}
 	}
 	var productTemp model.Product
-	err = model.DB.Where("product_id=?", service.ProductID).Find(&productTemp).Error
+	err = model.DB.Where("id=?", service.ProductID).Find(&productTemp).Error
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
@@ -133,10 +129,10 @@ func (service *OrderPay) PayDown() serializer.Response {
 		}
 	}
 	var productBoss model.User
-	model.DB.Find(&productBoss).Where("id=?", service.BuyerID)
+	model.DB.Find(&productBoss).Where("id=?", id)
 	var productTest model.Product
 	productTest.Num = service.Num
-	productTest.BossID = service.BuyerID
+	productTest.BossID = int(id)
 	productTest.OnSale = false
 	productTest.ImgPath = productTemp.ImgPath
 	productTest.Price = productTemp.Price

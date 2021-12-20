@@ -100,6 +100,7 @@ func (service *CreateProductService)Create(id uint,files []*multipart.FileHeader
 		Price:         service.Price,
 		DiscountPrice: service.DiscountPrice,
 		Num:           service.Num,
+		OnSale:        true,
 		BossID:        int(id),
 		BossName:      boss.UserName,
 		BossAvatar:    boss.Avatar,

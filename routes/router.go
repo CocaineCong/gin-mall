@@ -73,7 +73,7 @@ func NewRouter() *gin.Engine {
 			authed.POST("paydown", api.OrderPay)
 
 			// 显示金额
-			authed.POST("money",api.ShowMoney)
+			authed.POST("money", api.ShowMoney)
 		}
 	}
 	return r

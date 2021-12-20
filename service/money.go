@@ -1,7 +1,6 @@
 package service
 
 import (
-	"fmt"
 	"mall/model"
 	"mall/pkg/e"
 	"mall/serializer"
