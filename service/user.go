@@ -215,8 +215,7 @@ func (service *SendEmailService) Send(id uint) serializer.Response {
 			Msg:    e.GetMsg(code),
 		}
 	}
-	//数据库里 对应邮件id = operation_type+1
-	if err := model.DB.First(&notice, service.OperationType+1).Error; err != nil {
+	if err := model.DB.First(&notice, service.OperationType).Error; err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
 		return serializer.Response{
@@ -226,9 +225,8 @@ func (service *SendEmailService) Send(id uint) serializer.Response {
 		}
 	}
 	address = conf.ValidEmail + token
-	fmt.Println(address)
 	mailStr := notice.Text
-	mailText := strings.Replace(mailStr, "VaildAddress", address, -1)
+	mailText := strings.Replace(mailStr, "Email", address, -1)
 	fmt.Println(mailText)
 	m := mail.NewMessage()
 	m.SetHeader("From", conf.SmtpEmail)
