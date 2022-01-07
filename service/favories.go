@@ -23,7 +23,7 @@ type DeleteFavoriteService struct {
 //商品收藏夹
 func (service *ShowFavoritesService) Show(id uint) serializer.Response {
 	var favorites []model.Favorite
-	total := 0
+	var total int64
 	code := e.SUCCESS
 	if service.PageSize == 0 {
 		service.PageSize = 15

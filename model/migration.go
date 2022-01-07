@@ -1,19 +1,29 @@
 package model
 
+import (
+	"fmt"
+	"os"
+)
+
 //执行数据迁移
 
 func migration() {
 	//自动迁移模式
-	DB.Set("gorm:table_options", "charset=utf8mb4").
-		AutoMigrate(&User{}).
-		AutoMigrate(&Product{}).
-		AutoMigrate(&Carousel{}).
-		AutoMigrate(&Category{}).
-		AutoMigrate(&Favorite{}).
-		AutoMigrate(&ProductImg{}).
-		AutoMigrate(&Order{}).
-		AutoMigrate(&Cart{}).
-		AutoMigrate(&Admin{}).
-		AutoMigrate(&Address{}).
-		AutoMigrate(&Notice{})
+	err := DB.Set("gorm:table_options", "charset=utf8mb4").
+		AutoMigrate(&User{},
+			&Product{},
+			&Carousel{},
+			&Category{},
+			&Favorite{},
+			&ProductImg{},
+			&Order{},
+			&Cart{},
+			&Admin{},
+			&Address{},
+			&Notice{})
+	if err != nil {
+		fmt.Println("register table fail")
+		os.Exit(0)
+	}
+	fmt.Println("register table success")
 }

@@ -48,7 +48,7 @@ type ValidEmailService struct {
 
 func (service UserRegisterService) Register() serializer.Response {
 	var user model.User
-	var count int
+	var count int64
 	code := e.SUCCESS
 	if service.Key=="" || len(service.Key)!=16 {
 		code = e.ERROR

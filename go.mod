@@ -9,6 +9,7 @@ require (
 	github.com/go-playground/validator/v10 v10.8.0
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/jinzhu/gorm v1.9.16
+	github.com/jinzhu/now v1.1.4 // indirect
 	github.com/onsi/ginkgo v1.16.5 // indirect
 	github.com/onsi/gomega v1.17.0 // indirect
 	github.com/qiniu/go-sdk/v7 v7.11.0
@@ -20,4 +21,6 @@ require (
 	gopkg.in/ini.v1 v1.64.0
 	gopkg.in/mail.v2 v2.3.1
 	gopkg.in/yaml.v2 v2.4.0
+	gorm.io/driver/mysql v1.2.3 // indirect
+	gorm.io/gorm v1.22.4 // indirect
 )

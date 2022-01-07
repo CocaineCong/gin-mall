@@ -149,7 +149,7 @@ func (service *CreateProductService)Create(id uint,files []*multipart.FileHeader
 
 func (service *ListProductsService) List() serializer.Response {
 	var products []model.Product
-	total := 0
+	var total int64
 	code := e.SUCCESS
 	if service.PageSize == 0 {
 		service.PageSize = 15

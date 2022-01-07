@@ -105,7 +105,7 @@ func (service *CreateOrderService) Create(id uint) serializer.Response {
 
 func (service *ListOrdersService) List(id uint) serializer.Response{
 	var orders []model.Order
-	total := 0
+	var total int64
 	code := e.SUCCESS
 	if service.PageSize == 0{
 		service.PageSize = 5
