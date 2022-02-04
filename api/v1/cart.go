@@ -2,7 +2,6 @@ package v1
 
 import (
 	"github.com/gin-gonic/gin"
-	logging "github.com/sirupsen/logrus"
 	util "mall/pkg/utils"
 	"mall/service"
 )
@@ -15,7 +14,7 @@ func CreateCart(c *gin.Context) {
 		c.JSON(200, res)
 	} else {
 		c.JSON(400, ErrorResponse(err))
-		logging.Info(err)
+		util.Logger().Infoln(err)
 	}
 }
 
@@ -34,7 +33,7 @@ func UpdateCart(c *gin.Context) {
 		c.JSON(200, res)
 	} else {
 		c.JSON(400, ErrorResponse(err))
-		logging.Info(err)
+		util.Logger().Infoln(err)
 	}
 }
 
@@ -47,6 +46,6 @@ func DeleteCart(c *gin.Context) {
 		c.JSON(200, res)
 	} else {
 		c.JSON(400, ErrorResponse(err))
-		logging.Info(err)
+		util.Logger().Infoln(err)
 	}
 }

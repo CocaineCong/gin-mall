@@ -2,7 +2,6 @@ package v1
 
 import (
 	"github.com/gin-gonic/gin"
-	logging "github.com/sirupsen/logrus"
 	util "mall/pkg/utils"
 	"mall/service"
 )
@@ -14,6 +13,7 @@ func UserRegister(c *gin.Context) {
 		c.JSON(200, res)
 	} else {
 		c.JSON(400, ErrorResponse(err))
+		util.Logger().Infoln(err)
 	}
 }
 
@@ -25,7 +25,7 @@ func UserLogin(c *gin.Context) {
 		c.JSON(200, res)
 	} else {
 		c.JSON(400, ErrorResponse(err))
-		logging.Info(err)
+		util.Logger().Infoln(err)
 	}
 }
 
@@ -37,7 +37,7 @@ func UserUpdate(c *gin.Context) {
 		c.JSON(200, res)
 	} else {
 		c.JSON(400, ErrorResponse(err))
-		logging.Info(err)
+		util.Logger().Infoln(err)
 	}
 }
 
@@ -51,7 +51,7 @@ func UploadAvatar(c *gin.Context) {
 		c.JSON(200, res)
 	} else {
 		c.JSON(400, ErrorResponse(err))
-		logging.Info(err)
+		util.Logger().Infoln(err)
 	}
 }
 
@@ -63,7 +63,7 @@ func SendEmail(c *gin.Context) {
 		c.JSON(200, res)
 	} else {
 		c.JSON(400, ErrorResponse(err))
-		logging.Info(err)
+		util.Logger().Infoln(err)
 	}
 }
 
@@ -74,6 +74,6 @@ func ValidEmail(c *gin.Context) {
 		c.JSON(200, res)
 	} else {
 		c.JSON(400, ErrorResponse(err))
-		logging.Info(err)
+		util.Logger().Infoln(err)
 	}
 }

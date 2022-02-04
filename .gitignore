@@ -18,3 +18,4 @@ conf/config.ini
 go.sum
 ci
 main
+logs

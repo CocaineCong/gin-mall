@@ -12,11 +12,15 @@ import (
 func NewRouter() *gin.Engine {
 	r := gin.Default()
 	store := cookie.NewStore([]byte("something-very-secret"))
-	//middleware.HttpLogToFile(conf.AppMode)
-	//r.Use(middleware.Cors())
+	r.Use(middleware.NewLogger(), middleware.Cors())
 	r.Use(sessions.Sessions("mysession", store))
 	v1 := r.Group("api/v1")
 	{
+
+		v1.GET("ping", func(c *gin.Context) {
+			c.JSON(200, "success")
+		})
+
 		//用户操作
 		v1.POST("user/register", api.UserRegister)
 		v1.POST("user/login", api.UserLogin)
@@ -32,8 +36,6 @@ func NewRouter() *gin.Engine {
 		authed := v1.Group("/") //需要登陆保护
 		authed.Use(middleware.JWT())
 		{
-			// 验证token
-			// authed.GET("ping", api.CheckToken)
 
 			// 用户操作
 			authed.PUT("user", api.UserUpdate)

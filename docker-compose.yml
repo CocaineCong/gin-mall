@@ -1,0 +1,35 @@
+version: '1'
+
+services:
+  civil:
+    build: ./
+    image: mall:2.0
+    container_name: mall
+    restart: always
+    environment:
+      MYSQL_DSN: "root:root@tcp/mall_db?charset=utf8&parseTime=True&loc=Local"
+    ports:
+      - 3000:3000
+    depends_on:
+      - mysql
+      - redis
+  mysql:
+    container_name: mysql
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: mall_db
+    volumes:
+      - /var/lib/mysql:/var/lib/mysql
+    ports:
+      - 3306:3306
+
+  redis:
+    container_name: redis
+    image: redis:latest
+    restart: always
+    volumes:
+      - /usr/local/redis:/usr/local/redis
+    ports:
+      - 6379:6379

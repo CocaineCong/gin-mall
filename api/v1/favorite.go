@@ -2,7 +2,6 @@ package v1
 
 import (
 	"github.com/gin-gonic/gin"
-	logging "github.com/sirupsen/logrus"
 	util "mall/pkg/utils"
 	service2 "mall/service"
 )
@@ -16,7 +15,7 @@ func CreateFavorite(c *gin.Context) {
 		c.JSON(200, res)
 	} else {
 		c.JSON(400, ErrorResponse(err))
-		logging.Info(err)
+		util.Logger().Infoln(err)
 	}
 }
 
@@ -29,7 +28,7 @@ func ShowFavorites(c *gin.Context) {
 		c.JSON(200, res)
 	} else {
 		c.JSON(400, ErrorResponse(err))
-		logging.Info(err)
+		util.Logger().Infoln(err)
 	}
 }
 
@@ -41,6 +40,6 @@ func DeleteFavorite(c *gin.Context) {
 		c.JSON(200, res)
 	} else {
 		c.JSON(400, ErrorResponse(err))
-		logging.Info(err)
+		util.Logger().Infoln(err)
 	}
 }
