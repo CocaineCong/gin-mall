@@ -30,7 +30,7 @@ func (product *Product) View() uint64 {
 	return count
 }
 
-// AddView 视频游览
+// AddView 商品游览
 func (product *Product) AddView() {
 	// 增加视频点击数
 	cache.RedisClient.Incr(cache.ProductViewKey(product.ID))

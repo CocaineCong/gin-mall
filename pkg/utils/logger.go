@@ -32,6 +32,7 @@ func Logger() *logrus.Logger {
 	logrusObj = logger
 	return logger
 }
+
 func setOutputFile() (*os.File, error) {
 	now := time.Now()
 	logFilePath := ""

@@ -71,12 +71,12 @@ func LoadMysqlData(file *ini.File) {
 }
 
 
-	func LoadQiniu(file *ini.File) {
-		AccessKey = file.Section("qiniu").Key("AccessKey").String()
-		SerectKey = file.Section("qiniu").Key("SerectKey").String()
-		Bucket = file.Section("qiniu").Key("Bucket").String()
-		QiniuServer = file.Section("qiniu").Key("QiniuServer").String()
-	}
+func LoadQiniu(file *ini.File) {
+	AccessKey = file.Section("qiniu").Key("AccessKey").String()
+	SerectKey = file.Section("qiniu").Key("SerectKey").String()
+	Bucket = file.Section("qiniu").Key("Bucket").String()
+	QiniuServer = file.Section("qiniu").Key("QiniuServer").String()
+}
 
 func LoadEmail(file *ini.File) {
 	ValidEmail = file.Section("email").Key("ValidEmail").String()

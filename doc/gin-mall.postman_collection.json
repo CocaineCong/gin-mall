@@ -1,0 +1,2397 @@
+{
+	"info": {
+		"_postman_id": "326b0de9-c5ae-49c8-8440-a86520894c55",
+		"name": "gin-mall",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "用户操作",
+			"item": [
+				{
+					"name": "用户注册",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "nick_name",
+									"value": "FanOne",
+									"type": "text"
+								},
+								{
+									"key": "user_name",
+									"value": "FanTwo",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "11111111",
+									"type": "text"
+								},
+								{
+									"key": "key",
+									"value": "Ek1+Ep1==Ek2+Ep2",
+									"description": "密钥，支付密码",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}user/register",
+							"host": [
+								"{{url}}user"
+							],
+							"path": [
+								"register"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "用户注册",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "nick_name",
+											"value": "FanTwo",
+											"type": "text"
+										},
+										{
+											"key": "user_name",
+											"value": "FanTwoToo",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "11111111",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{url}}user/register",
+									"host": [
+										"{{url}}user"
+									],
+									"path": [
+										"register"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Fri, 17 Dec 2021 08:32:29 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "48"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": 200,\n    \"data\": null,\n    \"msg\": \"ok\",\n    \"error\": \"\"\n}"
+						}
+					]
+				},
+				{
+					"name": "用户登录",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "user_name",
+									"value": "FanTwo",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "11111111",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}user/login",
+							"host": [
+								"{{url}}user"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "用户登录",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "user_name",
+											"value": "FanTwoToo",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "11111111",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{url}}user/login",
+									"host": [
+										"{{url}}user"
+									],
+									"path": [
+										"login"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Fri, 17 Dec 2021 08:35:36 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "439"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": 200,\n    \"data\": {\n        \"user\": {\n            \"id\": 1,\n            \"user_name\": \"FanTwoToo\",\n            \"nickname\": \"FanTwo\",\n            \"type\": 0,\n            \"email\": \"\",\n            \"status\": \"active\",\n            \"avatar\": \"http://q1.qlogo.cn/g?b=qq&nk=294350394&s=640\",\n            \"monery\": 10000,\n            \"create_at\": 1639729950\n        },\n        \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJGYW5Ud29Ub28iLCJhdXRob3JpdHkiOjAsImV4cCI6MTYzOTgxNjUzNiwiaXNzIjoibWFsbCJ9.a04gWod1pEWODQ1PrETLFPJDrMrWpvmRqPsviS1tsc8\"\n    },\n    \"msg\": \"ok\",\n    \"error\": \"\"\n}"
+						}
+					]
+				},
+				{
+					"name": "用户信息修改",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "nick_name",
+									"value": "FanOneOne",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}user",
+							"host": [
+								"{{url}}user"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "用户信息修改",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "nick_name",
+											"value": "111111",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{url}}user",
+									"host": [
+										"{{url}}user"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Fri, 17 Dec 2021 14:02:25 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "239"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": 200,\n    \"data\": {\n        \"id\": 1,\n        \"user_name\": \"111111\",\n        \"nickname\": \"111111\",\n        \"type\": 0,\n        \"email\": \"\",\n        \"status\": \"active\",\n        \"avatar\": \"http://bilibili.cremecong.top/FmbqWkg6aILF44t4xUwTLDSWiRXz\",\n        \"monery\": 10000,\n        \"create_at\": 1639729950\n    },\n    \"msg\": \"ok\",\n    \"error\": \"\"\n}"
+						}
+					]
+				},
+				{
+					"name": "绑定邮箱",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "email",
+									"value": "294350394@qq.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "11111111",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "operation_type",
+									"value": "1",
+									"description": "1绑定邮箱。2解绑邮箱。3修改密码",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}user/sending-email",
+							"host": [
+								"{{url}}user"
+							],
+							"path": [
+								"sending-email"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "绑定邮箱",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "email",
+											"value": "294350394@qq.com",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "11111111",
+											"type": "text"
+										},
+										{
+											"key": "operation_type",
+											"value": "1",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{url}}user/sending-email",
+									"host": [
+										"{{url}}user"
+									],
+									"path": [
+										"sending-email"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Fri, 17 Dec 2021 09:11:40 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "48"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": 200,\n    \"data\": null,\n    \"msg\": \"ok\",\n    \"error\": \"\"\n}"
+						}
+					]
+				},
+				{
+					"name": "更换头像",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/D:/Desktop/fanone.JPG"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}avatar",
+							"host": [
+								"{{url}}avatar"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "更换头像",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "file",
+											"type": "file",
+											"src": "/D:/Desktop/fanone.JPG"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{url}}avatar",
+									"host": [
+										"{{url}}avatar"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Fri, 17 Dec 2021 09:16:02 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "234"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": 200,\n    \"data\": {\n        \"id\": 1,\n        \"user_name\": \"\",\n        \"nickname\": \"2222222\",\n        \"type\": 0,\n        \"email\": \"\",\n        \"status\": \"active\",\n        \"avatar\": \"http://bilibili.cremecong.top/FmbqWkg6aILF44t4xUwTLDSWiRXz\",\n        \"monery\": 10000,\n        \"create_at\": 1639729950\n    },\n    \"msg\": \"ok\",\n    \"error\": \"\"\n}"
+						}
+					]
+				},
+				{
+					"name": "获取用户金钱",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "key",
+									"value": "Ek1+Ep1==Ek2+Ep2",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}money",
+							"host": [
+								"{{url}}money"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "获取用户金额",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "key",
+											"value": "Ek1+Ep1==Ek2+Ep2",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{url}}money",
+									"host": [
+										"{{url}}money"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 19 Dec 2021 09:03:24 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "102"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": 200,\n    \"data\": {\n        \"user_id\": 5,\n        \"user_name\": \"FanOneTo1\",\n        \"user_money\": \"10000\"\n    },\n    \"msg\": \"ok\",\n    \"error\": \"\"\n}"
+						}
+					]
+				},
+				{
+					"name": "验证邮箱",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiIyOTQzNTAzOTRAcXEuY29tIiwicGFzc3dvcmQiOiIiLCJvcGVyYXRpb25fdHlwZSI6MSwiZXhwIjoxNjQ0ODk1NTU2LCJpc3MiOiJGYW5PbmUifQ.hYWbbNndjOv2JI3Imf3-mg98SX4y2dF9RWAXo82eVQQ",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "{{url}}user/valid-email",
+							"host": [
+								"{{url}}user"
+							],
+							"path": [
+								"valid-email"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "验证邮箱",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJlbWFpbCI6IjI5NDM1MDM5NEBxcS5jb20iLCJwYXNzd29yZCI6IiIsIm9wZXJhdGlvbl90eXBlIjoxLCJleHAiOjE2NDE1MzY5MjQsImlzcyI6ImNtYWxsIn0.MK6Dtv6FvL4s3TOj071YwO0mN72yUvLUGdbOYx4EJDU",
+										"type": "default"
+									}
+								],
+								"url": {
+									"raw": "{{url}}user/valid-email",
+									"host": [
+										"{{url}}user"
+									],
+									"path": [
+										"valid-email"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Fri, 07 Jan 2022 06:16:02 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "239"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": 200,\n    \"data\": {\n        \"id\": 1,\n        \"user_name\": \"FanOneTo2\",\n        \"nickname\": \"FanOne\",\n        \"type\": 0,\n        \"email\": \"294350394@qq.com\",\n        \"status\": \"active\",\n        \"avatar\": \"http://q1.qlogo.cn/g?b=qq&nk=294350394&s=640\",\n        \"create_at\": 1641532850\n    },\n    \"msg\": \"ok\",\n    \"error\": \"\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "商品操作",
+			"item": [
+				{
+					"name": "展示商品详细信息",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{url}}product/2",
+							"host": [
+								"{{url}}product"
+							],
+							"path": [
+								"2"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "展示商品详细信息",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": []
+								},
+								"url": {
+									"raw": "{{url}}product/2",
+									"host": [
+										"{{url}}product"
+									],
+									"path": [
+										"2"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Fri, 17 Dec 2021 12:12:36 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "397"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": 200,\n    \"data\": {\n        \"id\": 2,\n        \"name\": \"电脑\",\n        \"category_id\": 1,\n        \"title\": \"好电脑\",\n        \"info\": \"很好的电脑\",\n        \"img_path\": \"http://bilibili.cremecong.top/FuPK9qojhUYoO7ird3e8XqWy_FDo\",\n        \"price\": \"100\",\n        \"discount_price\": \"80\",\n        \"view\": 21,\n        \"created_at\": 1639734395,\n        \"num\": 0,\n        \"on_sale\": false,\n        \"boss_id\": 1,\n        \"boss_name\": \"\",\n        \"boss_avatar\": \"http://bilibili.cremecong.top/FmbqWkg6aILF44t4xUwTLDSWiRXz\"\n    },\n    \"msg\": \"ok\",\n    \"error\": \"\"\n}"
+						}
+					]
+				},
+				{
+					"name": "搜索商品",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "info",
+									"value": "电脑",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}products",
+							"host": [
+								"{{url}}products"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "搜索商品",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "info",
+											"value": "电脑",
+											"type": "text",
+											"disabled": true
+										}
+									]
+								},
+								"url": {
+									"raw": "{{url}}products",
+									"host": [
+										"{{url}}products"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Fri, 17 Dec 2021 12:16:36 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "418"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": 200,\n    \"data\": {\n        \"item\": [\n            {\n                \"id\": 2,\n                \"name\": \"电脑\",\n                \"category_id\": 1,\n                \"title\": \"好电脑\",\n                \"info\": \"很好的电脑\",\n                \"img_path\": \"http://bilibili.cremecong.top/FuPK9qojhUYoO7ird3e8XqWy_FDo\",\n                \"price\": \"100\",\n                \"discount_price\": \"80\",\n                \"view\": 21,\n                \"created_at\": 1639734395,\n                \"num\": 0,\n                \"on_sale\": false,\n                \"boss_id\": 1,\n                \"boss_name\": \"\",\n                \"boss_avatar\": \"http://bilibili.cremecong.top/FmbqWkg6aILF44t4xUwTLDSWiRXz\"\n            }\n        ],\n        \"total\": 1\n    },\n    \"msg\": \"ok\",\n    \"error\": \"\"\n}"
+						}
+					]
+				},
+				{
+					"name": "创建商品",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "手机",
+									"type": "text"
+								},
+								{
+									"key": "category_id",
+									"value": "2",
+									"type": "text"
+								},
+								{
+									"key": "title",
+									"value": "好手机",
+									"type": "text"
+								},
+								{
+									"key": "info",
+									"value": "很好的手机",
+									"type": "text"
+								},
+								{
+									"key": "price",
+									"value": "200",
+									"type": "text"
+								},
+								{
+									"key": "discount_price",
+									"value": "180",
+									"type": "text"
+								},
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/D:/Desktop/avatar.jpg"
+								},
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/D:/Desktop/1.jpg"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}product",
+							"host": [
+								"{{url}}product"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "创建商品",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "name",
+											"value": "电脑",
+											"type": "text"
+										},
+										{
+											"key": "category_id",
+											"value": "1",
+											"type": "text"
+										},
+										{
+											"key": "title",
+											"value": "好电脑",
+											"type": "text"
+										},
+										{
+											"key": "info",
+											"value": "很好的电脑",
+											"type": "text"
+										},
+										{
+											"key": "price",
+											"value": "100",
+											"type": "text"
+										},
+										{
+											"key": "discount_price",
+											"value": "80",
+											"type": "text"
+										},
+										{
+											"key": "file",
+											"type": "file",
+											"src": "/D:/Desktop/1.jpg"
+										},
+										{
+											"key": "file",
+											"type": "file",
+											"src": "/D:/Desktop/avatar.jpg"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{url}}product",
+									"host": [
+										"{{url}}product"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Fri, 17 Dec 2021 09:46:35 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "397"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": 200,\n    \"data\": {\n        \"id\": 2,\n        \"name\": \"电脑\",\n        \"category_id\": 1,\n        \"title\": \"好电脑\",\n        \"info\": \"很好的电脑\",\n        \"img_path\": \"http://bilibili.cremecong.top/FuPK9qojhUYoO7ird3e8XqWy_FDo\",\n        \"price\": \"100\",\n        \"discount_price\": \"80\",\n        \"view\": 21,\n        \"created_at\": 1639734395,\n        \"num\": 0,\n        \"on_sale\": false,\n        \"boss_id\": 1,\n        \"boss_name\": \"\",\n        \"boss_avatar\": \"http://bilibili.cremecong.top/FmbqWkg6aILF44t4xUwTLDSWiRXz\"\n    },\n    \"msg\": \"ok\",\n    \"error\": \"\"\n}"
+						}
+					]
+				},
+				{
+					"name": "获取图片地址",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}imgs/2",
+							"host": [
+								"{{url}}imgs"
+							],
+							"path": [
+								"2"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "获取图片地址",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}imgs/2",
+									"host": [
+										"{{url}}imgs"
+									],
+									"path": [
+										"2"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Fri, 17 Dec 2021 16:11:50 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "242"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": 200,\n    \"data\": {\n        \"item\": [\n            {\n                \"product_id\": 2,\n                \"img_path\": \"http://bilibili.cremecong.top/FuPK9qojhUYoO7ird3e8XqWy_FDo\"\n            },\n            {\n                \"product_id\": 2,\n                \"img_path\": \"http://bilibili.cremecong.top/Fl7D-QQFvtOaEabC5FZ224ezZs-I\"\n            }\n        ],\n        \"total\": 2\n    },\n    \"msg\": \"ok\",\n    \"error\": \"\"\n}"
+						}
+					]
+				},
+				{
+					"name": "获取商品分类",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}categories",
+							"host": [
+								"{{url}}categories"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "获取商品分类",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}categories",
+									"host": [
+										"{{url}}categories"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Fri, 17 Dec 2021 16:27:16 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "216"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": 200,\n    \"data\": [\n        {\n            \"id\": 1,\n            \"category_name\": \"电脑\",\n            \"create_at\": 1639762763\n        },\n        {\n            \"id\": 2,\n            \"category_name\": \"手机\",\n            \"create_at\": 1639762779\n        },\n        {\n            \"id\": 3,\n            \"category_name\": \"衣服\",\n            \"create_at\": 1639762791\n        }\n    ],\n    \"msg\": \"ok\",\n    \"error\": \"\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "收藏夹操作",
+			"item": [
+				{
+					"name": "创建收藏夹",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "product_id",
+									"value": "2",
+									"type": "text"
+								},
+								{
+									"key": "boss_id",
+									"value": "1",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}favorites",
+							"host": [
+								"{{url}}favorites"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "创建收藏夹",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "product_id",
+											"value": "2",
+											"type": "text"
+										},
+										{
+											"key": "boss_id",
+											"value": "1",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{url}}favorites",
+									"host": [
+										"{{url}}favorites"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Fri, 17 Dec 2021 13:14:34 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "48"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": 200,\n    \"data\": null,\n    \"msg\": \"ok\",\n    \"error\": \"\"\n}"
+						}
+					]
+				},
+				{
+					"name": "展示收藏夹",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{url}}favorites",
+							"host": [
+								"{{url}}favorites"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "展示收藏夹",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{token}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{url}}favorites",
+									"host": [
+										"{{url}}favorites"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Fri, 17 Dec 2021 13:15:49 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "337"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": 200,\n    \"data\": {\n        \"item\": [\n            {\n                \"user_id\": 1,\n                \"product_id\": 2,\n                \"create_at\": 1639746875,\n                \"name\": \"电脑\",\n                \"category_id\": 1,\n                \"title\": \"好电脑\",\n                \"info\": \"很好的电脑\",\n                \"img_path\": \"http://bilibili.cremecong.top/FuPK9qojhUYoO7ird3e8XqWy_FDo\",\n                \"price\": \"100\",\n                \"discount_price\": \"80\",\n                \"boss_id\": 0,\n                \"num\": 0,\n                \"on_sale\": false\n            }\n        ],\n        \"total\": 1\n    },\n    \"msg\": \"ok\",\n    \"error\": \"\"\n}"
+						}
+					]
+				},
+				{
+					"name": "删除收藏夹",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{url}}favorites/2",
+							"host": [
+								"{{url}}favorites"
+							],
+							"path": [
+								"2"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "删除收藏夹",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{token}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{url}}favorites/2",
+									"host": [
+										"{{url}}favorites"
+									],
+									"path": [
+										"2"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Fri, 17 Dec 2021 13:18:04 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "46"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": 200,\n    \"data\": \"ok\",\n    \"msg\": \"\",\n    \"error\": \"\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "地址操作",
+			"item": [
+				{
+					"name": "创建地址",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "fanone",
+									"type": "text"
+								},
+								{
+									"key": "address",
+									"value": "fzu",
+									"type": "text"
+								},
+								{
+									"key": "phone",
+									"value": "11111111",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}addresses",
+							"host": [
+								"{{url}}addresses"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "创建地址",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "name",
+											"value": "fanone",
+											"type": "text"
+										},
+										{
+											"key": "address",
+											"value": "fzu",
+											"type": "text"
+										},
+										{
+											"key": "phone",
+											"value": "11111111",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{url}}addresses",
+									"host": [
+										"{{url}}addresses"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Fri, 17 Dec 2021 13:46:12 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "261"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": 200,\n    \"data\": [\n        {\n            \"id\": 2,\n            \"user_id\": 1,\n            \"name\": \"fanone\",\n            \"phone\": \"11111111\",\n            \"address\": \"fzu\",\n            \"seen\": false,\n            \"create_at\": 1639748773\n        },\n        {\n            \"id\": 1,\n            \"user_id\": 1,\n            \"name\": \"fanone\",\n            \"phone\": \"11111111\",\n            \"address\": \"fzu\",\n            \"seen\": false,\n            \"create_at\": 1639748678\n        }\n    ],\n    \"msg\": \"ok\",\n    \"error\": \"\"\n}"
+						}
+					]
+				},
+				{
+					"name": "获取地址",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{url}}addresses/1",
+							"host": [
+								"{{url}}addresses"
+							],
+							"path": [
+								"1"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "获取地址",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": []
+								},
+								"url": {
+									"raw": "{{url}}addresses/1",
+									"host": [
+										"{{url}}addresses"
+									],
+									"path": [
+										"1"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Fri, 17 Dec 2021 13:47:45 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "261"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": 200,\n    \"data\": [\n        {\n            \"id\": 2,\n            \"user_id\": 1,\n            \"name\": \"fanone\",\n            \"phone\": \"11111111\",\n            \"address\": \"fzu\",\n            \"seen\": false,\n            \"create_at\": 1639748773\n        },\n        {\n            \"id\": 1,\n            \"user_id\": 1,\n            \"name\": \"fanone\",\n            \"phone\": \"11111111\",\n            \"address\": \"fzu\",\n            \"seen\": false,\n            \"create_at\": 1639748678\n        }\n    ],\n    \"msg\": \"ok\",\n    \"error\": \"\"\n}"
+						}
+					]
+				},
+				{
+					"name": "修改地址",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "fantwo",
+									"type": "text"
+								},
+								{
+									"key": "phone",
+									"value": "2222222",
+									"type": "text"
+								},
+								{
+									"key": "address",
+									"value": "fzuu",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}addresses/1",
+							"host": [
+								"{{url}}addresses"
+							],
+							"path": [
+								"1"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "修改地址",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "name",
+											"value": "fantwo",
+											"type": "text"
+										},
+										{
+											"key": "phone",
+											"value": "2222222",
+											"type": "text"
+										},
+										{
+											"key": "address",
+											"value": "fzuu",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{url}}addresses/1",
+									"host": [
+										"{{url}}addresses"
+									],
+									"path": [
+										"1"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Fri, 17 Dec 2021 13:49:43 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "261"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": 200,\n    \"data\": [\n        {\n            \"id\": 2,\n            \"user_id\": 1,\n            \"name\": \"fanone\",\n            \"phone\": \"11111111\",\n            \"address\": \"fzu\",\n            \"seen\": false,\n            \"create_at\": 1639748773\n        },\n        {\n            \"id\": 1,\n            \"user_id\": 1,\n            \"name\": \"fantwo\",\n            \"phone\": \"2222222\",\n            \"address\": \"fzuu\",\n            \"seen\": false,\n            \"create_at\": 1639748678\n        }\n    ],\n    \"msg\": \"ok\",\n    \"error\": \"\"\n}"
+						}
+					]
+				},
+				{
+					"name": "删除地址",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{url}}addresses/1",
+							"host": [
+								"{{url}}addresses"
+							],
+							"path": [
+								"1"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "删除地址",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{token}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{url}}addresses/1",
+									"host": [
+										"{{url}}addresses"
+									],
+									"path": [
+										"1"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Fri, 17 Dec 2021 13:52:50 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "48"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": 200,\n    \"data\": null,\n    \"msg\": \"ok\",\n    \"error\": \"\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "购物车操作",
+			"item": [
+				{
+					"name": "获取购物车详情",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{url}}carts/1",
+							"host": [
+								"{{url}}carts"
+							],
+							"path": [
+								"1"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "获取购物车详情",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{token}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{url}}carts/1",
+									"host": [
+										"{{url}}carts"
+									],
+									"path": [
+										"1"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Fri, 17 Dec 2021 14:05:16 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "276"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": 200,\n    \"data\": [\n        {\n            \"id\": 1,\n            \"user_id\": 1,\n            \"product_id\": 2,\n            \"create_at\": 1639749860,\n            \"num\": 1,\n            \"max_num\": 10,\n            \"check\": false,\n            \"name\": \"电脑\",\n            \"img_path\": \"http://bilibili.cremecong.top/FuPK9qojhUYoO7ird3e8XqWy_FDo\",\n            \"discount_price\": \"80\",\n            \"boss_id\": 1,\n            \"boss_name\": \"\"\n        }\n    ],\n    \"msg\": \"ok\",\n    \"error\": \"\"\n}"
+						}
+					]
+				},
+				{
+					"name": "创建购物车",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "boss_id",
+									"value": "5",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}carts/4",
+							"host": [
+								"{{url}}carts"
+							],
+							"path": [
+								"4"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "创建购物车",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "boss_id",
+											"value": "1",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{url}}carts/2",
+									"host": [
+										"{{url}}carts"
+									],
+									"path": [
+										"2"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Fri, 17 Dec 2021 14:04:20 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "274"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": 200,\n    \"data\": {\n        \"id\": 1,\n        \"user_id\": 1,\n        \"product_id\": 2,\n        \"create_at\": 1639749860,\n        \"num\": 1,\n        \"max_num\": 10,\n        \"check\": false,\n        \"name\": \"电脑\",\n        \"img_path\": \"http://bilibili.cremecong.top/FuPK9qojhUYoO7ird3e8XqWy_FDo\",\n        \"discount_price\": \"80\",\n        \"boss_id\": 1,\n        \"boss_name\": \"\"\n    },\n    \"msg\": \"ok\",\n    \"error\": \"\"\n}"
+						}
+					]
+				},
+				{
+					"name": "修改购物车信息",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "num",
+									"value": "2",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}carts/1",
+							"host": [
+								"{{url}}carts"
+							],
+							"path": [
+								"1"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "修改购物车信息",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "num",
+											"value": "2",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{url}}carts/1",
+									"host": [
+										"{{url}}carts"
+									],
+									"path": [
+										"1"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Fri, 17 Dec 2021 14:07:40 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "48"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": 200,\n    \"data\": null,\n    \"msg\": \"ok\",\n    \"error\": \"\"\n}"
+						}
+					]
+				},
+				{
+					"name": "删除购物车",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{url}}carts/1",
+							"host": [
+								"{{url}}carts"
+							],
+							"path": [
+								"1"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "删除购物车",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{token}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{url}}carts/1",
+									"host": [
+										"{{url}}carts"
+									],
+									"path": [
+										"1"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Fri, 17 Dec 2021 14:08:59 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "48"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": 200,\n    \"data\": null,\n    \"msg\": \"ok\",\n    \"error\": \"\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "订单操作",
+			"item": [
+				{
+					"name": "创建订单",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "product_id",
+									"value": "4",
+									"type": "text"
+								},
+								{
+									"key": "num",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "address_id",
+									"value": "3",
+									"type": "text"
+								},
+								{
+									"key": "money",
+									"value": "1000",
+									"type": "text"
+								},
+								{
+									"key": "boss_id",
+									"value": "5",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}orders",
+							"host": [
+								"{{url}}orders"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "创建订单",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "product_id",
+											"value": "2",
+											"type": "text"
+										},
+										{
+											"key": "num",
+											"value": "1",
+											"type": "text"
+										},
+										{
+											"key": "address_id",
+											"value": "2",
+											"type": "text"
+										},
+										{
+											"key": "money",
+											"value": "100",
+											"type": "text"
+										},
+										{
+											"key": "boss_id",
+											"value": "1",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{url}}orders",
+									"host": [
+										"{{url}}orders"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Fri, 17 Dec 2021 15:31:03 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "48"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": 200,\n    \"data\": null,\n    \"msg\": \"ok\",\n    \"error\": \"\"\n}"
+						}
+					]
+				},
+				{
+					"name": "获取订单",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{url}}orders",
+							"host": [
+								"{{url}}orders"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "获取订单",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{token}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{url}}orders",
+									"host": [
+										"{{url}}orders"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Fri, 17 Dec 2021 15:34:56 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "378"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": 200,\n    \"data\": {\n        \"item\": [\n            {\n                \"id\": 1,\n                \"order_num\": 91486848921,\n                \"created_at\": 1639755064,\n                \"updated_at\": 1639755064,\n                \"user_id\": 1,\n                \"product_id\": 2,\n                \"boss_id\": 1,\n                \"num\": 1,\n                \"address_name\": \"fanone\",\n                \"address_phone\": \"11111111\",\n                \"address\": \"fzu\",\n                \"type\": 1,\n                \"name\": \"电脑\",\n                \"img_path\": \"http://bilibili.cremecong.top/FuPK9qojhUYoO7ird3e8XqWy_FDo\",\n                \"discount_price\": \"80\"\n            }\n        ],\n        \"total\": 1\n    },\n    \"msg\": \"ok\",\n    \"error\": \"\"\n}"
+						}
+					]
+				},
+				{
+					"name": "获取订单详细信息",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{url}}orders/1",
+							"host": [
+								"{{url}}orders"
+							],
+							"path": [
+								"1"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "获取订单详细信息",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{token}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{url}}orders/1",
+									"host": [
+										"{{url}}orders"
+									],
+									"path": [
+										"1"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Fri, 17 Dec 2021 15:36:28 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "357"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": 200,\n    \"data\": {\n        \"id\": 1,\n        \"order_num\": 91486848921,\n        \"created_at\": 1639755064,\n        \"updated_at\": 1639755064,\n        \"user_id\": 1,\n        \"product_id\": 2,\n        \"boss_id\": 1,\n        \"num\": 1,\n        \"address_name\": \"fanone\",\n        \"address_phone\": \"11111111\",\n        \"address\": \"fzu\",\n        \"type\": 1,\n        \"name\": \"电脑\",\n        \"img_path\": \"http://bilibili.cremecong.top/FuPK9qojhUYoO7ird3e8XqWy_FDo\",\n        \"discount_price\": \"80\"\n    },\n    \"msg\": \"ok\",\n    \"error\": \"\"\n}"
+						}
+					]
+				},
+				{
+					"name": "删除订单",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{url}}orders/1",
+							"host": [
+								"{{url}}orders"
+							],
+							"path": [
+								"1"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "删除订单",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{token}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{url}}orders/1",
+									"host": [
+										"{{url}}orders"
+									],
+									"path": [
+										"1"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Fri, 17 Dec 2021 15:37:25 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "48"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": 200,\n    \"data\": null,\n    \"msg\": \"ok\",\n    \"error\": \"\"\n}"
+						}
+					]
+				},
+				{
+					"name": "订单支付",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "key",
+									"value": "Ek1+Ep1==Ek2+Ep2",
+									"type": "text"
+								},
+								{
+									"key": "num",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "money",
+									"value": "1000",
+									"type": "text"
+								},
+								{
+									"key": "orderNo",
+									"value": "24689320046",
+									"type": "text"
+								},
+								{
+									"key": "product_id",
+									"value": "4",
+									"type": "text"
+								},
+								{
+									"key": "boss_id",
+									"value": "5",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}paydown",
+							"host": [
+								"{{url}}paydown"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "订单支付",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "key",
+											"value": "Ek1+Ep1==Ek2+Ep2",
+											"type": "text"
+										},
+										{
+											"key": "num",
+											"value": "1",
+											"type": "text"
+										},
+										{
+											"key": "money",
+											"value": "1000",
+											"type": "text"
+										},
+										{
+											"key": "orderNo",
+											"value": "24689320046",
+											"type": "text"
+										},
+										{
+											"key": "product_id",
+											"value": "4",
+											"type": "text"
+										},
+										{
+											"key": "boss_id",
+											"value": "5",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{url}}paydown",
+									"host": [
+										"{{url}}paydown"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 19 Dec 2021 15:33:08 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "48"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": 200,\n    \"data\": null,\n    \"msg\": \"ok\",\n    \"error\": \"\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "轮播图",
+			"item": [
+				{
+					"name": "获取轮播图",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}carousels",
+							"host": [
+								"{{url}}carousels"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "获取轮播图",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}carousels",
+									"host": [
+										"{{url}}carousels"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Fri, 17 Dec 2021 16:26:53 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "184"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": 200,\n    \"data\": {\n        \"item\": [\n            {\n                \"id\": 1,\n                \"img_path\": \"http://bilibili.cremecong.top/Fl7D-QQFvtOaEabC5FZ224ezZs-I\",\n                \"product_id\": 2,\n                \"created_at\": 1639787082\n            }\n        ],\n        \"total\": 1\n    },\n    \"msg\": \"ok\",\n    \"error\": \"\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "测试连接",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}ping",
+					"host": [
+						"{{url}}ping"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
