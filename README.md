@@ -61,6 +61,7 @@ TodoList/
 - service : 接口函数的实现
 
 # 配置文件
+`conf/config.ini` 文件配置
 
 ```ini
 #debug开发模式,release生产模式
