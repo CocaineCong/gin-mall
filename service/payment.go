@@ -3,9 +3,9 @@ package service
 import (
 	"fmt"
 	logging "github.com/sirupsen/logrus"
-	"mall/conf"
 	"mall/model"
 	"mall/pkg/e"
+	util "mall/pkg/utils"
 	"mall/serializer"
 	"strconv"
 )
@@ -26,7 +26,7 @@ type OrderPay struct {
 
 
 func (service *OrderPay) PayDown(id uint) serializer.Response {
-	conf.Encryption.SetKey(service.Key)
+	util.Encrypt.SetKey(service.Key)
 	var order model.Order
 	code := e.SUCCESS
 	err := model.DB.Where("user_id=? AND product_id=?", id, service.ProductID).Find(&order).Error
@@ -54,10 +54,10 @@ func (service *OrderPay) PayDown(id uint) serializer.Response {
 			Error:  err.Error(),
 		}
 	}
-	moneyStr := conf.Encryption.AesDecoding(user.Money)
+	moneyStr := util.Encrypt.AesDecoding(user.Money)
 	moneyFloat, _ := strconv.ParseFloat(moneyStr, 64)
 	finMoney := fmt.Sprintf("%f", moneyFloat-money)
-	user.Money = conf.Encryption.AesEncoding(finMoney)
+	user.Money = util.Encrypt.AesEncoding(finMoney)
 	err = model.DB.Save(&user).Error
 	if err != nil {
 		logging.Info(err)
@@ -70,10 +70,10 @@ func (service *OrderPay) PayDown(id uint) serializer.Response {
 	}
 	var boss model.User
 	err = model.DB.First(&boss, service.BossID).Error
-	moneyStr = conf.Encryption.AesDecoding(user.Money)
+	moneyStr = util.Encrypt.AesDecoding(user.Money)
 	moneyFloat, _ = strconv.ParseFloat(moneyStr, 64)
 	finMoney = fmt.Sprintf("%f", moneyFloat+money)
-	boss.Money = conf.Encryption.AesEncoding(finMoney)
+	boss.Money = util.Encrypt.AesEncoding(finMoney)
 	err = model.DB.Save(&boss).Error
 	if err != nil {
 		logging.Info(err)

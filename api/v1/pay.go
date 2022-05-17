@@ -13,7 +13,7 @@ func OrderPay(c *gin.Context) {
 		res := orderPay.PayDown(claim.ID)
 		c.JSON(200, res)
 	} else {
-		util.Logger().Infoln(err)
+		util.LogrusObj.Infoln(err)
 		c.JSON(400, ErrorResponse(err))
 	}
 }

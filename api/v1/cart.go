@@ -14,7 +14,7 @@ func CreateCart(c *gin.Context) {
 		c.JSON(200, res)
 	} else {
 		c.JSON(400, ErrorResponse(err))
-		util.Logger().Infoln(err)
+		util.LogrusObj.Infoln(err)
 	}
 }
 
@@ -33,7 +33,7 @@ func UpdateCart(c *gin.Context) {
 		c.JSON(200, res)
 	} else {
 		c.JSON(400, ErrorResponse(err))
-		util.Logger().Infoln(err)
+		util.LogrusObj.Infoln(err)
 	}
 }
 
@@ -46,6 +46,6 @@ func DeleteCart(c *gin.Context) {
 		c.JSON(200, res)
 	} else {
 		c.JSON(400, ErrorResponse(err))
-		util.Logger().Infoln(err)
+		util.LogrusObj.Infoln(err)
 	}
 }

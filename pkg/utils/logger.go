@@ -8,16 +8,15 @@ import (
 	"time"
 )
 
-var logrusObj *logrus.Logger
+var LogrusObj *logrus.Logger
 
-func Logger() *logrus.Logger {
-	if logrusObj != nil {
+func init() {
+	if LogrusObj != nil {
 		src, _ := setOutputFile()
 		//设置输出
-		logrusObj.Out = src
-		return logrusObj
+		LogrusObj.Out = src
+		return
 	}
-
 	//实例化
 	logger := logrus.New()
 	src, _ := setOutputFile()
@@ -29,8 +28,15 @@ func Logger() *logrus.Logger {
 	logger.SetFormatter(&logrus.TextFormatter{
 		TimestampFormat: "2006-01-02 15:04:05",
 	})
-	logrusObj = logger
-	return logger
+	/*
+	加个hook形成ELK体系
+	但是考虑到一些同学一下子接受不了那么多技术栈，
+	所以这里的ELK体系加了注释，如果想引入可以直接注释去掉，
+	如果不想引入这样注释掉也是没问题的。
+	*/
+	//hook := model.EsHookLog()
+	//logger.AddHook(hook)
+	LogrusObj = logger
 }
 
 func setOutputFile() (*os.File, error) {

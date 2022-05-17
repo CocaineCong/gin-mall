@@ -5,7 +5,6 @@ import (
 	logging "github.com/sirupsen/logrus"
 	"gopkg.in/ini.v1"
 	"mall/model"
-	"mall/pkg/utils"
 	"strings"
 )
 
@@ -31,7 +30,9 @@ var (
 	SmtpEmail 			string
 	SmtpPass 			string
 
-	Encryption 			util.Encryption
+	EsHost				string
+	EsPort				string
+	EsIndex				string
 )
 
 func Init() {
@@ -44,6 +45,7 @@ func Init() {
 	LoadMysqlData(file)
 	LoadQiniu(file)
 	LoadEmail(file)
+	LoadEs(file)
 	if err := LoadLocales("conf/locales/zh-cn.yaml"); err != nil {
 		logging.Info(err) //日志内容
 		panic(err)
@@ -52,6 +54,8 @@ func Init() {
 	pathRead := strings.Join([]string{DbUser, ":", DbPassWord, "@tcp(", DbHost, ":", DbPort, ")/", DbName, "?charset=utf8&parseTime=true"}, "")
 	pathWrite := strings.Join([]string{DbUser, ":", DbPassWord, "@tcp(", DbHost, ":", DbPort, ")/", DbName, "?charset=utf8&parseTime=true"}, "")
 	model.Database(pathRead, pathWrite)
+	//esConn := "http://"+EsHost+":"+EsPort //TODO 读取ES配置
+	//model.EsInit(esConn)
 }
 
 
@@ -83,4 +87,10 @@ func LoadEmail(file *ini.File) {
 	SmtpHost= file.Section("email").Key("SmtpHost").String()
 	SmtpEmail= file.Section("email").Key("SmtpEmail").String()
 	SmtpPass= file.Section("email").Key("SmtpPass").String()
+}
+
+func LoadEs(file *ini.File) {
+	EsHost = file.Section("es").Key("EsHost").String()
+	EsPort = file.Section("es").Key("EsPort").String()
+	EsIndex = file.Section("es").Key("EsIndex").String()
 }

@@ -14,6 +14,6 @@ func ShowMoney(c *gin.Context) {
 		c.JSON(200, res)
 	} else {
 		c.JSON(400, ErrorResponse(err))
-		util.Logger().Infoln(err)
+		util.LogrusObj.Infoln(err)
 	}
 }

@@ -7,10 +7,19 @@ import (
 	"errors"
 )
 
+var Encrypt *Encryption
 
 // AES 加密算法
 type Encryption struct {
 	key string
+}
+
+func init() {
+	Encrypt = NewEncryption()
+}
+
+func NewEncryption() *Encryption{
+	return &Encryption{}
 }
 
 // 填充密码长度

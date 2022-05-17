@@ -33,3 +33,35 @@ services:
       - /usr/local/redis:/usr/local/redis
     ports:
       - 6379:6379
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.1.0
+    container_name: kibana
+    environment:
+      - I18N_LOCALE=zh-CN
+      - XPACK_GRAPH_ENABLED=true
+      - TIMELION_ENABLED=true
+      - XPACK_MONITORING_COLLECTION_ENABLED="true"
+    ports:
+      - 5601:5601
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.1.0
+    container_name: es
+    environment:
+      - cluster.name=fanone
+      - node.name=es
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms64m -Xmx251m"
+      - discovery.seed_hosts=es
+      - cluster.initial_master_nodes=es
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - /usr/local/elasticsearch/data:/usr/local/elasticsearch/data
+      - /usr/local/elasticsearch/config/es/config:/usr/local/elasticsearch/config
+    ports:
+      - 9200:9200
+    restart: always

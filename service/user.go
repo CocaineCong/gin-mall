@@ -58,7 +58,7 @@ func (service UserRegisterService) Register() serializer.Response {
 			Data:   "密钥长度不足",
 		}
 	}
-	conf.Encryption.SetKey(service.Key)
+	util.Encrypt.SetKey(service.Key)
 	model.DB.Model(&model.User{}).Where("user_name=?",service.UserName).Count(&count)
 	if count == 1 {
 		code = e.ErrorExistUser
@@ -71,7 +71,7 @@ func (service UserRegisterService) Register() serializer.Response {
 		Nickname: service.NickName,
 		UserName: service.UserName,
 		Status:   model.Active,
-		Money:    conf.Encryption.AesEncoding("10000"),
+		Money:    util.Encrypt.AesEncoding("10000"),
 	}
 	//加密密码
 	if err := user.SetPassword(service.Password); err != nil {

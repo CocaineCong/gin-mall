@@ -15,7 +15,7 @@ func CreateAddress(c *gin.Context) {
 		c.JSON(200, res)
 	} else {
 		c.JSON(400, ErrorResponse(err))
-		util.Logger().Infoln(err)
+		util.LogrusObj.Infoln(err)
 	}
 }
 
@@ -35,7 +35,7 @@ func UpdateAddress(c *gin.Context) {
 		c.JSON(200, res)
 	} else {
 		c.JSON(400, ErrorResponse(err))
-		util.Logger().Infoln(err)
+		util.LogrusObj.Infoln(err)
 	}
 }
 
@@ -47,6 +47,6 @@ func DeleteAddress(c *gin.Context) {
 		c.JSON(200, res)
 	} else {
 		c.JSON(400, ErrorResponse(err))
-		util.Logger().Infoln(err)
+		util.LogrusObj.Infoln(err)
 	}
 }

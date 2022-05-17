@@ -21,7 +21,7 @@ func CreateProduct(c *gin.Context) {
 		c.JSON(200, res)
 	} else {
 		c.JSON(400, ErrorResponse(err))
-		util.Logger().Infoln(err)
+		util.LogrusObj.Infoln(err)
 	}
 }
 
@@ -33,7 +33,7 @@ func ListProducts(c *gin.Context) {
 		c.JSON(200, res)
 	} else {
 		c.JSON(400, ErrorResponse(err))
-		util.Logger().Infoln(err)
+		util.LogrusObj.Infoln(err)
 	}
 }
 
@@ -59,7 +59,7 @@ func UpdateProduct(c *gin.Context) {
 		c.JSON(200, res)
 	} else {
 		c.JSON(400, ErrorResponse(err))
-		util.Logger().Infoln(err)
+		util.LogrusObj.Infoln(err)
 	}
 }
 
@@ -73,7 +73,7 @@ func SearchProducts(c *gin.Context) {
 		c.JSON(200, res)
 	} else {
 		c.JSON(400, ErrorResponse(err))
-		util.Logger().Infoln(err)
+		util.LogrusObj.Infoln(err)
 	}
 }
 
@@ -84,6 +84,6 @@ func ListProductImg(c *gin.Context) {
 		c.JSON(200, res)
 	} else {
 		c.JSON(400, ErrorResponse(err))
-		util.Logger().Infoln(err)
+		util.LogrusObj.Infoln(err)
 	}
 }

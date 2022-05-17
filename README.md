@@ -95,6 +95,11 @@ SmtpHost=smtp.qq.com
 SmtpEmail=
 SmtpPass=
 #SMTP服务的通行证
+
+[es]
+EsHost = 127.0.0.1
+EsPort = 9200
+EsIndex = mylog
 ```
 
 ## 简要说明
@@ -102,6 +107,7 @@ SmtpPass=
 2. `redis` 用来存储商品的浏览次数。
 3. 由于使用的是AES对称加密算法，这个算法并不保存在数据库或是文件中，是第一次登录的时候需要给的值，因为第一次登录系统会送1w作为初始金额进行购物，所以对其的加密，后续支付必须要再次输入，否则无法进行购物。
 4. 本项目运用了gorm的读写分离，所以要保证mysql的数据一致性。
+5. 引入了ELK体系，可以通过docker-compose全部up起来，也可以本地跑(确保ES和Kibana都开启)
 
 # 导入接口文档
 
@@ -118,6 +124,10 @@ SmtpPass=
 
 ![展示](doc/4.效果.png)
 
+
+这里是用postman查询es，Kibana也可以查看es！
+
+![postman-es](doc/5.postman-es.png)
 
 # 项目运行
 **本项目采用Go Mod管理依赖**
