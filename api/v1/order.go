@@ -7,7 +7,7 @@ import (
 )
 
 func CreateOrder(c *gin.Context) {
-	createOrderService := service.CreateOrderService{}
+	createOrderService := service.OrderService{}
 	claim ,_ := util.ParseToken(c.GetHeader("Authorization"))
 	if err := c.ShouldBind(&createOrderService);err==nil{
 		res:= createOrderService.Create(claim.ID)
@@ -19,7 +19,7 @@ func CreateOrder(c *gin.Context) {
 }
 
 func ListOrders(c *gin.Context) {
-	listOrdersService := service.ListOrdersService{}
+	listOrdersService := service.OrderService{}
 	claim,_:=util.ParseToken(c.GetHeader("Authorization"))
 	if err := c.ShouldBind(&listOrdersService);err==nil{
 		res:= listOrdersService.List(claim.ID)
@@ -32,7 +32,7 @@ func ListOrders(c *gin.Context) {
 
 //订单详情
 func ShowOrder(c *gin.Context) {
-	showOrderService := service.ShowOrderService{}
+	showOrderService := service.OrderService{}
 	if err:= c.ShouldBind(&showOrderService);err==nil{
 		res:= showOrderService.Show(c.Param("id"))
 		c.JSON(200,res)
@@ -43,7 +43,7 @@ func ShowOrder(c *gin.Context) {
 }
 
 func DeleteOrder(c *gin.Context) {
-	deleteOrderService := service.DeleteOrderService{}
+	deleteOrderService := service.OrderService{}
 	if err := c.ShouldBind(&deleteOrderService); err == nil {
 		res := deleteOrderService.Delete(c.Param("id"))
 		c.JSON(200, res)

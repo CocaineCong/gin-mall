@@ -7,7 +7,7 @@ import (
 )
 
 func CreateCart(c *gin.Context) {
-	createCartService := service.CreateCartService{}
+	createCartService := service.CreateService{}
 	claim ,_ := util.ParseToken(c.GetHeader("Authorization"))
 	if err := c.ShouldBind(&createCartService); err == nil {
 		res := createCartService.Create(c.Param("id"),claim.ID)
@@ -20,14 +20,14 @@ func CreateCart(c *gin.Context) {
 
 //购物车详细信息
 func ShowCarts(c *gin.Context) {
-	showCartsService := service.ShowCartsService{}
+	showCartsService := service.CreateService{}
 	res := showCartsService.Show(c.Param("id"))
 	c.JSON(200, res)
 }
 
 //修改购物车信息
 func UpdateCart(c *gin.Context) {
-	updateCartService := service.UpdateCartService{}
+	updateCartService := service.CreateService{}
 	if err := c.ShouldBind(&updateCartService); err == nil {
 		res := updateCartService.Update(c.Param("id"))
 		c.JSON(200, res)
@@ -39,7 +39,7 @@ func UpdateCart(c *gin.Context) {
 
 //删除购物车
 func DeleteCart(c *gin.Context) {
-	deleteCartService := service.DeleteCartService{}
+	deleteCartService := service.CreateService{}
 	claim ,_ := util.ParseToken(c.GetHeader("Authorization"))
 	if err := c.ShouldBind(&deleteCartService); err == nil {
 		res := deleteCartService.Delete(c.Param("id"),claim.ID)

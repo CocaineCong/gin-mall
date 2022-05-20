@@ -15,34 +15,21 @@ import (
 )
 
 //Create
-type CreateOrderService struct {
-	ProductID 	uint `form:"product_id" json:"product_id"`
-	Num 		uint `form:"num" json:"num"`
-	AddressID 	uint `form:"address_id" json:"address_id"`
-	Money 		int  `form:"money" json:"money"`
-	BossID 		uint `form:"boss_id" json:"boss_id"`
-}
-
-//Search
-type ListOrdersService struct {
-	PageNum     	int 	  `form:"pageNum"`
-	PageSize    	int 	  `form:"pageSize"`
-	Type 		 	int 	  `form:"type" json:"type"`
-}
-
-//Detail
-type ShowOrderService struct {
-
-}
-
-type DeleteOrderService struct {
-	UserID    	uint `form:"user_id" json:"user_id"`
-	ProductID 	uint `form:"product_id" json:"product_id"`
-	OrderNum 	uint `form:"order_num" json:"order_num"`
+type OrderService struct {
+	ProductID uint `form:"product_id" json:"product_id"`
+	Num       uint `form:"num" json:"num"`
+	AddressID uint `form:"address_id" json:"address_id"`
+	Money     int  `form:"money" json:"money"`
+	BossID    uint `form:"boss_id" json:"boss_id"`
+	UserID    uint `form:"user_id" json:"user_id"`
+	OrderNum  uint `form:"order_num" json:"order_num"`
+	PageNum   int  `form:"pageNum"`
+	PageSize  int  `form:"pageSize"`
+	Type      int  `form:"type" json:"type"`
 }
 
 
-func (service *CreateOrderService) Create(id uint) serializer.Response {
+func (service *OrderService) Create(id uint) serializer.Response {
 	var product model.Product
 	model.DB.First(&product,service.ProductID)
 	order := model.Order{
@@ -103,7 +90,7 @@ func (service *CreateOrderService) Create(id uint) serializer.Response {
 }
 
 
-func (service *ListOrdersService) List(id uint) serializer.Response{
+func (service *OrderService) List(id uint) serializer.Response{
 	var orders []model.Order
 	var total int64
 	code := e.SUCCESS
@@ -158,7 +145,7 @@ func (service *ListOrdersService) List(id uint) serializer.Response{
 }
 
 
-func (service *ShowOrderService) Show(id string) serializer.Response {
+func (service *OrderService) Show(id string) serializer.Response {
 	var order model.Order
 	var product model.Product
 	var address model.Address
@@ -195,7 +182,7 @@ func (service *ShowOrderService) Show(id string) serializer.Response {
 	}
 }
 
-func (service *DeleteOrderService) Delete(id string) serializer.Response {
+func (service *OrderService) Delete(id string) serializer.Response {
 	var order model.Order
 	code := e.SUCCESS
 	err := model.DB.First(&order,id).Error

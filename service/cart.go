@@ -9,24 +9,13 @@ import (
 )
 
 //创建购物车
-type CreateCartService struct {
+type CreateService struct {
 	BossID    uint `form:"boss_id" json:"boss_id"`
-}
-
-//购物车详情
-type ShowCartsService struct {
-}
-
-//购物车修改
-type UpdateCartService struct {
 	Num       uint `form:"num" json:"num"`
 }
 
-//删除购物车的服务
-type DeleteCartService struct {
-}
 
-func (service *CreateCartService) Create(id string,uid uint) serializer.Response {
+func (service *CreateService) Create(id string,uid uint) serializer.Response {
 	var product model.Product
 	code := e.SUCCESS
 	err := model.DB.First(&product, id).Error
@@ -100,7 +89,7 @@ func (service *CreateCartService) Create(id string,uid uint) serializer.Response
 }
 
 //Show 订单
-func (service *ShowCartsService) Show(id string) serializer.Response {
+func (service *CreateService) Show(id string) serializer.Response {
 	var carts []model.Cart
 	code := e.SUCCESS
 	err := model.DB.Where("user_id=?", id).Find(&carts).Error
@@ -121,7 +110,7 @@ func (service *ShowCartsService) Show(id string) serializer.Response {
 }
 
 //修改购物车信息
-func (service *UpdateCartService) Update(id string) serializer.Response {
+func (service *CreateService) Update(id string) serializer.Response {
 	var cart model.Cart
 	code := e.SUCCESS
 	err := model.DB.Where("id=?",id).Find(&cart).Error
@@ -152,7 +141,7 @@ func (service *UpdateCartService) Update(id string) serializer.Response {
 }
 
 //删除购物车
-func (service *DeleteCartService) Delete(pid string,uid uint) serializer.Response {
+func (service *CreateService) Delete(pid string,uid uint) serializer.Response {
 	var cart model.Cart
 	code := e.SUCCESS
 	err := model.DB.Where("user_id=? AND product_id=?", uid, pid).Error

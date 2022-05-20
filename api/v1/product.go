@@ -14,7 +14,7 @@ func CreateProduct(c *gin.Context) {
 	fmt.Println("c.Request.MultipartForm",form)
 	files := form.File["file"]
 	claim, _ := util.ParseToken(c.GetHeader("Authorization"))
-	createProductService := service.CreateProductService{}
+	createProductService := service.ProductService{}
 	//c.SaveUploadedFile()
 	if err := c.ShouldBind(&createProductService); err == nil {
 		res := createProductService.Create(claim.ID, files)
@@ -27,7 +27,7 @@ func CreateProduct(c *gin.Context) {
 
 //商品列表
 func ListProducts(c *gin.Context) {
-	listProductsService := service.ListProductsService{}
+	listProductsService := service.ProductService{}
 	if err := c.ShouldBind(&listProductsService); err == nil {
 		res := listProductsService.List()
 		c.JSON(200, res)
@@ -39,21 +39,21 @@ func ListProducts(c *gin.Context) {
 
 //商品详情
 func ShowProduct(c *gin.Context) {
-	showProductService := service.ShowProductService{}
+	showProductService := service.ProductService{}
 	res := showProductService.Show(c.Param("id"))
 	c.JSON(200, res)
 }
 
 //删除商品
 func DeleteProduct(c *gin.Context) {
-	deleteProductService := service.DeleteProductService{}
+	deleteProductService := service.ProductService{}
 	res := deleteProductService.Delete(c.Param("id"))
 	c.JSON(200, res)
 }
 
 //更新商品
 func UpdateProduct(c *gin.Context) {
-	updateProductService := service.UpdateProductService{}
+	updateProductService := service.ProductService{}
 	if err := c.ShouldBind(&updateProductService); err == nil {
 		res := updateProductService.Update(c.Param("id"))
 		c.JSON(200, res)
@@ -67,7 +67,7 @@ func UpdateProduct(c *gin.Context) {
 
 //搜索商品
 func SearchProducts(c *gin.Context) {
-	searchProductsService := service.SearchProductsService{}
+	searchProductsService := service.ProductService{}
 	if err := c.ShouldBind(&searchProductsService); err == nil {
 		res := searchProductsService.Search()
 		c.JSON(200, res)

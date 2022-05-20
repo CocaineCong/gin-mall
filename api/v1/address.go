@@ -8,7 +8,7 @@ import (
 
 //新增收货地址
 func CreateAddress(c *gin.Context) {
-	service := service2.CreateAddressService{}
+	service := service2.AddressService{}
 	claim ,_ := util.ParseToken(c.GetHeader("Authorization"))
 	if err := c.ShouldBind(&service); err == nil {
 		res := service.Create(claim.ID)
@@ -21,14 +21,14 @@ func CreateAddress(c *gin.Context) {
 
 //展示收货地址
 func ShowAddresses(c *gin.Context) {
-	service := service2.ShowAddressService{}
+	service := service2.AddressService{}
 	res := service.Show(c.Param("id"))
 	c.JSON(200, res)
 }
 
 //修改收货地址
 func UpdateAddress(c *gin.Context) {
-	service := service2.UpdateAddressService{}
+	service := service2.AddressService{}
 	claim ,_ := util.ParseToken(c.GetHeader("Authorization"))
 	if err := c.ShouldBind(&service); err == nil {
 		res := service.Update(claim.ID,c.Param("id"))
@@ -41,7 +41,7 @@ func UpdateAddress(c *gin.Context) {
 
 //删除收获地址
 func DeleteAddress(c *gin.Context) {
-	service := service2.DeleteAddressService{}
+	service := service2.AddressService{}
 	if err := c.ShouldBind(&service); err == nil {
 		res := service.Delete(c.Param("id"))
 		c.JSON(200, res)

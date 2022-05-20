@@ -16,24 +16,11 @@ import (
 )
 
 //UserRegisterService 管理用户注册服务
-type UserRegisterService struct {
-	NickName string `form:"nick_name" json:"nick_name" binding:"required,min=2,max=10"`
-	UserName string `form:"user_name" json:"user_name" binding:"required,min=5,max=15"`
-	Password string `form:"password" json:"password" binding:"required,min=8,max=16"`
-	Key      string `form:"key" json:"key" binding:"required"`
-}
-
-type UserLoginService struct {
-	UserName  string `form:"user_name" json:"user_name" binding:"required,min=5,max=15"`
-	Password  string `form:"password" json:"password" binding:"required,min=8,max=16"`
-}
-
-//用户修改信息的服务
-type UserUpdateService struct {
-	NickName string `form:"nick_name" json:"nick_name" binding:"required,min=5,max=10"`
-}
-
-type UploadAvatarService struct {
+type UserService struct {
+	NickName string `form:"nick_name" json:"nick_name"`
+	UserName string `form:"user_name" json:"user_name"`
+	Password string `form:"password" json:"password"`
+	Key      string `form:"key" json:"key"` // 前端进行判断
 }
 
 type SendEmailService struct {
@@ -46,7 +33,7 @@ type SendEmailService struct {
 type ValidEmailService struct {
 }
 
-func (service UserRegisterService) Register() serializer.Response {
+func (service UserService) Register() serializer.Response {
 	var user model.User
 	var count int64
 	code := e.SUCCESS
@@ -100,7 +87,7 @@ func (service UserRegisterService) Register() serializer.Response {
 
 
 //Login 用户登陆函数
-func (service UserLoginService) Login() serializer.Response {
+func (service UserService) Login() serializer.Response {
 	var user model.User
 	code := e.SUCCESS
 	if err := model.DB.Where("user_name=?", service.UserName).First(&user).Error; err != nil {
@@ -144,7 +131,7 @@ func (service UserLoginService) Login() serializer.Response {
 }
 
 //Update 用户修改信息
-func (service UserUpdateService) Update(id uint) serializer.Response {
+func (service UserService) Update(id uint) serializer.Response {
 	var user model.User
 	code := e.SUCCESS
 	//找到用户
@@ -180,7 +167,7 @@ func (service UserUpdateService) Update(id uint) serializer.Response {
 }
 
 
-func (service *UploadAvatarService) Post(id uint, file multipart.File,fileSize int64) serializer.Response {
+func (service *UserService) Post(id uint, file multipart.File,fileSize int64) serializer.Response {
 	var user model.User
 	code := e.SUCCESS
 	status, info := UploadToQiNiu(file, fileSize)

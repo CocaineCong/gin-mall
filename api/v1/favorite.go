@@ -8,7 +8,7 @@ import (
 
 //创建收藏
 func CreateFavorite(c *gin.Context) {
-	service := service2.CreateFavoritesService{}
+	service := service2.FavoritesService{}
 	claim , _ := util.ParseToken(c.GetHeader("Authorization"))
 	if err := c.ShouldBind(&service); err == nil {
 		res := service.Create(claim.ID)
@@ -21,7 +21,7 @@ func CreateFavorite(c *gin.Context) {
 
 //收藏夹详情接口
 func ShowFavorites(c *gin.Context) {
-	service := service2.ShowFavoritesService{}
+	service := service2.FavoritesService{}
 	claim , _ := util.ParseToken(c.GetHeader("Authorization"))
 	if err := c.ShouldBind(&service); err == nil {
 		res := service.Show(claim.ID)
@@ -33,7 +33,7 @@ func ShowFavorites(c *gin.Context) {
 }
 
 func DeleteFavorite(c *gin.Context) {
-	service := service2.DeleteFavoriteService{}
+	service := service2.FavoritesService{}
 	claim ,_ := util.ParseToken(c.GetHeader("Authorization"))
 	if err := c.ShouldBind(&service); err == nil {
 		res := service.Delete(claim.ID,c.Param("id"))

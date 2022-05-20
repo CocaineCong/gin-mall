@@ -8,22 +8,14 @@ import (
 	"strconv"
 )
 
-type CreateAddressService struct {
+type AddressService struct {
 	Name    string `form:"name" json:"name"`
 	Phone   string `form:"phone" json:"phone"`
 	Address string `form:"address" json:"address"`
-}
-type ShowAddressService struct {
-}
-type UpdateAddressService struct {
-	Name    string `form:"name" json:"name"`
-	Phone   string `form:"phone" json:"phone"`
-	Address string `form:"address" json:"address"`
-}
-type DeleteAddressService struct {
 }
 
-func (service *CreateAddressService) Create(id uint) serializer.Response {
+
+func (service *AddressService) Create(id uint) serializer.Response {
 	var address model.Address
 	code := e.SUCCESS
 	address = model.Address{
@@ -60,7 +52,7 @@ func (service *CreateAddressService) Create(id uint) serializer.Response {
 	}
 }
 
-func (service *ShowAddressService) Show(id string) serializer.Response {
+func (service *AddressService) Show(id string) serializer.Response {
 	var addresses []model.Address
 	code := e.SUCCESS
 	err := model.DB.Where("user_id = ?", id).Order("created_at desc").Find(&addresses).Error
@@ -80,7 +72,7 @@ func (service *ShowAddressService) Show(id string) serializer.Response {
 	}
 }
 
-func (service *DeleteAddressService) Delete(id string) serializer.Response {
+func (service *AddressService) Delete(id string) serializer.Response {
 	var address model.Address
 	code := e.SUCCESS
 	err := model.DB.Where("id = ?", id).First(&address).Error
@@ -109,7 +101,7 @@ func (service *DeleteAddressService) Delete(id string) serializer.Response {
 	}
 }
 
-func (service *UpdateAddressService) Update(uid uint,aid string) serializer.Response {
+func (service *AddressService) Update(uid uint,aid string) serializer.Response {
 	code := e.SUCCESS
 	address := model.Address{
 		UserID:  uid,

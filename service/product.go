@@ -8,16 +8,8 @@ import (
 	"mime/multipart"
 )
 
-//展示商品详情的服务
-type ShowProductService struct {
-}
-
-//删除商品的服务
-type DeleteProductService struct {
-}
-
 //更新商品的服务
-type UpdateProductService struct {
+type ProductService struct {
 	ID            uint   `form:"id" json:"id"`
 	Name          string `form:"name" json:"name"`
 	CategoryID    int    `form:"category_id" json:"category_id"`
@@ -27,38 +19,18 @@ type UpdateProductService struct {
 	Price         string `form:"price" json:"price"`
 	DiscountPrice string `form:"discount_price" json:"discount_price"`
 	OnSale        bool   `form:"on_sale" json:"on_sale"`
-	Num           string `form:"num" json:"num"`
+	Num           int    `form:"num" json:"num"`
+	PageNum       int    `form:"pageNum"`
+	PageSize      int    `form:"pageSize"`
 }
 
-//搜索商品的服务
-type SearchProductsService struct {
-	Info     string `form:"info" json:"info"`
-	PageNum  int    `form:"pageNum"`
-	PageSize int    `form:"pageSize"`
-}
-
-type CreateProductService struct {
-	Name          string `form:"name" json:"name"`
-	CategoryID    int    `form:"category_id" json:"category_id"`
-	Title         string `form:"title" json:"title" bind:"required,min=2,max=100"`
-	Info          string `form:"info" json:"info" bind:"max=1000"`
-	Num 		  int 	 `json:"num" form:"num"`
-	Price         string `form:"price" json:"price"`
-	DiscountPrice string `form:"discount_price" json:"discount_price"`
-}
-
-type ListProductsService struct {
-	PageNum    int  `form:"pageNum"`
-	PageSize   int  `form:"pageSize"`
-	CategoryID uint `form:"category_id" json:"category_id"`
-}
 
 type ListProductImgService struct {
 
 }
 
 // 商品
-func (service *ShowProductService) Show(id string) serializer.Response {
+func (service *ProductService) Show(id string) serializer.Response {
 	var product model.Product
 	code := e.SUCCESS
 	err := model.DB.First(&product, id).Error
@@ -79,7 +51,7 @@ func (service *ShowProductService) Show(id string) serializer.Response {
 }
 
 //创建商品
-func (service *CreateProductService)Create(id uint,files []*multipart.FileHeader) serializer.Response {
+func (service *ProductService)Create(id uint,files []*multipart.FileHeader) serializer.Response {
 	var boss model.User
 	model.DB.Model(&model.User{}).Where("id = ?",id).First(&boss)
 	tmp,_ := files[0].Open()
@@ -147,7 +119,7 @@ func (service *CreateProductService)Create(id uint,files []*multipart.FileHeader
 	}
 }
 
-func (service *ListProductsService) List() serializer.Response {
+func (service *ProductService) List() serializer.Response {
 	var products []model.Product
 	var total int64
 	code := e.SUCCESS
@@ -213,7 +185,7 @@ func (service *ListProductsService) List() serializer.Response {
 }
 
 //删除商品
-func (service *DeleteProductService) Delete(id string) serializer.Response {
+func (service *ProductService) Delete(id string) serializer.Response {
 	var product model.Product
 	code := e.SUCCESS
 	err := model.DB.First(&product, id).Error
@@ -243,7 +215,7 @@ func (service *DeleteProductService) Delete(id string) serializer.Response {
 }
 
 //更新商品
-func (service *UpdateProductService) Update(id string) serializer.Response {
+func (service *ProductService) Update(id string) serializer.Response {
 	var product model.Product
 	model.DB.Model(&model.Product{}).First(&product,id)
 	product.Name=service.Name
@@ -272,7 +244,7 @@ func (service *UpdateProductService) Update(id string) serializer.Response {
 }
 
 //搜索商品
-func (service *SearchProductsService) Search() serializer.Response {
+func (service *ProductService) Search() serializer.Response {
 	var products []model.Product
 	code := e.SUCCESS
 	if service.PageSize == 0 {

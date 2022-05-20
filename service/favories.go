@@ -7,21 +7,16 @@ import (
 	"mall/serializer"
 )
 
-type ShowFavoritesService struct {
+type FavoritesService struct {
+	ProductID uint `form:"product_id" json:"product_id"`
+	BossID    uint ` form:"boss_id" json:"boss_id"`
 	PageNum     	int 	  `form:"pageNum"`
 	PageSize    	int 	  `form:"pageSize"`
 }
 
-type CreateFavoritesService struct {
-	ProductID uint `form:"product_id" json:"product_id"`
-	BossID    uint ` form:"boss_id" json:"boss_id"`
-}
-
-type DeleteFavoriteService struct {
-}
 
 //商品收藏夹
-func (service *ShowFavoritesService) Show(id uint) serializer.Response {
+func (service *FavoritesService) Show(id uint) serializer.Response {
 	var favorites []model.Favorite
 	var total int64
 	code := e.SUCCESS
@@ -54,7 +49,7 @@ func (service *ShowFavoritesService) Show(id uint) serializer.Response {
 }
 
 //创建收藏夹
-func (service *CreateFavoritesService) Create(id uint) serializer.Response {
+func (service *FavoritesService) Create(id uint) serializer.Response {
 	var favorite model.Favorite
 	var user model.User
 	var boss model.User
@@ -96,7 +91,7 @@ func (service *CreateFavoritesService) Create(id uint) serializer.Response {
 }
 
 //删除收藏夹
-func (service *DeleteFavoriteService) Delete(uid uint,pid string) serializer.Response {
+func (service *FavoritesService) Delete(uid uint,pid string) serializer.Response {
 	var favorite model.Favorite
 	code := e.SUCCESS
 	err := model.DB.Where("user_id=? AND product_id=?", uid, pid).Find(&favorite).Error

@@ -7,7 +7,7 @@ import (
 )
 
 func UserRegister(c *gin.Context) {
-	var userRegisterService service.UserRegisterService //相当于创建了一个UserRegisterService对象，调用这个对象中的Register方法。
+	var userRegisterService service.UserService //相当于创建了一个UserRegisterService对象，调用这个对象中的Register方法。
 	if err := c.ShouldBind(&userRegisterService); err == nil {
 		res := userRegisterService.Register()
 		c.JSON(200, res)
@@ -19,7 +19,7 @@ func UserRegister(c *gin.Context) {
 
 //UserLogin 用户登陆接口
 func UserLogin(c *gin.Context) {
-	var userLoginService service.UserLoginService
+	var userLoginService service.UserService
 	if err := c.ShouldBind(&userLoginService); err == nil {
 		res := userLoginService.Login()
 		c.JSON(200, res)
@@ -30,7 +30,7 @@ func UserLogin(c *gin.Context) {
 }
 
 func UserUpdate(c *gin.Context) {
-	var userUpdateService service.UserUpdateService
+	var userUpdateService service.UserService
 	claims, _ := util.ParseToken(c.GetHeader("Authorization"))
 	if err := c.ShouldBind(&userUpdateService); err == nil {
 		res := userUpdateService.Update(claims.ID)
@@ -44,7 +44,7 @@ func UserUpdate(c *gin.Context) {
 func UploadAvatar(c *gin.Context) {
 	file, fileHeader, _ := c.Request.FormFile("file")
 	fileSize := fileHeader.Size
-	uploadAvatarService := service.UploadAvatarService{}
+	uploadAvatarService := service.UserService{}
 	chaim, _ := util.ParseToken(c.GetHeader("Authorization"))
 	if err := c.ShouldBind(&uploadAvatarService); err == nil {
 		res := uploadAvatarService.Post(chaim.ID, file, fileSize)
