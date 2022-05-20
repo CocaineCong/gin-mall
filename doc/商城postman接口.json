@@ -18,12 +18,12 @@
 							"formdata": [
 								{
 									"key": "nick_name",
-									"value": "FanOne",
+									"value": "FanOne1",
 									"type": "text"
 								},
 								{
 									"key": "user_name",
-									"value": "FanTwo",
+									"value": "FanTwo1",
 									"type": "text"
 								},
 								{
@@ -117,7 +117,7 @@
 							"formdata": [
 								{
 									"key": "user_name",
-									"value": "FanTwo",
+									"value": "FanTwo1",
 									"type": "text"
 								},
 								{
@@ -148,7 +148,7 @@
 									"formdata": [
 										{
 											"key": "user_name",
-											"value": "FanTwoToo",
+											"value": "FanTwo1",
 											"type": "text"
 										},
 										{
@@ -178,15 +178,15 @@
 								},
 								{
 									"key": "Date",
-									"value": "Fri, 17 Dec 2021 08:35:36 GMT"
+									"value": "Fri, 20 May 2022 13:31:35 GMT"
 								},
 								{
 									"key": "Content-Length",
-									"value": "439"
+									"value": "423"
 								}
 							],
 							"cookie": [],
-							"body": "{\n    \"status\": 200,\n    \"data\": {\n        \"user\": {\n            \"id\": 1,\n            \"user_name\": \"FanTwoToo\",\n            \"nickname\": \"FanTwo\",\n            \"type\": 0,\n            \"email\": \"\",\n            \"status\": \"active\",\n            \"avatar\": \"http://q1.qlogo.cn/g?b=qq&nk=294350394&s=640\",\n            \"monery\": 10000,\n            \"create_at\": 1639729950\n        },\n        \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJGYW5Ud29Ub28iLCJhdXRob3JpdHkiOjAsImV4cCI6MTYzOTgxNjUzNiwiaXNzIjoibWFsbCJ9.a04gWod1pEWODQ1PrETLFPJDrMrWpvmRqPsviS1tsc8\"\n    },\n    \"msg\": \"ok\",\n    \"error\": \"\"\n}"
+							"body": "{\n    \"status\": 200,\n    \"data\": {\n        \"user\": {\n            \"id\": 3,\n            \"user_name\": \"FanTwo1\",\n            \"nickname\": \"FanOneOne\",\n            \"type\": 0,\n            \"email\": \"\",\n            \"status\": \"active\",\n            \"avatar\": \"http://q1.qlogo.cn/g?b=qq&nk=294350394&s=640\",\n            \"create_at\": 1653053147\n        },\n        \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywidXNlcm5hbWUiOiJGYW5Ud28xIiwiYXV0aG9yaXR5IjowLCJleHAiOjE2NTMxMzk4OTUsImlzcyI6Im1hbGwifQ.5L8sPDaF9XNEGWAHtPBZ5mTDd6lqF0vTNRBVYCmrGKI\"\n    },\n    \"msg\": \"ok\",\n    \"error\": \"\"\n}"
 						}
 					]
 				},
