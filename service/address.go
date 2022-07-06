@@ -1,7 +1,9 @@
 package service
 
 import (
+	"context"
 	logging "github.com/sirupsen/logrus"
+	"mall/dao"
 	"mall/model"
 	"mall/pkg/e"
 	"mall/serializer"
@@ -14,17 +16,17 @@ type AddressService struct {
 	Address string `form:"address" json:"address"`
 }
 
-
-func (service *AddressService) Create(id uint) serializer.Response {
+func (service *AddressService) Create(ctx context.Context, uId uint) serializer.Response {
 	var address model.Address
 	code := e.SUCCESS
+	addressDao := dao.NewAddressDao(ctx)
 	address = model.Address{
-		UserID:  id,
+		UserID:  uId,
 		Name:    service.Name,
 		Phone:   service.Phone,
 		Address: service.Address,
 	}
-	err := model.DB.Create(&address).Error
+	err := addressDao.CreateAddress(address)
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
@@ -34,8 +36,9 @@ func (service *AddressService) Create(id uint) serializer.Response {
 			Error:  err.Error(),
 		}
 	}
+	addressDao = dao.NewAddressDaoByDB(addressDao.DB)
 	var addresses []model.Address
-	err = model.DB.Model(model.Address{}).Where("user_id = ?", id).Order("created_at desc").Find(&addresses).Error
+	addresses, err = addressDao.ListAddressByUid(uId)
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
@@ -52,10 +55,11 @@ func (service *AddressService) Create(id uint) serializer.Response {
 	}
 }
 
-func (service *AddressService) Show(id string) serializer.Response {
-	var addresses []model.Address
+func (service *AddressService) Show(ctx context.Context, uId string) serializer.Response {
 	code := e.SUCCESS
-	err := model.DB.Where("user_id = ?", id).Order("created_at desc").Find(&addresses).Error
+	addressDao := dao.NewAddressDao(ctx)
+	userId, _ := strconv.Atoi(uId)
+	addresses, err := addressDao.ListAddressByUid(uint(userId))
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
@@ -72,20 +76,11 @@ func (service *AddressService) Show(id string) serializer.Response {
 	}
 }
 
-func (service *AddressService) Delete(id string) serializer.Response {
-	var address model.Address
+func (service *AddressService) Delete(ctx context.Context, aId string) serializer.Response {
+	addressDao := dao.NewAddressDao(ctx)
 	code := e.SUCCESS
-	err := model.DB.Where("id = ?", id).First(&address).Error
-	if err != nil {
-		logging.Info(err)
-		code = e.ErrorDatabase
-		return serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Error:  err.Error(),
-		}
-	}
-	err = model.DB.Delete(&address).Error
+	addressId, _ := strconv.Atoi(aId)
+	err := addressDao.DeleteAddressById(uint(addressId))
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
@@ -101,29 +96,21 @@ func (service *AddressService) Delete(id string) serializer.Response {
 	}
 }
 
-func (service *AddressService) Update(uid uint,aid string) serializer.Response {
+func (service *AddressService) Update(ctx context.Context, uid uint, aid string) serializer.Response {
 	code := e.SUCCESS
+
+	addressDao := dao.NewAddressDao(ctx)
 	address := model.Address{
 		UserID:  uid,
 		Name:    service.Name,
 		Phone:   service.Phone,
 		Address: service.Address,
 	}
-	aidInt,_ := strconv.Atoi(aid)
-	address.ID = uint(aidInt)
-	err := model.DB.Save(&address).Error
-	if err != nil {
-		logging.Info(err)
-		code = e.ErrorDatabase
-		return serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Error:  err.Error(),
-		}
-	}
+	addressId, _ := strconv.Atoi(aid)
+	err := addressDao.UpdateAddressById(uint(addressId), address)
+	addressDao = dao.NewAddressDaoByDB(addressDao.DB)
 	var addresses []model.Address
-	err = model.DB.Model(model.Address{}).Where("user_id = ?", uid).
-		Order("created_at desc").Find(&addresses).Error
+	addresses, err = addressDao.ListAddressByUid(uid)
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
