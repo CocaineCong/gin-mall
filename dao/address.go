@@ -11,7 +11,7 @@ type AddressDao struct {
 }
 
 func NewAddressDao(ctx context.Context) *AddressDao {
-	return &AddressDao{}
+	return &AddressDao{NewDBClient(ctx)}
 }
 
 func NewAddressDaoByDB(db *gorm.DB) *AddressDao {
