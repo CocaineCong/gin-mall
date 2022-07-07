@@ -6,6 +6,7 @@ import (
 	"github.com/jinzhu/gorm"
 	logging "github.com/sirupsen/logrus"
 	"mall/cache"
+	"mall/dao"
 	"mall/model"
 	"mall/pkg/e"
 	"mall/serializer"
@@ -28,10 +29,9 @@ type OrderService struct {
 	Type      int  `form:"type" json:"type"`
 }
 
-
 func (service *OrderService) Create(id uint) serializer.Response {
 	var product model.Product
-	model.DB.First(&product,service.ProductID)
+	dao.DB.First(&product, service.ProductID)
 	order := model.Order{
 		UserID:    id,
 		ProductID: service.ProductID,
@@ -42,7 +42,7 @@ func (service *OrderService) Create(id uint) serializer.Response {
 	}
 	address := model.Address{}
 	code := e.SUCCESS
-	if err := model.DB.First(&address,service.AddressID).Error;err!=nil{
+	if err := dao.DB.First(&address, service.AddressID).Error; err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
 		return serializer.Response{
@@ -52,11 +52,11 @@ func (service *OrderService) Create(id uint) serializer.Response {
 		}
 	}
 	order.AddressID = address.ID
-	number := fmt.Sprintf("%09v",rand.New(rand.NewSource(time.Now().UnixNano())).Int31n(1000000000))
+	number := fmt.Sprintf("%09v", rand.New(rand.NewSource(time.Now().UnixNano())).Int31n(1000000000))
 	productNum := strconv.Itoa(int(service.ProductID))
 	userNum := strconv.Itoa(int(id))
-	number = number+productNum+userNum
-	orderNum,err := strconv.ParseUint(number,10,64)
+	number = number + productNum + userNum
+	orderNum, err := strconv.ParseUint(number, 10, 64)
 	if err != nil {
 		logging.Info(err)
 		code = e.ERROR
@@ -67,7 +67,7 @@ func (service *OrderService) Create(id uint) serializer.Response {
 		}
 	}
 	order.OrderNum = orderNum
-	err = model.DB.Create(&order).Error
+	err = dao.DB.Create(&order).Error
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
@@ -78,28 +78,27 @@ func (service *OrderService) Create(id uint) serializer.Response {
 		}
 	}
 	//订单号存入Redis中，设置过期时间
-	data:=redis.Z{
+	data := redis.Z{
 		Score:  float64(time.Now().Unix()) + 15*time.Minute.Seconds(),
 		Member: orderNum,
 	}
-	cache.RedisClient.ZAdd("3",data)
+	cache.RedisClient.ZAdd("3", data)
 	return serializer.Response{
 		Status: code,
 		Msg:    e.GetMsg(code),
 	}
 }
 
-
-func (service *OrderService) List(id uint) serializer.Response{
+func (service *OrderService) List(id uint) serializer.Response {
 	var orders []model.Order
 	var total int64
 	code := e.SUCCESS
-	if service.PageSize == 0{
+	if service.PageSize == 0 {
 		service.PageSize = 5
 	}
-	if service.Type == 0{
-		if err := model.DB.Model(&orders).Where("user_id=?",id).
-			Count(&total).Error;err!=nil{
+	if service.Type == 0 {
+		if err := dao.DB.Model(&orders).Where("user_id=?", id).
+			Count(&total).Error; err != nil {
 			logging.Info(err)
 			code = e.ErrorDatabase
 			return serializer.Response{
@@ -108,8 +107,8 @@ func (service *OrderService) List(id uint) serializer.Response{
 				Error:  err.Error(),
 			}
 		}
-		if err := model.DB.Where("user_id = ?",id).Offset((service.PageNum - 1) * service.PageSize).
-			Limit(service.PageSize).Order("created_at desc").Find(&orders).Error;err!=nil{
+		if err := dao.DB.Where("user_id = ?", id).Offset((service.PageNum - 1) * service.PageSize).
+			Limit(service.PageSize).Order("created_at desc").Find(&orders).Error; err != nil {
 			logging.Info(err)
 			code = e.ErrorDatabase
 			return serializer.Response{
@@ -118,9 +117,9 @@ func (service *OrderService) List(id uint) serializer.Response{
 				Error:  err.Error(),
 			}
 		}
-	}else {
-		if err := model.DB.Model(&orders).Where("user_id=? AND type = ?" ,id,service.Type).
-			Count(&total).Error;err!=nil{
+	} else {
+		if err := dao.DB.Model(&orders).Where("user_id=? AND type = ?", id, service.Type).
+			Count(&total).Error; err != nil {
 			logging.Info(err)
 			code = e.ErrorDatabase
 			return serializer.Response{
@@ -129,28 +128,27 @@ func (service *OrderService) List(id uint) serializer.Response{
 				Error:  err.Error(),
 			}
 		}
-		if err := model.DB.Where("user_id=? AND type=?",id,service.Type).
+		if err := dao.DB.Where("user_id=? AND type=?", id, service.Type).
 			Offset((service.PageNum - 1) * service.PageSize).
 			Limit(service.PageSize).Order("created_at desc").Find(&orders).Error; err != nil {
-				logging.Info(err)
-				code = e.ErrorDatabase
-				return serializer.Response{
-					Status: code,
-					Msg:    e.GetMsg(code),
-					Error:  err.Error(),
-				}
+			logging.Info(err)
+			code = e.ErrorDatabase
+			return serializer.Response{
+				Status: code,
+				Msg:    e.GetMsg(code),
+				Error:  err.Error(),
 			}
 		}
-	return serializer.BuildListResponse(serializer.BuildOrders(orders),uint(total))
+	}
+	return serializer.BuildListResponse(serializer.BuildOrders(orders), uint(total))
 }
-
 
 func (service *OrderService) Show(id string) serializer.Response {
 	var order model.Order
 	var product model.Product
 	var address model.Address
 	code := e.SUCCESS
-	if err := model.DB.Model(&model.Order{}).First(&order,id).Error;err!=nil{
+	if err := dao.DB.Model(&model.Order{}).First(&order, id).Error; err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
 		return serializer.Response{
@@ -158,9 +156,9 @@ func (service *OrderService) Show(id string) serializer.Response {
 			Msg:    e.GetMsg(code),
 		}
 	}
-	model.DB.Where("id = ?",order.AddressID).First(&address)
-	if err := model.DB.Where("id=?",order.ProductID).First(&product).Error;err!=nil{
-		if gorm.IsRecordNotFoundError(err){
+	dao.DB.Where("id = ?", order.AddressID).First(&address)
+	if err := dao.DB.Where("id=?", order.ProductID).First(&product).Error; err != nil {
+		if gorm.IsRecordNotFoundError(err) {
 			logging.Info(err)
 			code = e.ErrorNotExistProduct
 			return serializer.Response{
@@ -171,21 +169,21 @@ func (service *OrderService) Show(id string) serializer.Response {
 		logging.Info(err)
 		code = e.ErrorDatabase
 		return serializer.Response{
-			Status:code,
-			Msg:e.GetMsg(code),
+			Status: code,
+			Msg:    e.GetMsg(code),
 		}
 	}
 	return serializer.Response{
-		Status:code,
-		Msg:e.GetMsg(code),
-		Data:serializer.BuildOrder(order,product,address),
+		Status: code,
+		Msg:    e.GetMsg(code),
+		Data:   serializer.BuildOrder(order, product, address),
 	}
 }
 
 func (service *OrderService) Delete(id string) serializer.Response {
 	var order model.Order
 	code := e.SUCCESS
-	err := model.DB.First(&order,id).Error
+	err := dao.DB.First(&order, id).Error
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
@@ -195,7 +193,7 @@ func (service *OrderService) Delete(id string) serializer.Response {
 			Error:  err.Error(),
 		}
 	}
-	err = model.DB.Delete(&order).Error
+	err = dao.DB.Delete(&order).Error
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase

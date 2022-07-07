@@ -4,35 +4,34 @@ import (
 	"fmt"
 	logging "github.com/sirupsen/logrus"
 	"gopkg.in/ini.v1"
-	"mall/model"
+	"mall/dao"
 	"strings"
 )
 
 var (
+	AppMode  string
+	HttpPort string
 
-	AppMode  			string
-	HttpPort 			string
+	Db         string
+	DbHost     string
+	DbPort     string
+	DbUser     string
+	DbPassWord string
+	DbName     string
 
-	Db         			string
-	DbHost     			string
-	DbPort     			string
-	DbUser     			string
-	DbPassWord 			string
-	DbName     			string
+	AccessKey   string
+	SerectKey   string
+	Bucket      string
+	QiniuServer string
 
-	AccessKey      		string
-	SerectKey      		string
-	Bucket     			string
-	QiniuServer      	string
+	ValidEmail string
+	SmtpHost   string
+	SmtpEmail  string
+	SmtpPass   string
 
-	ValidEmail 			string
-	SmtpHost 			string
-	SmtpEmail 			string
-	SmtpPass 			string
-
-	EsHost				string
-	EsPort				string
-	EsIndex				string
+	EsHost  string
+	EsPort  string
+	EsIndex string
 )
 
 func Init() {
@@ -53,17 +52,15 @@ func Init() {
 	//MySQL
 	pathRead := strings.Join([]string{DbUser, ":", DbPassWord, "@tcp(", DbHost, ":", DbPort, ")/", DbName, "?charset=utf8&parseTime=true"}, "")
 	pathWrite := strings.Join([]string{DbUser, ":", DbPassWord, "@tcp(", DbHost, ":", DbPort, ")/", DbName, "?charset=utf8&parseTime=true"}, "")
-	model.Database(pathRead, pathWrite)
+	dao.Database(pathRead, pathWrite)
 	//esConn := "http://"+EsHost+":"+EsPort //TODO 读取ES配置
 	//model.EsInit(esConn)
 }
-
 
 func LoadServer(file *ini.File) {
 	AppMode = file.Section("service").Key("AppMode").String()
 	HttpPort = file.Section("service").Key("HttpPort").String()
 }
-
 
 func LoadMysqlData(file *ini.File) {
 	Db = file.Section("mysql").Key("Db").String()
@@ -74,7 +71,6 @@ func LoadMysqlData(file *ini.File) {
 	DbName = file.Section("mysql").Key("DbName").String()
 }
 
-
 func LoadQiniu(file *ini.File) {
 	AccessKey = file.Section("qiniu").Key("AccessKey").String()
 	SerectKey = file.Section("qiniu").Key("SerectKey").String()
@@ -84,9 +80,9 @@ func LoadQiniu(file *ini.File) {
 
 func LoadEmail(file *ini.File) {
 	ValidEmail = file.Section("email").Key("ValidEmail").String()
-	SmtpHost= file.Section("email").Key("SmtpHost").String()
-	SmtpEmail= file.Section("email").Key("SmtpEmail").String()
-	SmtpPass= file.Section("email").Key("SmtpPass").String()
+	SmtpHost = file.Section("email").Key("SmtpHost").String()
+	SmtpEmail = file.Section("email").Key("SmtpEmail").String()
+	SmtpPass = file.Section("email").Key("SmtpPass").String()
 }
 
 func LoadEs(file *ini.File) {

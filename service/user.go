@@ -6,6 +6,7 @@ import (
 	logging "github.com/sirupsen/logrus"
 	"gopkg.in/mail.v2"
 	"mall/conf"
+	"mall/dao"
 	"mall/model"
 	"mall/pkg/e"
 	util "mall/pkg/utils"
@@ -37,7 +38,7 @@ func (service UserService) Register() serializer.Response {
 	var user model.User
 	var count int64
 	code := e.SUCCESS
-	if service.Key=="" || len(service.Key)!=16 {
+	if service.Key == "" || len(service.Key) != 16 {
 		code = e.ERROR
 		return serializer.Response{
 			Status: code,
@@ -46,7 +47,7 @@ func (service UserService) Register() serializer.Response {
 		}
 	}
 	util.Encrypt.SetKey(service.Key)
-	model.DB.Model(&model.User{}).Where("user_name=?",service.UserName).Count(&count)
+	dao.DB.Model(&model.User{}).Where("user_name=?", service.UserName).Count(&count)
 	if count == 1 {
 		code = e.ErrorExistUser
 		return serializer.Response{
@@ -71,7 +72,7 @@ func (service UserService) Register() serializer.Response {
 	}
 	user.Avatar = "http://q1.qlogo.cn/g?b=qq&nk=294350394&s=640"
 	//创建用户
-	if err := model.DB.Create(&user).Error; err != nil {
+	if err := dao.DB.Create(&user).Error; err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
 		return serializer.Response{
@@ -85,12 +86,11 @@ func (service UserService) Register() serializer.Response {
 	}
 }
 
-
 //Login 用户登陆函数
 func (service UserService) Login() serializer.Response {
 	var user model.User
 	code := e.SUCCESS
-	if err := model.DB.Where("user_name=?", service.UserName).First(&user).Error; err != nil {
+	if err := dao.DB.Where("user_name=?", service.UserName).First(&user).Error; err != nil {
 		//如果查询不到，返回相应的错误
 		if gorm.IsRecordNotFoundError(err) {
 			logging.Info(err)
@@ -135,7 +135,7 @@ func (service UserService) Update(id uint) serializer.Response {
 	var user model.User
 	code := e.SUCCESS
 	//找到用户
-	err := model.DB.First(&user, id).Error
+	err := dao.DB.First(&user, id).Error
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
@@ -148,7 +148,7 @@ func (service UserService) Update(id uint) serializer.Response {
 	if service.NickName != "" {
 		user.Nickname = service.NickName
 	}
-	err = model.DB.Save(&user).Error
+	err = dao.DB.Save(&user).Error
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
@@ -166,8 +166,7 @@ func (service UserService) Update(id uint) serializer.Response {
 	}
 }
 
-
-func (service *UserService) Post(id uint, file multipart.File,fileSize int64) serializer.Response {
+func (service *UserService) Post(id uint, file multipart.File, fileSize int64) serializer.Response {
 	var user model.User
 	code := e.SUCCESS
 	status, info := UploadToQiNiu(file, fileSize)
@@ -178,9 +177,9 @@ func (service *UserService) Post(id uint, file multipart.File,fileSize int64) se
 			Error:  info,
 		}
 	}
-	model.DB.Where("id=?", id).First(&user)
+	dao.DB.Where("id=?", id).First(&user)
 	user.Avatar = info
-	model.DB.Save(&user)
+	dao.DB.Save(&user)
 	return serializer.Response{
 		Status: code,
 		Data:   serializer.BuildUser(user),
@@ -202,7 +201,7 @@ func (service *SendEmailService) Send(id uint) serializer.Response {
 			Msg:    e.GetMsg(code),
 		}
 	}
-	if err := model.DB.First(&notice, service.OperationType).Error; err != nil {
+	if err := dao.DB.First(&notice, service.OperationType).Error; err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
 		return serializer.Response{
@@ -270,7 +269,7 @@ func (service ValidEmailService) Valid(token string) serializer.Response {
 
 	if operationType == 1 {
 		//1:绑定邮箱
-		if err := model.DB.Table("user").Where("id=?", userID).Update("email", email).Error; err != nil {
+		if err := dao.DB.Table("user").Where("id=?", userID).Update("email", email).Error; err != nil {
 			logging.Info(err)
 			code = e.ErrorDatabase
 			return serializer.Response{
@@ -281,7 +280,7 @@ func (service ValidEmailService) Valid(token string) serializer.Response {
 		}
 	} else if operationType == 2 {
 		//2：解绑邮箱
-		if err := model.DB.Table("user").Where("id=?", userID).Update("email", "").Error; err != nil {
+		if err := dao.DB.Table("user").Where("id=?", userID).Update("email", "").Error; err != nil {
 			logging.Info(err)
 			code = e.ErrorDatabase
 			return serializer.Response{
@@ -293,7 +292,7 @@ func (service ValidEmailService) Valid(token string) serializer.Response {
 	}
 	//获取该用户信息
 	var user model.User
-	if err := model.DB.First(&user, userID).Error; err != nil {
+	if err := dao.DB.First(&user, userID).Error; err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
 		return serializer.Response{
@@ -312,7 +311,7 @@ func (service ValidEmailService) Valid(token string) serializer.Response {
 				Msg:    e.GetMsg(code),
 			}
 		}
-		if err := model.DB.Save(&user).Error; err != nil {
+		if err := dao.DB.Save(&user).Error; err != nil {
 			logging.Info(err)
 			code = e.ErrorDatabase
 			return serializer.Response{

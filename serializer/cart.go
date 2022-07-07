@@ -1,6 +1,7 @@
 package serializer
 
 import (
+	"mall/dao"
 	"mall/model"
 )
 
@@ -16,7 +17,7 @@ type Cart struct {
 	Name          string `json:"name"`
 	ImgPath       string `json:"img_path"`
 	DiscountPrice string `json:"discount_price"`
-	BossId        uint 	 `json:"boss_id"`
+	BossId        uint   `json:"boss_id"`
 	BossName      string `json:"boss_name"`
 }
 
@@ -55,7 +56,7 @@ func BuildCarts(items []model.Cart) (carts []Cart) {
 		item2 := model.Product{}
 		var bossid uint
 		bossid = item1.BossID
-		err := model.DB.First(&item2, item1.ProductID, item1.BossID).Error
+		err := dao.DB.First(&item2, item1.ProductID, item1.BossID).Error
 		if err != nil {
 			continue
 		}

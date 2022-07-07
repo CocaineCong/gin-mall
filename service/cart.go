@@ -2,6 +2,7 @@ package service
 
 import (
 	logging "github.com/sirupsen/logrus"
+	"mall/dao"
 	"mall/model"
 	"mall/pkg/e"
 	"mall/serializer"
@@ -10,15 +11,14 @@ import (
 
 //创建购物车
 type CreateService struct {
-	BossID    uint `form:"boss_id" json:"boss_id"`
-	Num       uint `form:"num" json:"num"`
+	BossID uint `form:"boss_id" json:"boss_id"`
+	Num    uint `form:"num" json:"num"`
 }
 
-
-func (service *CreateService) Create(id string,uid uint) serializer.Response {
+func (service *CreateService) Create(id string, uid uint) serializer.Response {
 	var product model.Product
 	code := e.SUCCESS
-	err := model.DB.First(&product, id).Error
+	err := dao.DB.First(&product, id).Error
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
@@ -37,9 +37,9 @@ func (service *CreateService) Create(id string,uid uint) serializer.Response {
 			Error:  err.Error(),
 		}
 	}
-	idInt ,_ := strconv.Atoi(id)
+	idInt, _ := strconv.Atoi(id)
 	var cart model.Cart
-	model.DB.Where("user_id=? AND product_id=? AND boss_id=?", uid,id, product.BossID).Find(&cart)
+	dao.DB.Where("user_id=? AND product_id=? AND boss_id=?", uid, id, product.BossID).Find(&cart)
 	if cart == (model.Cart{}) {
 		cart = model.Cart{
 			UserID:    uid,
@@ -49,7 +49,7 @@ func (service *CreateService) Create(id string,uid uint) serializer.Response {
 			MaxNum:    10,
 			Check:     false,
 		}
-		err = model.DB.Create(&cart).Error
+		err = dao.DB.Create(&cart).Error
 		if err != nil {
 			logging.Info(err)
 			code = e.ErrorDatabase
@@ -66,7 +66,7 @@ func (service *CreateService) Create(id string,uid uint) serializer.Response {
 		}
 	} else if cart.Num < cart.MaxNum {
 		cart.Num++
-		err = model.DB.Save(&cart).Error
+		err = dao.DB.Save(&cart).Error
 		if err != nil {
 			logging.Info(err)
 			return serializer.Response{
@@ -92,7 +92,7 @@ func (service *CreateService) Create(id string,uid uint) serializer.Response {
 func (service *CreateService) Show(id string) serializer.Response {
 	var carts []model.Cart
 	code := e.SUCCESS
-	err := model.DB.Where("user_id=?", id).Find(&carts).Error
+	err := dao.DB.Where("user_id=?", id).Find(&carts).Error
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
@@ -113,7 +113,7 @@ func (service *CreateService) Show(id string) serializer.Response {
 func (service *CreateService) Update(id string) serializer.Response {
 	var cart model.Cart
 	code := e.SUCCESS
-	err := model.DB.Where("id=?",id).Find(&cart).Error
+	err := dao.DB.Where("id=?", id).Find(&cart).Error
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
@@ -124,7 +124,7 @@ func (service *CreateService) Update(id string) serializer.Response {
 		}
 	}
 	cart.Num = service.Num
-	err = model.DB.Save(&cart).Error
+	err = dao.DB.Save(&cart).Error
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
@@ -141,10 +141,10 @@ func (service *CreateService) Update(id string) serializer.Response {
 }
 
 //删除购物车
-func (service *CreateService) Delete(pid string,uid uint) serializer.Response {
+func (service *CreateService) Delete(pid string, uid uint) serializer.Response {
 	var cart model.Cart
 	code := e.SUCCESS
-	err := model.DB.Where("user_id=? AND product_id=?", uid, pid).Error
+	err := dao.DB.Where("user_id=? AND product_id=?", uid, pid).Error
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
@@ -154,7 +154,7 @@ func (service *CreateService) Delete(pid string,uid uint) serializer.Response {
 			Error:  err.Error(),
 		}
 	}
-	err = model.DB.Delete(&cart).Error
+	err = dao.DB.Delete(&cart).Error
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase

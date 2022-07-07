@@ -1,6 +1,7 @@
 package service
 
 import (
+	"mall/dao"
 	"mall/model"
 	"mall/pkg/e"
 	"mall/serializer"
@@ -13,7 +14,7 @@ type ShowMoneyService struct {
 func (service *ShowMoneyService) Show(id uint) serializer.Response {
 	var user model.User
 	code := e.SUCCESS
-	model.DB.Model(model.User{}).Where("id=?", id).First(&user)
+	dao.DB.Model(model.User{}).Where("id=?", id).First(&user)
 	return serializer.Response{
 		Status: code,
 		Data:   serializer.BuildMoney(user, service.Key),
