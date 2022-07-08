@@ -26,6 +26,10 @@ const (
 	ErrorBossInsufficientAuthority = 20005
 	ErrorBossProduct               = 20006
 
+	// 购物车
+	ErrorProductExistCart = 20007
+	ErrorProductMoreCart  = 20008
+
 	//管理员错误
 	ErrorAuthCheckTokenFail        = 30001 //token 错误
 	ErrorAuthCheckTokenTimeout     = 30002 //token 过期
@@ -41,7 +45,6 @@ const (
 	ErrorDatabase = 40001
 
 	//对象存储错误
-	ErrorOss = 50001
+	ErrorOss        = 50001
 	ErrorUploadFile = 50002
-
 )

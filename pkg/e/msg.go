@@ -18,14 +18,17 @@ var MsgFlags = map[int]string{
 	ErrorExistFavorite:      "已收藏该商品",
 
 	ErrorBossCheckTokenFail:        "商家的Token鉴权失败",
-	ErrorBossCheckTokenTimeout:     "商家TOken已超时",
+	ErrorBossCheckTokenTimeout:     "商家Token已超时",
 	ErrorBossToken:                 "商家的Token生成失败",
 	ErrorBoss:                      "商家Token错误",
 	ErrorBossInsufficientAuthority: "商家权限不足",
 	ErrorBossProduct:               "商家读文件错误",
 
+	ErrorProductExistCart: "商品已经在购物车了，数量+1",
+	ErrorProductMoreCart:  "超过最大上限",
+
 	ErrorAuthCheckTokenFail:        "Token鉴权失败",
-	ErrorAuthCheckTokenTimeout:     "TOken已超时",
+	ErrorAuthCheckTokenTimeout:     "Token已超时",
 	ErrorAuthToken:                 "Token生成失败",
 	ErrorAuth:                      "Token错误",
 	ErrorAuthInsufficientAuthority: "权限不足",

@@ -22,20 +22,6 @@ type Cart struct {
 }
 
 func BuildCart(item1 model.Cart, item2 model.Product, bossID uint) Cart {
-	//fmt.Println(Cart{
-	//	ID:            item1.ID,
-	//	UserID:        item1.UserID,
-	//	ProductID:     item1.ProductID,
-	//	CreateAt:      item1.CreatedAt.Unix(),
-	//	Num:           item1.Num,
-	//	MaxNum:        item1.MaxNum,
-	//	Check:         false,
-	//	Name:          item2.Name,
-	//	ImgPath:       item2.ImgPath,
-	//	DiscountPrice: item2.DiscountPrice,
-	//	BossId:        item3.ID,
-	//	BossName:      item3.UserName,
-	//})
 	return Cart{
 		ID:            item1.ID,
 		UserID:        item1.UserID,
