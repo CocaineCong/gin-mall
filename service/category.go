@@ -1,9 +1,9 @@
 package service
 
 import (
+	"context"
 	logging "github.com/sirupsen/logrus"
 	"mall/dao"
-	"mall/model"
 	"mall/pkg/e"
 	"mall/serializer"
 )
@@ -11,10 +11,11 @@ import (
 type ListCategoriesService struct {
 }
 
-func (service *ListCategoriesService) List() serializer.Response {
-	var categories []model.Category
+func (service *ListCategoriesService) List(ctx context.Context) serializer.Response {
 	code := e.SUCCESS
-	if err := dao.DB.Find(&categories).Error; err != nil {
+	categoryDao := dao.NewCategoryDao(ctx)
+	categories, err := categoryDao.ListCategory()
+	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
 		return serializer.Response{

@@ -1,6 +1,7 @@
 package serializer
 
 import (
+	"context"
 	"mall/dao"
 	"mall/model"
 )
@@ -39,16 +40,15 @@ func BuildCart(item1 model.Cart, item2 model.Product, bossID uint) Cart {
 
 func BuildCarts(items []model.Cart) (carts []Cart) {
 	for _, item1 := range items {
-		item2 := model.Product{}
-		var bossid uint
-		bossid = item1.BossID
-		err := dao.DB.First(&item2, item1.ProductID, item1.BossID).Error
+		var bossId uint
+		bossId = item1.BossID
+		product, err := dao.NewProductDao(context.Background()).
+			GetProductById(item1.ProductID)
 		if err != nil {
 			continue
 		}
-		cart := BuildCart(item1, item2, bossid)
+		cart := BuildCart(item1, product, bossId)
 		carts = append(carts, cart)
 	}
-	//fmt.Println(carts)
 	return carts
 }
