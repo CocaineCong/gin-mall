@@ -1,9 +1,9 @@
 package service
 
 import (
+	"context"
 	"fmt"
 	"github.com/go-redis/redis"
-	"github.com/jinzhu/gorm"
 	logging "github.com/sirupsen/logrus"
 	"mall/cache"
 	"mall/dao"
@@ -15,7 +15,8 @@ import (
 	"time"
 )
 
-//Create
+const OrderTimeKey = "OrderTime"
+
 type OrderService struct {
 	ProductID uint `form:"product_id" json:"product_id"`
 	Num       uint `form:"num" json:"num"`
@@ -24,14 +25,13 @@ type OrderService struct {
 	BossID    uint `form:"boss_id" json:"boss_id"`
 	UserID    uint `form:"user_id" json:"user_id"`
 	OrderNum  uint `form:"order_num" json:"order_num"`
-	PageNum   int  `form:"pageNum"`
-	PageSize  int  `form:"pageSize"`
 	Type      int  `form:"type" json:"type"`
+	model.BasePage
 }
 
-func (service *OrderService) Create(id uint) serializer.Response {
-	var product model.Product
-	dao.DB.First(&product, service.ProductID)
+func (service *OrderService) Create(ctx context.Context, id uint) serializer.Response {
+	code := e.SUCCESS
+
 	order := model.Order{
 		UserID:    id,
 		ProductID: service.ProductID,
@@ -40,9 +40,9 @@ func (service *OrderService) Create(id uint) serializer.Response {
 		Money:     service.Money,
 		Type:      1,
 	}
-	address := model.Address{}
-	code := e.SUCCESS
-	if err := dao.DB.First(&address, service.AddressID).Error; err != nil {
+	addressDao := dao.NewAddressDao(ctx)
+	address, err := addressDao.GetAddressByAid(service.AddressID)
+	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
 		return serializer.Response{
@@ -51,23 +51,17 @@ func (service *OrderService) Create(id uint) serializer.Response {
 			Error:  err.Error(),
 		}
 	}
+
 	order.AddressID = address.ID
 	number := fmt.Sprintf("%09v", rand.New(rand.NewSource(time.Now().UnixNano())).Int31n(1000000000))
 	productNum := strconv.Itoa(int(service.ProductID))
 	userNum := strconv.Itoa(int(id))
 	number = number + productNum + userNum
-	orderNum, err := strconv.ParseUint(number, 10, 64)
-	if err != nil {
-		logging.Info(err)
-		code = e.ERROR
-		return serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Error:  err.Error(),
-		}
-	}
+	orderNum, _ := strconv.ParseUint(number, 10, 64)
 	order.OrderNum = orderNum
-	err = dao.DB.Create(&order).Error
+
+	orderDao := dao.NewOrderDao(ctx)
+	err = orderDao.CreateOrder(order)
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
@@ -77,78 +71,58 @@ func (service *OrderService) Create(id uint) serializer.Response {
 			Error:  err.Error(),
 		}
 	}
+
 	//订单号存入Redis中，设置过期时间
 	data := redis.Z{
 		Score:  float64(time.Now().Unix()) + 15*time.Minute.Seconds(),
 		Member: orderNum,
 	}
-	cache.RedisClient.ZAdd("3", data)
+	cache.RedisClient.ZAdd(OrderTimeKey, data)
 	return serializer.Response{
 		Status: code,
 		Msg:    e.GetMsg(code),
 	}
 }
 
-func (service *OrderService) List(id uint) serializer.Response {
+func (service *OrderService) List(ctx context.Context, uId uint) serializer.Response {
 	var orders []model.Order
 	var total int64
 	code := e.SUCCESS
 	if service.PageSize == 0 {
 		service.PageSize = 5
 	}
+
+	orderDao := dao.NewOrderDao(ctx)
+	condition := make(map[string]interface{})
+	condition["user_id"] = uId
+
 	if service.Type == 0 {
-		if err := dao.DB.Model(&orders).Where("user_id=?", id).
-			Count(&total).Error; err != nil {
-			logging.Info(err)
-			code = e.ErrorDatabase
-			return serializer.Response{
-				Status: code,
-				Msg:    e.GetMsg(code),
-				Error:  err.Error(),
-			}
-		}
-		if err := dao.DB.Where("user_id = ?", id).Offset((service.PageNum - 1) * service.PageSize).
-			Limit(service.PageSize).Order("created_at desc").Find(&orders).Error; err != nil {
-			logging.Info(err)
-			code = e.ErrorDatabase
-			return serializer.Response{
-				Status: code,
-				Msg:    e.GetMsg(code),
-				Error:  err.Error(),
-			}
-		}
+		condition["type"] = 0
 	} else {
-		if err := dao.DB.Model(&orders).Where("user_id=? AND type = ?", id, service.Type).
-			Count(&total).Error; err != nil {
-			logging.Info(err)
-			code = e.ErrorDatabase
-			return serializer.Response{
-				Status: code,
-				Msg:    e.GetMsg(code),
-				Error:  err.Error(),
-			}
-		}
-		if err := dao.DB.Where("user_id=? AND type=?", id, service.Type).
-			Offset((service.PageNum - 1) * service.PageSize).
-			Limit(service.PageSize).Order("created_at desc").Find(&orders).Error; err != nil {
-			logging.Info(err)
-			code = e.ErrorDatabase
-			return serializer.Response{
-				Status: code,
-				Msg:    e.GetMsg(code),
-				Error:  err.Error(),
-			}
+		condition["type"] = service.Type
+	}
+	orders, total, err := orderDao.ListOrderByCondition(condition, service.BasePage)
+	if err != nil {
+		code = e.ErrorDatabase
+		return serializer.Response{
+			Status: code,
+			Msg:    e.GetMsg(code),
 		}
 	}
+
 	return serializer.BuildListResponse(serializer.BuildOrders(orders), uint(total))
 }
 
-func (service *OrderService) Show(id string) serializer.Response {
-	var order model.Order
-	var product model.Product
-	var address model.Address
+func (service *OrderService) Show(ctx context.Context, uId string) serializer.Response {
 	code := e.SUCCESS
-	if err := dao.DB.Model(&model.Order{}).First(&order, id).Error; err != nil {
+
+	orderId, _ := strconv.Atoi(uId)
+	orderDao := dao.NewOrderDao(ctx)
+	order, _ := orderDao.GetOrderById(uint(orderId))
+
+	addressDao := dao.NewAddressDao(ctx)
+	address, err := addressDao.GetAddressByAid(order.AddressID)
+	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
 		return serializer.Response{
@@ -156,16 +130,10 @@ func (service *OrderService) Show(id string) serializer.Response {
 			Msg:    e.GetMsg(code),
 		}
 	}
-	dao.DB.Where("id = ?", order.AddressID).First(&address)
-	if err := dao.DB.Where("id=?", order.ProductID).First(&product).Error; err != nil {
-		if gorm.IsRecordNotFoundError(err) {
-			logging.Info(err)
-			code = e.ErrorNotExistProduct
-			return serializer.Response{
-				Status: code,
-				Msg:    e.GetMsg(code),
-			}
-		}
+
+	productDao := dao.NewProductDao(ctx)
+	product, err := productDao.GetProductById(order.ProductID)
+	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
 		return serializer.Response{
@@ -173,6 +141,7 @@ func (service *OrderService) Show(id string) serializer.Response {
 			Msg:    e.GetMsg(code),
 		}
 	}
+
 	return serializer.Response{
 		Status: code,
 		Msg:    e.GetMsg(code),
@@ -180,10 +149,12 @@ func (service *OrderService) Show(id string) serializer.Response {
 	}
 }
 
-func (service *OrderService) Delete(id string) serializer.Response {
-	var order model.Order
+func (service *OrderService) Delete(ctx context.Context, oId string) serializer.Response {
 	code := e.SUCCESS
-	err := dao.DB.First(&order, id).Error
+
+	orderDao := dao.NewOrderDao(ctx)
+	orderId, _ := strconv.Atoi(oId)
+	err := orderDao.DeleteOrderById(uint(orderId))
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
@@ -193,16 +164,7 @@ func (service *OrderService) Delete(id string) serializer.Response {
 			Error:  err.Error(),
 		}
 	}
-	err = dao.DB.Delete(&order).Error
-	if err != nil {
-		logging.Info(err)
-		code = e.ErrorDatabase
-		return serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Error:  err.Error(),
-		}
-	}
+
 	return serializer.Response{
 		Status: code,
 		Msg:    e.GetMsg(code),

@@ -24,7 +24,7 @@ func (service *CartService) Create(ctx context.Context, pId string, uId uint) se
 	// 判断有无这个商品
 	productDao := dao.NewProductDao(ctx)
 	productId, _ := strconv.Atoi(pId)
-	product, err := productDao.GetProductById(productId)
+	product, err := productDao.GetProductById(uint(productId))
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
