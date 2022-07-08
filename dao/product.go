@@ -18,7 +18,7 @@ func NewProductDaoByDB(db *gorm.DB) *ProductDao {
 	return &ProductDao{db}
 }
 
-func (dao *ProductDao) GetProductById(id int) (product model.Product, err error) {
+func (dao *ProductDao) GetProductById(id uint) (product model.Product, err error) {
 	err = dao.Model(&model.Product{}).Where("id=?", id).
 		First(&product).Error
 	return
