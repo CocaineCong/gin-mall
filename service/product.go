@@ -1,12 +1,15 @@
 package service
 
 import (
+	"context"
 	logging "github.com/sirupsen/logrus"
 	"mall/dao"
 	"mall/model"
 	"mall/pkg/e"
 	"mall/serializer"
 	"mime/multipart"
+	"strconv"
+	"sync"
 )
 
 //更新商品的服务
@@ -21,18 +24,20 @@ type ProductService struct {
 	DiscountPrice string `form:"discount_price" json:"discount_price"`
 	OnSale        bool   `form:"on_sale" json:"on_sale"`
 	Num           int    `form:"num" json:"num"`
-	PageNum       int    `form:"pageNum"`
-	PageSize      int    `form:"pageSize"`
+	model.BasePage
 }
 
 type ListProductImgService struct {
 }
 
 // 商品
-func (service *ProductService) Show(id string) serializer.Response {
-	var product model.Product
+func (service *ProductService) Show(ctx context.Context, id string) serializer.Response {
 	code := e.SUCCESS
-	err := dao.DB.First(&product, id).Error
+
+	pId, _ := strconv.Atoi(id)
+
+	productDao := dao.NewProductDao(ctx)
+	product, err := productDao.GetProductById(uint(pId))
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
@@ -42,6 +47,7 @@ func (service *ProductService) Show(id string) serializer.Response {
 			Error:  err.Error(),
 		}
 	}
+
 	return serializer.Response{
 		Status: code,
 		Data:   serializer.BuildProduct(product),
@@ -50,9 +56,14 @@ func (service *ProductService) Show(id string) serializer.Response {
 }
 
 //创建商品
-func (service *ProductService) Create(id uint, files []*multipart.FileHeader) serializer.Response {
+func (service *ProductService) Create(ctx context.Context, uId uint, files []*multipart.FileHeader) serializer.Response {
 	var boss model.User
-	dao.DB.Model(&model.User{}).Where("id = ?", id).First(&boss)
+	var err error
+	code := e.SUCCESS
+
+	userDao := dao.NewUserDao(ctx)
+	boss, _ = userDao.GetUserById(uId)
+	// 以第一张作为封面图
 	tmp, _ := files[0].Open()
 	status, info := UploadToQiNiu(tmp, files[0].Size)
 	if status != 200 {
@@ -72,12 +83,12 @@ func (service *ProductService) Create(id uint, files []*multipart.FileHeader) se
 		DiscountPrice: service.DiscountPrice,
 		Num:           service.Num,
 		OnSale:        true,
-		BossID:        int(id),
+		BossID:        int(uId),
 		BossName:      boss.UserName,
 		BossAvatar:    boss.Avatar,
 	}
-	code := e.SUCCESS
-	err := dao.DB.Create(&product).Error
+	productDao := dao.NewProductDao(ctx)
+	err = productDao.CreateProduct(product)
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
@@ -87,7 +98,11 @@ func (service *ProductService) Create(id uint, files []*multipart.FileHeader) se
 			Error:  err.Error(),
 		}
 	}
+
+	wg := new(sync.WaitGroup)
+	wg.Add(len(files))
 	for _, file := range files {
+		productImgDao := dao.NewProductImgDaoByDB(productDao.DB)
 		tmp, _ := file.Open()
 		status, info := UploadToQiNiu(tmp, file.Size)
 		if status != 200 {
@@ -101,7 +116,7 @@ func (service *ProductService) Create(id uint, files []*multipart.FileHeader) se
 			ProductID: product.ID,
 			ImgPath:   info,
 		}
-		err = dao.DB.Create(&productImg).Error
+		err = productImgDao.CreateProductImg(productImg)
 		if err != nil {
 			code = e.ERROR
 			return serializer.Response{
@@ -110,7 +125,11 @@ func (service *ProductService) Create(id uint, files []*multipart.FileHeader) se
 				Error:  err.Error(),
 			}
 		}
+		wg.Done()
 	}
+
+	wg.Wait()
+
 	return serializer.Response{
 		Status: code,
 		Data:   serializer.BuildProduct(product),
@@ -118,86 +137,52 @@ func (service *ProductService) Create(id uint, files []*multipart.FileHeader) se
 	}
 }
 
-func (service *ProductService) List() serializer.Response {
+func (service *ProductService) List(ctx context.Context) serializer.Response {
 	var products []model.Product
 	var total int64
 	code := e.SUCCESS
+
 	if service.PageSize == 0 {
 		service.PageSize = 15
 	}
-	if service.CategoryID == 0 {
-		if err := dao.DB.Model(model.Product{}).
-			Count(&total).Error; err != nil {
-			logging.Info(err)
-			code = e.ErrorDatabase
-			return serializer.Response{
-				Status: code,
-				Msg:    e.GetMsg(code),
-				Error:  err.Error(),
-			}
-		}
-
-		if err := dao.DB.Offset((service.PageNum - 1) * service.PageSize).
-			Limit(service.PageSize).Find(&products).
-			Error; err != nil {
-			logging.Info(err)
-			code = e.ErrorDatabase
-			return serializer.Response{
-				Status: code,
-				Msg:    e.GetMsg(code),
-				Error:  err.Error(),
-			}
-		}
-	} else {
-		if err := dao.DB.Model(model.Product{}).Preload("Category").
-			Where("category_id = ?", service.CategoryID).
-			Count(&total).Error; err != nil {
-			logging.Info(err)
-			code = e.ErrorDatabase
-			return serializer.Response{
-				Status: code,
-				Msg:    e.GetMsg(code),
-				Error:  err.Error(),
-			}
-		}
-
-		if err := dao.DB.Model(model.Product{}).Preload("Category").
-			Where("category_id=?", service.CategoryID).
-			Offset((service.PageNum - 1) * service.PageSize).
-			Limit(service.PageSize).
-			Find(&products).Error; err != nil {
-			logging.Info(err)
-			code = e.ErrorDatabase
-			return serializer.Response{
-				Status: code,
-				Msg:    e.GetMsg(code),
-				Error:  err.Error(),
-			}
+	condition := make(map[string]interface{})
+	if service.CategoryID != 0 {
+		condition["category_id"] = service.CategoryID
+	}
+	productDao := dao.NewProductDao(ctx)
+	total, err := productDao.CountProductByCondition(condition)
+	if err != nil {
+		code = e.ErrorDatabase
+		return serializer.Response{
+			Status: code,
+			Msg:    e.GetMsg(code),
 		}
 	}
+	wg := new(sync.WaitGroup)
+	wg.Add(1)
+	go func() {
+		productDao = dao.NewProductDaoByDB(productDao.DB)
+		products, _ = productDao.ListProductByCondition(condition, service.BasePage)
+		wg.Done()
+	}()
+	wg.Wait()
+
 	var productList []serializer.Product
 	for _, item := range products {
 		products := serializer.BuildProduct(item)
 		productList = append(productList, products)
 	}
+
 	return serializer.BuildListResponse(serializer.BuildProducts(products), uint(total))
 }
 
 //删除商品
-func (service *ProductService) Delete(id string) serializer.Response {
-	var product model.Product
+func (service *ProductService) Delete(ctx context.Context, pId string) serializer.Response {
 	code := e.SUCCESS
-	err := dao.DB.First(&product, id).Error
-	if err != nil {
-		logging.Info(err)
-		code = e.ErrorDatabase
-		return serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Error:  err.Error(),
-		}
-	}
-	err = dao.DB.Delete(&product).Error
+
+	productDao := dao.NewProductDao(ctx)
+	productId, _ := strconv.Atoi(pId)
+	err := productDao.DeleteProduct(uint(productId))
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
@@ -213,20 +198,23 @@ func (service *ProductService) Delete(id string) serializer.Response {
 	}
 }
 
-//更新商品
-func (service *ProductService) Update(id string) serializer.Response {
-	var product model.Product
-	dao.DB.Model(&model.Product{}).First(&product, id)
-	product.Name = service.Name
-	product.CategoryID = uint(service.CategoryID)
-	product.Title = service.Title
-	product.Info = service.Info
-	product.ImgPath = service.ImgPath
-	product.Price = service.Price
-	product.DiscountPrice = service.DiscountPrice
-	product.OnSale = service.OnSale
+// 更新商品
+func (service *ProductService) Update(ctx context.Context, pId string) serializer.Response {
 	code := e.SUCCESS
-	err := dao.DB.Save(&product).Error
+	productDao := dao.NewProductDao(ctx)
+
+	productId, _ := strconv.Atoi(pId)
+	product := model.Product{
+		Name:          service.Name,
+		CategoryID:    uint(service.CategoryID),
+		Title:         service.Title,
+		Info:          service.Info,
+		ImgPath:       service.ImgPath,
+		Price:         service.Price,
+		DiscountPrice: service.DiscountPrice,
+		OnSale:        service.OnSale,
+	}
+	err := productDao.UpdateProduct(uint(productId), product)
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
@@ -242,16 +230,15 @@ func (service *ProductService) Update(id string) serializer.Response {
 	}
 }
 
-//搜索商品
-func (service *ProductService) Search() serializer.Response {
-	var products []model.Product
+// 搜索商品
+func (service *ProductService) Search(ctx context.Context) serializer.Response {
 	code := e.SUCCESS
 	if service.PageSize == 0 {
 		service.PageSize = 15
 	}
-	err := dao.DB.Where("name LIKE ? OR info LIKE ?", "%"+service.Info+"%", "%"+service.Info+"%").
-		Offset((service.PageNum - 1) * service.PageSize).
-		Limit(service.PageSize).Find(&products).Error
+
+	productDao := dao.NewProductDao(ctx)
+	products, err := productDao.SearchProduct(service.Info, service.BasePage)
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
@@ -264,9 +251,10 @@ func (service *ProductService) Search() serializer.Response {
 	return serializer.BuildListResponse(serializer.BuildProducts(products), uint(len(products)))
 }
 
-//获取商品列表图片
-func (service *ListProductImgService) List(id string) serializer.Response {
-	var productImgList []model.ProductImg
-	dao.DB.Model(model.ProductImg{}).Where("product_id=?", id).Find(&productImgList)
-	return serializer.BuildListResponse(serializer.BuildProductImgs(productImgList), uint(len(productImgList)))
+// List 获取商品列表图片
+func (service *ListProductImgService) List(ctx context.Context, pId string) serializer.Response {
+	productImgDao := dao.NewProductImgDao(ctx)
+	productId, _ := strconv.Atoi(pId)
+	productImgs, _ := productImgDao.ListProductImgByProductId(uint(productId))
+	return serializer.BuildListResponse(serializer.BuildProductImgs(productImgs), uint(len(productImgs)))
 }
