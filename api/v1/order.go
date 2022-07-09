@@ -10,7 +10,7 @@ func CreateOrder(c *gin.Context) {
 	createOrderService := service.OrderService{}
 	claim, _ := util.ParseToken(c.GetHeader("Authorization"))
 	if err := c.ShouldBind(&createOrderService); err == nil {
-		res := createOrderService.Create(claim.ID)
+		res := createOrderService.Create(c.Request.Context(), claim.ID)
 		c.JSON(200, res)
 	} else {
 		c.JSON(400, ErrorResponse(err))
@@ -45,7 +45,7 @@ func ShowOrder(c *gin.Context) {
 func DeleteOrder(c *gin.Context) {
 	deleteOrderService := service.OrderService{}
 	if err := c.ShouldBind(&deleteOrderService); err == nil {
-		res := deleteOrderService.Delete(c.Param("id"))
+		res := deleteOrderService.Delete(c.Request.Context(), c.Param("id"))
 		c.JSON(200, res)
 	} else {
 		c.JSON(400, ErrorResponse(err))
