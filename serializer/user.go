@@ -1,6 +1,9 @@
 package serializer
 
-import "mall/model"
+import (
+	"mall/conf"
+	"mall/model"
+)
 
 type User struct {
 	ID       uint   `json:"id"`
@@ -21,7 +24,7 @@ func BuildUser(user model.User) User {
 		NickName: user.NickName,
 		Email:    user.Email,
 		Status:   user.Status,
-		Avatar:   user.AvatarURL(),
+		Avatar:   conf.ProductPhotoHost + conf.HttpPort + user.AvatarURL()[1:], // 去掉绝对路径的 . 符号,
 		CreateAt: user.CreatedAt.Unix(),
 	}
 }

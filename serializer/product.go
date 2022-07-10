@@ -1,6 +1,7 @@
 package serializer
 
 import (
+	"mall/conf"
 	"mall/model"
 )
 
@@ -30,7 +31,7 @@ func BuildProduct(item model.Product) Product {
 		CategoryID:    item.CategoryID,
 		Title:         item.Title,
 		Info:          item.Info,
-		ImgPath:       item.ImgPath,
+		ImgPath:       conf.ProductPhotoHost + conf.HttpPort + item.ImgPath[1:],
 		Price:         item.Price,
 		DiscountPrice: item.DiscountPrice,
 		View:          item.View(),

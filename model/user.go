@@ -38,7 +38,7 @@ func (user *User) CheckPassword(password string) bool {
 	return err == nil
 }
 
-//AvatarUrl 封面地址
+//AvatarUrl 头像地址
 func (user *User) AvatarURL() string {
 	signedGetURL := user.Avatar
 	return signedGetURL

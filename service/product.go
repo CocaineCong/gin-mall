@@ -65,7 +65,7 @@ func (service *ProductService) Create(ctx context.Context, uId uint, files []*mu
 	boss, _ = userDao.GetUserById(uId)
 	// 以第一张作为封面图
 	tmp, _ := files[0].Open()
-	path, err := UploadToQiNiu(tmp, files[0].Size)
+	path, err := UploadProductToLocalStatic(tmp, uId, service.Name)
 	if err != nil {
 		code = e.ErrorUploadFile
 		return serializer.Response{
@@ -102,10 +102,11 @@ func (service *ProductService) Create(ctx context.Context, uId uint, files []*mu
 
 	wg := new(sync.WaitGroup)
 	wg.Add(len(files))
-	for _, file := range files {
-		productImgDao := dao.NewProductImgDao(ctx)
+	for index, file := range files {
+		num := strconv.Itoa(index)
+		productImgDao := dao.NewProductImgDaoByDB(productDao.DB)
 		tmp, _ = file.Open()
-		path, err = UploadToQiNiu(tmp, file.Size)
+		path, err = UploadProductToLocalStatic(tmp, uId, service.Name+num)
 		if err != nil {
 			code = e.ErrorUploadFile
 			return serializer.Response{
