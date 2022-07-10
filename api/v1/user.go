@@ -59,7 +59,7 @@ func SendEmail(c *gin.Context) {
 	var sendEmailService service.SendEmailService
 	chaim, _ := util.ParseToken(c.GetHeader("Authorization"))
 	if err := c.ShouldBind(&sendEmailService); err == nil {
-		res := sendEmailService.Send(chaim.ID)
+		res := sendEmailService.Send(c.Request.Context(), chaim.ID)
 		c.JSON(200, res)
 	} else {
 		c.JSON(400, ErrorResponse(err))
@@ -70,7 +70,7 @@ func SendEmail(c *gin.Context) {
 func ValidEmail(c *gin.Context) {
 	var vaildEmailService service.ValidEmailService
 	if err := c.ShouldBind(vaildEmailService); err == nil {
-		res := vaildEmailService.Valid(c.GetHeader("Authorization"))
+		res := vaildEmailService.Valid(c.Request.Context(), c.GetHeader("Authorization"))
 		c.JSON(200, res)
 	} else {
 		c.JSON(400, ErrorResponse(err))
