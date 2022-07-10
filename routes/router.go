@@ -60,9 +60,9 @@ func NewRouter() *gin.Engine {
 			authed.DELETE("orders/:id", api.DeleteOrder)
 
 			//购物车
-			authed.POST("carts/:id", api.CreateCart) // 产品id
-			authed.GET("carts/:id", api.ShowCarts)   // 购物车id
-			authed.PUT("carts/:id", api.UpdateCart)  // 购物车id
+			authed.POST("carts", api.CreateCart)
+			authed.GET("carts/:id", api.ShowCarts)  // 购物车id
+			authed.PUT("carts/:id", api.UpdateCart) // 购物车id
 			authed.DELETE("carts/:id", api.DeleteCart)
 
 			//收获地址操作

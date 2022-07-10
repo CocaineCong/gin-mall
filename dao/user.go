@@ -35,8 +35,8 @@ func (dao *UserDao) UpdateUserById(uId uint, user model.User) (err error) {
 // ExistOrNotByUserName 根据username判断是否存在该名字
 func (dao *UserDao) ExistOrNotByUserName(userName string) (user model.User, exist bool, err error) {
 	err = dao.DB.Model(&model.User{}).Where("user_name=?", userName).
-		First(&user).Error
-	if user == (model.User{}) {
+		Find(&user).Error
+	if user == (model.User{}) || err == gorm.ErrRecordNotFound {
 		return model.User{}, false, err
 	}
 	return user, true, nil

@@ -22,32 +22,36 @@ type Cart struct {
 	BossName      string `json:"boss_name"`
 }
 
-func BuildCart(item1 model.Cart, item2 model.Product, bossID uint) Cart {
+func BuildCart(cart model.Cart, product model.Product, boss model.User) Cart {
 	return Cart{
-		ID:            item1.ID,
-		UserID:        item1.UserID,
-		ProductID:     item1.ProductID,
-		CreateAt:      item1.CreatedAt.Unix(),
-		Num:           item1.Num,
-		MaxNum:        item1.MaxNum,
-		Check:         false,
-		Name:          item2.Name,
-		ImgPath:       item2.ImgPath,
-		DiscountPrice: item2.DiscountPrice,
-		BossId:        bossID,
+		ID:            cart.ID,
+		UserID:        cart.UserID,
+		ProductID:     cart.ProductID,
+		CreateAt:      cart.CreatedAt.Unix(),
+		Num:           cart.Num,
+		MaxNum:        cart.MaxNum,
+		Check:         cart.Check,
+		Name:          product.Name,
+		ImgPath:       product.ImgPath,
+		DiscountPrice: product.DiscountPrice,
+		BossId:        boss.ID,
+		BossName:      boss.UserName,
 	}
 }
 
 func BuildCarts(items []model.Cart) (carts []Cart) {
 	for _, item1 := range items {
-		var bossId uint
-		bossId = item1.BossID
 		product, err := dao.NewProductDao(context.Background()).
 			GetProductById(item1.ProductID)
 		if err != nil {
 			continue
 		}
-		cart := BuildCart(item1, product, bossId)
+		boss, err := dao.NewUserDao(context.Background()).
+			GetUserById(item1.BossID)
+		if err != nil {
+			continue
+		}
+		cart := BuildCart(item1, product, boss)
 		carts = append(carts, cart)
 	}
 	return carts

@@ -26,6 +26,7 @@ func (dao *CartDao) CreateCart(pId, uId, bId uint) (cart model.Cart, status int,
 	// 空的，第一次加入
 	if err == gorm.ErrRecordNotFound {
 		cart = model.Cart{
+			UserID:    uId,
 			ProductID: pId,
 			BossID:    bId,
 			Num:       1,
@@ -69,7 +70,7 @@ func (dao *CartDao) ListCartByUserId(uId uint) (cart []model.Cart, err error) {
 // UpdateCartNumById 通过id更新Cart信息
 func (dao *CartDao) UpdateCartNumById(cId, num uint) (err error) {
 	err = dao.DB.Model(&model.Cart{}).
-		Where("id=?", cId).Update("num=?", num).Error
+		Where("id=?", cId).Update("num", num).Error
 	return
 }
 

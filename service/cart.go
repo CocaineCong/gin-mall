@@ -12,19 +12,19 @@ import (
 
 // CartService 创建购物车
 type CartService struct {
-	Id     uint `form:"id" json:"id"`
-	BossID uint `form:"boss_id" json:"boss_id"`
-	Num    uint `form:"num" json:"num"`
+	Id        uint `form:"id" json:"id"`
+	BossID    uint `form:"boss_id" json:"boss_id"`
+	ProductId uint `form:"product_id" json:"product_id"`
+	Num       uint `form:"num" json:"num"`
 }
 
-func (service *CartService) Create(ctx context.Context, pId string, uId uint) serializer.Response {
+func (service *CartService) Create(ctx context.Context, uId uint) serializer.Response {
 	var product model.Product
 	code := e.SUCCESS
 
 	// 判断有无这个商品
 	productDao := dao.NewProductDao(ctx)
-	productId, _ := strconv.Atoi(pId)
-	product, err := productDao.GetProductById(uint(productId))
+	product, err := productDao.GetProductById(service.ProductId)
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
@@ -37,17 +37,20 @@ func (service *CartService) Create(ctx context.Context, pId string, uId uint) se
 
 	// 创建购物车
 	cartDao := dao.NewCartDao(ctx)
-	cart, status, err := cartDao.CreateCart(uint(productId), uId, service.BossID)
+	cart, status, err := cartDao.CreateCart(service.ProductId, uId, service.BossID)
 	if status == e.ErrorProductMoreCart {
 		return serializer.Response{
 			Status: status,
 			Msg:    e.GetMsg(status),
 		}
 	}
+
+	userDao := dao.NewUserDao(ctx)
+	boss, err := userDao.GetUserById(service.BossID)
 	return serializer.Response{
 		Status: status,
 		Msg:    e.GetMsg(status),
-		Data:   serializer.BuildCart(cart, product, service.BossID),
+		Data:   serializer.BuildCart(cart, product, boss),
 	}
 }
 

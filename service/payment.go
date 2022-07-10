@@ -82,7 +82,7 @@ func (service *OrderPay) PayDown(ctx context.Context, uId uint) serializer.Respo
 	finMoney = fmt.Sprintf("%f", moneyFloat+money)
 	boss.Money = util.Encrypt.AesEncoding(finMoney)
 
-	err = userDao.UpdateUserById(uint(service.BossID), user)
+	err = userDao.UpdateUserById(uint(service.BossID), boss)
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
@@ -119,10 +119,21 @@ func (service *OrderPay) PayDown(ctx context.Context, uId uint) serializer.Respo
 		}
 	}
 
-	product.BossID = int(uId)
-	product.BossName = user.UserName
-	product.BossAvatar = user.Avatar
-	err = productDao.CreateProduct(&product)
+	productUser := model.Product{
+		Name:          product.Name,
+		CategoryID:    product.CategoryID,
+		Title:         product.Title,
+		Info:          product.Info,
+		ImgPath:       product.ImgPath,
+		Price:         product.Price,
+		DiscountPrice: product.DiscountPrice,
+		Num:           num,
+		OnSale:        false,
+		BossID:        int(uId),
+		BossName:      user.UserName,
+		BossAvatar:    user.Avatar,
+	}
+	err = productDao.CreateProduct(&productUser)
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase

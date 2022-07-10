@@ -10,7 +10,7 @@ func CreateCart(c *gin.Context) {
 	createCartService := service.CartService{}
 	claim, _ := util.ParseToken(c.GetHeader("Authorization"))
 	if err := c.ShouldBind(&createCartService); err == nil {
-		res := createCartService.Create(c.Request.Context(), c.Param("id"), claim.ID)
+		res := createCartService.Create(c.Request.Context(), claim.ID)
 		c.JSON(200, res)
 	} else {
 		c.JSON(400, ErrorResponse(err))
