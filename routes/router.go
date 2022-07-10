@@ -6,7 +6,6 @@ import (
 	"github.com/gin-gonic/gin"
 	api "mall/api/v1"
 	"mall/middleware"
-	"net/http"
 )
 
 //路由配置
@@ -15,8 +14,6 @@ func NewRouter() *gin.Engine {
 	store := cookie.NewStore([]byte("something-very-secret"))
 	r.Use(middleware.Cors())
 	r.Use(sessions.Sessions("mysession", store))
-	// 上传文件(不走七牛云)
-	r.StaticFS("/static", http.Dir("./static"))
 	v1 := r.Group("api/v1")
 	{
 

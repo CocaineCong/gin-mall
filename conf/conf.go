@@ -29,9 +29,6 @@ var (
 	SmtpEmail  string
 	SmtpPass   string
 
-	ProductPhotoHost string
-	ProductPhotoPath string
-
 	EsHost  string
 	EsPort  string
 	EsIndex string
@@ -48,7 +45,6 @@ func Init() {
 	LoadQiniu(file)
 	LoadEmail(file)
 	LoadEs(file)
-	LoadPhotoPath(file)
 	if err := LoadLocales("conf/locales/zh-cn.yaml"); err != nil {
 		logging.Info(err) //日志内容
 		panic(err)
@@ -93,9 +89,4 @@ func LoadEs(file *ini.File) {
 	EsHost = file.Section("es").Key("EsHost").String()
 	EsPort = file.Section("es").Key("EsPort").String()
 	EsIndex = file.Section("es").Key("EsIndex").String()
-}
-
-func LoadPhotoPath(file *ini.File) {
-	ProductPhotoHost = file.Section("path").Key("Host").String()
-	ProductPhotoPath = file.Section("path").Key("ProductPath").String()
 }
