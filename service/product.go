@@ -65,12 +65,13 @@ func (service *ProductService) Create(ctx context.Context, uId uint, files []*mu
 	boss, _ = userDao.GetUserById(uId)
 	// 以第一张作为封面图
 	tmp, _ := files[0].Open()
-	status, info := UploadToQiNiu(tmp, files[0].Size)
-	if status != 200 {
+	path, err := UploadToQiNiu(tmp, files[0].Size)
+	if err != nil {
+		code = e.ErrorUploadFile
 		return serializer.Response{
-			Status: status,
-			Data:   e.GetMsg(status),
-			Error:  info,
+			Status: code,
+			Data:   e.GetMsg(code),
+			Error:  path,
 		}
 	}
 	product := model.Product{
@@ -78,7 +79,7 @@ func (service *ProductService) Create(ctx context.Context, uId uint, files []*mu
 		CategoryID:    uint(service.CategoryID),
 		Title:         service.Title,
 		Info:          service.Info,
-		ImgPath:       info,
+		ImgPath:       path,
 		Price:         service.Price,
 		DiscountPrice: service.DiscountPrice,
 		Num:           service.Num,
@@ -103,18 +104,19 @@ func (service *ProductService) Create(ctx context.Context, uId uint, files []*mu
 	wg.Add(len(files))
 	for _, file := range files {
 		productImgDao := dao.NewProductImgDaoByDB(productDao.DB)
-		tmp, _ := file.Open()
-		status, info := UploadToQiNiu(tmp, file.Size)
-		if status != 200 {
+		tmp, _ = file.Open()
+		path, err = UploadToQiNiu(tmp, file.Size)
+		if err != nil {
+			code = e.ErrorUploadFile
 			return serializer.Response{
-				Status: status,
-				Data:   e.GetMsg(status),
-				Error:  info,
+				Status: code,
+				Data:   e.GetMsg(code),
+				Error:  path,
 			}
 		}
 		productImg := model.ProductImg{
 			ProductID: product.ID,
-			ImgPath:   info,
+			ImgPath:   path,
 		}
 		err = productImgDao.CreateProductImg(productImg)
 		if err != nil {

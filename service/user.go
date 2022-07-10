@@ -165,12 +165,13 @@ func (service *UserService) Post(ctx context.Context, uId uint, file multipart.F
 	var user model.User
 	var err error
 
-	status, info := UploadToQiNiu(file, fileSize)
-	if status != 200 {
+	path, err := UploadToQiNiu(file, fileSize)
+	if err != nil {
+		code = e.ErrorUploadFile
 		return serializer.Response{
-			Status: status,
-			Data:   e.GetMsg(status),
-			Error:  info,
+			Status: code,
+			Data:   e.GetMsg(code),
+			Error:  path,
 		}
 	}
 	userDao := dao.NewUserDao(ctx)
@@ -184,7 +185,7 @@ func (service *UserService) Post(ctx context.Context, uId uint, file multipart.F
 			Error:  err.Error(),
 		}
 	}
-	user.Avatar = info
+	user.Avatar = path
 	err = userDao.UpdateUserById(uId, user)
 	if err != nil {
 		logging.Info(err)

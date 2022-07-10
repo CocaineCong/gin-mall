@@ -1,7 +1,6 @@
 package v1
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	util "mall/pkg/utils"
 	"mall/service"
@@ -10,7 +9,6 @@ import (
 // 创建商品
 func CreateProduct(c *gin.Context) {
 	form, _ := c.MultipartForm()
-	fmt.Println("c.Request.MultipartForm", form)
 	files := form.File["file"]
 	claim, _ := util.ParseToken(c.GetHeader("Authorization"))
 	createProductService := service.ProductService{}
