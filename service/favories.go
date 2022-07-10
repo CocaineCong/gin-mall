@@ -34,7 +34,7 @@ func (service *FavoritesService) Show(ctx context.Context, uId uint) serializer.
 			Error:  err.Error(),
 		}
 	}
-	return serializer.BuildListResponse(serializer.BuildFavorites(favorites), uint(total))
+	return serializer.BuildListResponse(serializer.BuildFavorites(ctx, favorites), uint(total))
 }
 
 // Create 创建收藏夹

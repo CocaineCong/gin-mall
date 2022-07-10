@@ -1,6 +1,7 @@
 package serializer
 
 import (
+	"context"
 	"mall/dao"
 	"mall/model"
 )
@@ -40,16 +41,21 @@ func BuildFavorite(item1 model.Favorite, item2 model.Product, item3 model.User) 
 	}
 }
 
-//收藏夹列表
-func BuildFavorites(items []model.Favorite) (favorites []Favorite) {
-	for _, item1 := range items {
-		item2 := model.Product{}
-		item3 := model.User{}
-		err := dao.DB.First(&item2, item1.ProductID).Error
+// 收藏夹列表
+func BuildFavorites(ctx context.Context, items []model.Favorite) (favorites []Favorite) {
+	productDao := dao.NewProductDao(ctx)
+	bossDao := dao.NewUserDao(ctx)
+
+	for _, fav := range items {
+		product, err := productDao.GetProductById(fav.ProductID)
 		if err != nil {
 			continue
 		}
-		favorite := BuildFavorite(item1, item2, item3)
+		boss, err := bossDao.GetUserById(fav.UserID)
+		if err != nil {
+			continue
+		}
+		favorite := BuildFavorite(fav, product, boss)
 		favorites = append(favorites, favorite)
 	}
 	return favorites

@@ -1,6 +1,7 @@
 package serializer
 
 import (
+	"context"
 	"mall/dao"
 	"mall/model"
 )
@@ -32,7 +33,7 @@ func BuildOrder(item1 model.Order, item2 model.Product, item3 model.Address) Ord
 		UserID:        item1.UserID,
 		ProductID:     item1.ProductID,
 		BossID:        item1.BossID,
-		Num:           item1.Num,
+		Num:           uint(item1.Num),
 		AddressName:   item3.Name,
 		AddressPhone:  item3.Phone,
 		Address:       item3.Address,
@@ -43,16 +44,20 @@ func BuildOrder(item1 model.Order, item2 model.Product, item3 model.Address) Ord
 	}
 }
 
-func BuildOrders(items []model.Order) (orders []Order) {
-	for _, item1 := range items {
-		item2 := model.Product{}
-		item3 := model.Address{}
-		err := dao.DB.First(&item2, item1.ProductID).Error
-		err = dao.DB.First(&item3, item1.AddressID).Error
+func BuildOrders(ctx context.Context, items []model.Order) (orders []Order) {
+	productDao := dao.NewProductDao(ctx)
+	addressDao := dao.NewAddressDao(ctx)
+
+	for _, item := range items {
+		product, err := productDao.GetProductById(item.ProductID)
 		if err != nil {
 			continue
 		}
-		order := BuildOrder(item1, item2, item3)
+		address, err := addressDao.GetAddressByAid(item.AddressID)
+		if err != nil {
+			continue
+		}
+		order := BuildOrder(item, product, address)
 		orders = append(orders, order)
 	}
 	return orders

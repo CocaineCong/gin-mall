@@ -36,8 +36,8 @@ func (service *OrderService) Create(ctx context.Context, id uint) serializer.Res
 		UserID:    id,
 		ProductID: service.ProductID,
 		BossID:    service.BossID,
-		Num:       service.Num,
-		Money:     service.Money,
+		Num:       int(service.Num),
+		Money:     float64(service.Money),
 		Type:      1,
 	}
 	addressDao := dao.NewAddressDao(ctx)
@@ -110,7 +110,7 @@ func (service *OrderService) List(ctx context.Context, uId uint) serializer.Resp
 		}
 	}
 
-	return serializer.BuildListResponse(serializer.BuildOrders(orders), uint(total))
+	return serializer.BuildListResponse(serializer.BuildOrders(ctx, orders), uint(total))
 }
 
 func (service *OrderService) Show(ctx context.Context, uId string) serializer.Response {
