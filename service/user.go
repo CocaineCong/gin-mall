@@ -165,15 +165,6 @@ func (service *UserService) Post(ctx context.Context, uId uint, file multipart.F
 	var user model.User
 	var err error
 
-	path, err := UploadToQiNiu(file, fileSize)
-	if err != nil {
-		code = e.ErrorUploadFile
-		return serializer.Response{
-			Status: code,
-			Data:   e.GetMsg(code),
-			Error:  path,
-		}
-	}
 	userDao := dao.NewUserDao(ctx)
 	user, err = userDao.GetUserById(uId)
 	if err != nil {
@@ -185,6 +176,17 @@ func (service *UserService) Post(ctx context.Context, uId uint, file multipart.F
 			Error:  err.Error(),
 		}
 	}
+
+	path, err := UploadAvatarToLocalStatic(file, uId, user.UserName)
+	if err != nil {
+		code = e.ErrorUploadFile
+		return serializer.Response{
+			Status: code,
+			Data:   e.GetMsg(code),
+			Error:  path,
+		}
+	}
+
 	user.Avatar = path
 	err = userDao.UpdateUserById(uId, user)
 	if err != nil {
