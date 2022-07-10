@@ -12,6 +12,10 @@
 **V2版本，结构较比V1版本有很大的改动**
 **全部转化成 controller、dao、service 模式，更加符合企业开发**
 
+**其中V2.0是将图片上传至七牛云**
+
+**其中V2.1是将图片上传至本地static目录**
+
 # 项目的主要功能介绍
 
 - 用户注册登录(JWT-Go鉴权)
@@ -44,6 +48,7 @@ gin-mall/
 ├── cache
 ├── conf
 ├── doc
+├── dao
 ├── middleware
 ├── model
 ├── pkg
@@ -57,6 +62,7 @@ gin-mall/
 - cache : 放置redis缓存
 - conf : 用于存储配置文件
 - doc : 存放接口文档
+- dao : 持久层，对数据库进行操作
 - middleware : 应用中间件
 - model : 应用数据库模型
 - pkg/e : 封装错误码
@@ -100,6 +106,11 @@ SmtpHost=smtp.qq.com
 SmtpEmail=
 SmtpPass=
 #SMTP服务的通行证
+
+[path]
+Host = http://127.0.0.1
+ProductPath = /static/imgs/product/
+AvatarPath = /static/imgs/avatar/
 
 [es]
 EsHost = 127.0.0.1
