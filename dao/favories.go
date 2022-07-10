@@ -21,13 +21,13 @@ func NewFavoritesDaoByDB(db *gorm.DB) *FavoritesDao {
 // ListFavoriteByUserId 通过 user_id 获取收藏夹列表
 func (dao *FavoritesDao) ListFavoriteByUserId(uId uint, pageSize, pageNum int) (favorites []model.Favorite, total int64, err error) {
 	// 总数
-	err = dao.DB.Model(&model.Product{}).Preload("User").
+	err = dao.DB.Model(&model.Favorite{}).Preload("User").
 		Where("user_id=?", uId).Count(&total).Error
 	if err != nil {
 		return
 	}
 	// 分页
-	err = dao.DB.Model(model.User{}).Preload("User").Where("user_id=?", uId).
+	err = dao.DB.Model(model.Favorite{}).Preload("User").Where("user_id=?", uId).
 		Offset((pageNum - 1) * pageSize).
 		Limit(pageSize).Find(&favorites).Error
 	return

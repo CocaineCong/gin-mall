@@ -55,11 +55,11 @@ func (service *AddressService) Create(ctx context.Context, uId uint) serializer.
 	}
 }
 
-func (service *AddressService) Show(ctx context.Context, uId string) serializer.Response {
+func (service *AddressService) Show(ctx context.Context, aId string) serializer.Response {
 	code := e.SUCCESS
 	addressDao := dao.NewAddressDao(ctx)
-	userId, _ := strconv.Atoi(uId)
-	addresses, err := addressDao.ListAddressByUid(uint(userId))
+	addressId, _ := strconv.Atoi(aId)
+	address, err := addressDao.GetAddressByAid(uint(addressId))
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
@@ -71,7 +71,27 @@ func (service *AddressService) Show(ctx context.Context, uId string) serializer.
 	}
 	return serializer.Response{
 		Status: code,
-		Data:   serializer.BuildAddresses(addresses),
+		Data:   serializer.BuildAddress(address),
+		Msg:    e.GetMsg(code),
+	}
+}
+
+func (service *AddressService) List(ctx context.Context, uId uint) serializer.Response {
+	code := e.SUCCESS
+	addressDao := dao.NewAddressDao(ctx)
+	address, err := addressDao.ListAddressByUid(uId)
+	if err != nil {
+		logging.Info(err)
+		code = e.ErrorDatabase
+		return serializer.Response{
+			Status: code,
+			Msg:    e.GetMsg(code),
+			Error:  err.Error(),
+		}
+	}
+	return serializer.Response{
+		Status: code,
+		Data:   serializer.BuildAddresses(address),
 		Msg:    e.GetMsg(code),
 	}
 }

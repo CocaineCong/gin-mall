@@ -67,7 +67,8 @@ func NewRouter() *gin.Engine {
 
 			//收获地址操作
 			authed.POST("addresses", api.CreateAddress)
-			authed.GET("addresses/:id", api.ShowAddresses)
+			authed.GET("addresses/:id", api.GetAddress)
+			authed.GET("addresses", api.ListAddress)
 			authed.PUT("addresses/:id", api.UpdateAddress)
 			authed.DELETE("addresses/:id", api.DeleteAddress)
 
