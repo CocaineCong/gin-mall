@@ -34,7 +34,7 @@ func (dao *ProductDao) ListProductByCondition(condition map[string]interface{}, 
 }
 
 // CreateProduct 创建商品
-func (dao *ProductDao) CreateProduct(product model.Product) (err error) {
+func (dao *ProductDao) CreateProduct(product *model.Product) (err error) {
 	err = dao.DB.Model(&model.Product{}).Create(&product).Error
 	return
 }

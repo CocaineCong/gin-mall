@@ -89,7 +89,7 @@ func (service *ProductService) Create(ctx context.Context, uId uint, files []*mu
 		BossAvatar:    boss.Avatar,
 	}
 	productDao := dao.NewProductDao(ctx)
-	err = productDao.CreateProduct(product)
+	err = productDao.CreateProduct(&product)
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
@@ -103,7 +103,7 @@ func (service *ProductService) Create(ctx context.Context, uId uint, files []*mu
 	wg := new(sync.WaitGroup)
 	wg.Add(len(files))
 	for _, file := range files {
-		productImgDao := dao.NewProductImgDaoByDB(productDao.DB)
+		productImgDao := dao.NewProductImgDao(ctx)
 		tmp, _ = file.Open()
 		path, err = UploadToQiNiu(tmp, file.Size)
 		if err != nil {

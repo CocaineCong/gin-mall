@@ -46,7 +46,7 @@ func (service UserService) Register(ctx context.Context) serializer.Response {
 	}
 	util.Encrypt.SetKey(service.Key)
 	userDao := dao.NewUserDao(ctx)
-	exist, err := userDao.ExistOrNotByUserName(service.UserName)
+	_, exist, err := userDao.ExistOrNotByUserName(service.UserName)
 	if err != nil {
 		code = e.ErrorDatabase
 		return serializer.Response{
@@ -68,7 +68,7 @@ func (service UserService) Register(ctx context.Context) serializer.Response {
 		Money:    util.Encrypt.AesEncoding("10000"), // 初始金额
 	}
 	//加密密码
-	if err := user.SetPassword(service.Password); err != nil {
+	if err = user.SetPassword(service.Password); err != nil {
 		logging.Info(err)
 		code = e.ErrorFailEncryption
 		return serializer.Response{
@@ -98,10 +98,10 @@ func (service UserService) Login(ctx context.Context) serializer.Response {
 	var user model.User
 	code := e.SUCCESS
 	userDao := dao.NewUserDao(ctx)
-	exist, err := userDao.ExistOrNotByUserName(service.UserName)
+	user, exist, err := userDao.ExistOrNotByUserName(service.UserName)
 	if !exist { //如果查询不到，返回相应的错误
 		logging.Info(err)
-		code = e.ErrorDatabase
+		code = e.ErrorUserNotFound
 		return serializer.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),

@@ -122,7 +122,7 @@ func (service *OrderPay) PayDown(ctx context.Context, uId uint) serializer.Respo
 	product.BossID = int(uId)
 	product.BossName = user.UserName
 	product.BossAvatar = user.Avatar
-	err = productDao.CreateProduct(product)
+	err = productDao.CreateProduct(&product)
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase

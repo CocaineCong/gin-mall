@@ -16,6 +16,7 @@ var MsgFlags = map[int]string{
 	ErrorNotExistProduct:    "该商品不存在",
 	ErrorNotExistAddress:    "该收获地址不存在",
 	ErrorExistFavorite:      "已收藏该商品",
+	ErrorUserNotFound:       "用户不存在",
 
 	ErrorBossCheckTokenFail:        "商家的Token鉴权失败",
 	ErrorBossCheckTokenTimeout:     "商家Token已超时",

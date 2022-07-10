@@ -17,6 +17,7 @@ const (
 	ErrorNotExistProduct    = 10007
 	ErrorNotExistAddress    = 10008
 	ErrorExistFavorite      = 10009
+	ErrorUserNotFound       = 10010
 
 	//店家错误
 	ErrorBossCheckTokenFail        = 20001

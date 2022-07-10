@@ -33,12 +33,13 @@ func (dao *UserDao) UpdateUserById(uId uint, user model.User) (err error) {
 }
 
 // ExistOrNotByUserName 根据username判断是否存在该名字
-func (dao *UserDao) ExistOrNotByUserName(userName string) (exist bool, err error) {
-	err = dao.DB.Model(&model.User{}).Where("user_name=?", userName).Error
-	if err != nil {
-		return false, err
+func (dao *UserDao) ExistOrNotByUserName(userName string) (user model.User, exist bool, err error) {
+	err = dao.DB.Model(&model.User{}).Where("user_name=?", userName).
+		First(&user).Error
+	if user == (model.User{}) {
+		return model.User{}, false, err
 	}
-	return true, nil
+	return user, true, nil
 }
 
 // CreateUser 创建用户
