@@ -2,7 +2,8 @@
 	"info": {
 		"_postman_id": "326b0de9-c5ae-49c8-8440-a86520894c55",
 		"name": "gin-mall",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "10242828"
 	},
 	"item": [
 		{
@@ -18,17 +19,17 @@
 							"formdata": [
 								{
 									"key": "nick_name",
-									"value": "FanOne1",
+									"value": "Bussiness",
 									"type": "text"
 								},
 								{
 									"key": "user_name",
-									"value": "FanTwo1",
+									"value": "Bussiness",
 									"type": "text"
 								},
 								{
 									"key": "password",
-									"value": "11111111",
+									"value": "12345678",
 									"type": "text"
 								},
 								{
@@ -117,12 +118,12 @@
 							"formdata": [
 								{
 									"key": "user_name",
-									"value": "FanTwo1",
+									"value": "FanOne",
 									"type": "text"
 								},
 								{
 									"key": "password",
-									"value": "11111111",
+									"value": "12345678",
 									"type": "text"
 								}
 							]
@@ -541,7 +542,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiIyOTQzNTAzOTRAcXEuY29tIiwicGFzc3dvcmQiOiIiLCJvcGVyYXRpb25fdHlwZSI6MSwiZXhwIjoxNjQ0ODk1NTU2LCJpc3MiOiJGYW5PbmUifQ.hYWbbNndjOv2JI3Imf3-mg98SX4y2dF9RWAXo82eVQQ",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjozLCJlbWFpbCI6IjI5NDM1MDM5NEBxcS5jb20iLCJwYXNzd29yZCI6IiIsIm9wZXJhdGlvbl90eXBlIjoxLCJleHAiOjE2NTc0NTMxNDcsImlzcyI6ImNtYWxsIn0.pexsNjLuLJdIqu4AStwWBkCRly7rZ3gwI25pzQCisEI",
 								"type": "default"
 							}
 						],
@@ -623,12 +624,12 @@
 							"formdata": []
 						},
 						"url": {
-							"raw": "{{url}}product/2",
+							"raw": "{{url}}product/5",
 							"host": [
 								"{{url}}product"
 							],
 							"path": [
-								"2"
+								"5"
 							]
 						}
 					},
@@ -777,43 +778,48 @@
 							"formdata": [
 								{
 									"key": "name",
-									"value": "手机",
+									"value": "电脑",
 									"type": "text"
 								},
 								{
 									"key": "category_id",
-									"value": "2",
+									"value": "3",
 									"type": "text"
 								},
 								{
 									"key": "title",
-									"value": "好手机",
+									"value": "好电脑",
 									"type": "text"
 								},
 								{
 									"key": "info",
-									"value": "很好的手机",
+									"value": "很好的电脑",
 									"type": "text"
 								},
 								{
 									"key": "price",
-									"value": "200",
+									"value": "2000",
 									"type": "text"
 								},
 								{
 									"key": "discount_price",
-									"value": "180",
+									"value": "1800",
 									"type": "text"
 								},
 								{
 									"key": "file",
 									"type": "file",
-									"src": "/D:/Desktop/avatar.jpg"
+									"src": "/D:/Desktop/fanone.JPG"
 								},
 								{
 									"key": "file",
 									"type": "file",
 									"src": "/D:/Desktop/1.jpg"
+								},
+								{
+									"key": "num",
+									"value": "100",
+									"type": "text"
 								}
 							]
 						},
@@ -1036,7 +1042,7 @@
 								},
 								{
 									"key": "boss_id",
-									"value": "1",
+									"value": "3",
 									"type": "text"
 								}
 							]
@@ -1577,6 +1583,26 @@
 							"body": "{\n    \"status\": 200,\n    \"data\": null,\n    \"msg\": \"ok\",\n    \"error\": \"\"\n}"
 						}
 					]
+				},
+				{
+					"name": "获取地址列表",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{url}}addresses",
+							"host": [
+								"{{url}}addresses"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -1664,18 +1690,20 @@
 							"formdata": [
 								{
 									"key": "boss_id",
-									"value": "5",
+									"value": "3",
+									"type": "text"
+								},
+								{
+									"key": "product_id",
+									"value": "2",
 									"type": "text"
 								}
 							]
 						},
 						"url": {
-							"raw": "{{url}}carts/4",
+							"raw": "{{url}}carts",
 							"host": [
 								"{{url}}carts"
-							],
-							"path": [
-								"4"
 							]
 						}
 					},
@@ -1749,18 +1777,18 @@
 							"formdata": [
 								{
 									"key": "num",
-									"value": "2",
+									"value": "3",
 									"type": "text"
 								}
 							]
 						},
 						"url": {
-							"raw": "{{url}}carts/1",
+							"raw": "{{url}}carts/2",
 							"host": [
 								"{{url}}carts"
 							],
 							"path": [
-								"1"
+								"2"
 							]
 						}
 					},
@@ -1830,12 +1858,12 @@
 							}
 						],
 						"url": {
-							"raw": "{{url}}carts/1",
+							"raw": "{{url}}carts/2",
 							"host": [
 								"{{url}}carts"
 							],
 							"path": [
-								"1"
+								"2"
 							]
 						}
 					},
@@ -1904,7 +1932,7 @@
 							"formdata": [
 								{
 									"key": "product_id",
-									"value": "4",
+									"value": "2",
 									"type": "text"
 								},
 								{
@@ -1914,18 +1942,24 @@
 								},
 								{
 									"key": "address_id",
-									"value": "3",
+									"value": "1",
 									"type": "text"
 								},
 								{
 									"key": "money",
-									"value": "1000",
+									"value": "180",
 									"type": "text"
 								},
 								{
 									"key": "boss_id",
 									"value": "5",
 									"type": "text"
+								},
+								{
+									"key": "type",
+									"value": "1",
+									"type": "text",
+									"disabled": true
 								}
 							]
 						},
@@ -2009,6 +2043,9 @@
 				},
 				{
 					"name": "获取订单",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
 					"request": {
 						"method": "GET",
 						"header": [
@@ -2018,6 +2055,17 @@
 								"type": "text"
 							}
 						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "type",
+									"value": "1",
+									"description": "1，待付款。2，待发货。3，待收货",
+									"type": "text"
+								}
+							]
+						},
 						"url": {
 							"raw": "{{url}}orders",
 							"host": [
@@ -2222,22 +2270,27 @@
 								},
 								{
 									"key": "money",
-									"value": "1000",
+									"value": "180",
 									"type": "text"
 								},
 								{
 									"key": "orderNo",
-									"value": "24689320046",
+									"value": "1983945223",
 									"type": "text"
 								},
 								{
 									"key": "product_id",
-									"value": "4",
+									"value": "2",
 									"type": "text"
 								},
 								{
 									"key": "boss_id",
 									"value": "5",
+									"type": "text"
+								},
+								{
+									"key": "order_id",
+									"value": "3",
 									"type": "text"
 								}
 							]
