@@ -1,8 +1,8 @@
 package service
 
 import (
+	"context"
 	"fmt"
-	"github.com/jinzhu/gorm"
 	logging "github.com/sirupsen/logrus"
 	"gopkg.in/mail.v2"
 	"mall/conf"
@@ -16,7 +16,7 @@ import (
 	"time"
 )
 
-//UserRegisterService 管理用户注册服务
+// UserService 管理用户服务
 type UserService struct {
 	NickName string `form:"nick_name" json:"nick_name"`
 	UserName string `form:"user_name" json:"user_name"`
@@ -34,9 +34,8 @@ type SendEmailService struct {
 type ValidEmailService struct {
 }
 
-func (service UserService) Register() serializer.Response {
+func (service UserService) Register(ctx context.Context) serializer.Response {
 	var user model.User
-	var count int64
 	code := e.SUCCESS
 	if service.Key == "" || len(service.Key) != 16 {
 		code = e.ERROR
@@ -47,8 +46,16 @@ func (service UserService) Register() serializer.Response {
 		}
 	}
 	util.Encrypt.SetKey(service.Key)
-	dao.DB.Model(&model.User{}).Where("user_name=?", service.UserName).Count(&count)
-	if count == 1 {
+	userDao := dao.NewUserDao(ctx)
+	exist, err := userDao.ExistOrNotByUserName(service.UserName)
+	if err != nil {
+		code = e.ErrorDatabase
+		return serializer.Response{
+			Status: code,
+			Msg:    e.GetMsg(code),
+		}
+	}
+	if exist {
 		code = e.ErrorExistUser
 		return serializer.Response{
 			Status: code,
@@ -56,10 +63,10 @@ func (service UserService) Register() serializer.Response {
 		}
 	}
 	user = model.User{
-		Nickname: service.NickName,
+		NickName: service.NickName,
 		UserName: service.UserName,
 		Status:   model.Active,
-		Money:    util.Encrypt.AesEncoding("10000"),
+		Money:    util.Encrypt.AesEncoding("10000"), // 初始金额
 	}
 	//加密密码
 	if err := user.SetPassword(service.Password); err != nil {
@@ -72,7 +79,8 @@ func (service UserService) Register() serializer.Response {
 	}
 	user.Avatar = "http://q1.qlogo.cn/g?b=qq&nk=294350394&s=640"
 	//创建用户
-	if err := dao.DB.Create(&user).Error; err != nil {
+	err = userDao.CreateUser(user)
+	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
 		return serializer.Response{
@@ -87,19 +95,12 @@ func (service UserService) Register() serializer.Response {
 }
 
 //Login 用户登陆函数
-func (service UserService) Login() serializer.Response {
+func (service UserService) Login(ctx context.Context) serializer.Response {
 	var user model.User
 	code := e.SUCCESS
-	if err := dao.DB.Where("user_name=?", service.UserName).First(&user).Error; err != nil {
-		//如果查询不到，返回相应的错误
-		if gorm.IsRecordNotFoundError(err) {
-			logging.Info(err)
-			code = e.ErrorNotExistUser
-			return serializer.Response{
-				Status: code,
-				Msg:    e.GetMsg(code),
-			}
-		}
+	userDao := dao.NewUserDao(ctx)
+	exist, err := userDao.ExistOrNotByUserName(service.UserName)
+	if !exist { //如果查询不到，返回相应的错误
 		logging.Info(err)
 		code = e.ErrorDatabase
 		return serializer.Response{
@@ -131,24 +132,18 @@ func (service UserService) Login() serializer.Response {
 }
 
 //Update 用户修改信息
-func (service UserService) Update(id uint) serializer.Response {
+func (service UserService) Update(ctx context.Context, uId uint) serializer.Response {
 	var user model.User
+	var err error
 	code := e.SUCCESS
 	//找到用户
-	err := dao.DB.First(&user, id).Error
-	if err != nil {
-		logging.Info(err)
-		code = e.ErrorDatabase
-		return serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Error:  err.Error(),
-		}
-	}
+	userDao := dao.NewUserDao(ctx)
+	user, err = userDao.GetUserById(uId)
 	if service.NickName != "" {
-		user.Nickname = service.NickName
+		user.NickName = service.NickName
 	}
-	err = dao.DB.Save(&user).Error
+
+	err = userDao.UpdateUserById(uId, user)
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
@@ -166,9 +161,11 @@ func (service UserService) Update(id uint) serializer.Response {
 	}
 }
 
-func (service *UserService) Post(id uint, file multipart.File, fileSize int64) serializer.Response {
-	var user model.User
+func (service *UserService) Post(ctx context.Context, uId uint, file multipart.File, fileSize int64) serializer.Response {
 	code := e.SUCCESS
+	var user model.User
+	var err error
+
 	status, info := UploadToQiNiu(file, fileSize)
 	if status != 200 {
 		return serializer.Response{
@@ -177,9 +174,28 @@ func (service *UserService) Post(id uint, file multipart.File, fileSize int64) s
 			Error:  info,
 		}
 	}
-	dao.DB.Where("id=?", id).First(&user)
+	userDao := dao.NewUserDao(ctx)
+	user, err = userDao.GetUserById(uId)
+	if err != nil {
+		logging.Info(err)
+		code = e.ErrorDatabase
+		return serializer.Response{
+			Status: code,
+			Msg:    e.GetMsg(code),
+			Error:  err.Error(),
+		}
+	}
 	user.Avatar = info
-	dao.DB.Save(&user)
+	err = userDao.UpdateUserById(uId, user)
+	if err != nil {
+		logging.Info(err)
+		code = e.ErrorDatabase
+		return serializer.Response{
+			Status: code,
+			Msg:    e.GetMsg(code),
+			Error:  err.Error(),
+		}
+	}
 	return serializer.Response{
 		Status: code,
 		Data:   serializer.BuildUser(user),
