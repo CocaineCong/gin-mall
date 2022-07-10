@@ -16,6 +16,12 @@
 
 **其中V2.1是将图片上传至本地static目录**
 
+**默认的main分支下的是v2.0版本，如果需要v2.1，则需要拉取v2.1的代码**
+如以下命令
+```shell
+git clone -b v2.1 git@github.com:CocaineCong/gin-mall.git
+```
+
 # 项目的主要功能介绍
 
 - 用户注册登录(JWT-Go鉴权)
