@@ -11,8 +11,8 @@ type Order struct {
 	ProductID uint   `gorm:"not null"`
 	BossID    uint   `gorm:"not null"`
 	AddressID uint   `gorm:"not null"`
-	Num       uint   // 数量
+	Num       int    // 数量
 	OrderNum  uint64 // 订单号
 	Type      uint   // 1 未支付  2 已支付
-	Money     int
+	Money     float64
 }

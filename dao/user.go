@@ -18,8 +18,16 @@ func NewUserDaoByDB(db *gorm.DB) *UserDao {
 	return &UserDao{db}
 }
 
+// GetUserById 根据 id 获取用户
 func (dao *UserDao) GetUserById(uId uint) (user model.User, err error) {
 	err = dao.DB.Model(&model.User{}).Where("id=?", uId).
 		First(&user).Error
+	return
+}
+
+// UpdateUserById 根据 id 更新用户信息
+func (dao *UserDao) UpdateUserById(uId uint, user model.User) (err error) {
+	err = dao.DB.Model(&model.User{}).Where("id=?", uId).
+		Updates(&user).Error
 	return
 }
