@@ -1,8 +1,10 @@
 package service
 
 import (
+	"context"
 	"fmt"
 	logging "github.com/sirupsen/logrus"
+	"mall/dao"
 	"mall/model"
 	"mall/pkg/e"
 	util "mall/pkg/utils"
@@ -10,26 +12,24 @@ import (
 	"strconv"
 )
 
-
-
 type OrderPay struct {
-	Money        float64    `form:"money" json:"money"`
-	OrderNo      string `form:"orderNo" json:"orderNo"`
-	ProductID    int    `form:"product_id" json:"product_id"`
-	PayTime      string `form:"payTime" json:"payTime" `
-	Sign         string `form:"sign" json:"sign" `
-	BossID       int    `form:"boss_id" json:"boss_id"`
-	BossName     string `form:"boss_name" json:"boss_name"`
-	Num          int    `form:"num" json:"num"`
-	Key          string `json:"key" form:"key"`
+	OrderId   uint    `form:"order_id" json:"order_id"`
+	Money     float64 `form:"money" json:"money"`
+	OrderNo   string  `form:"orderNo" json:"orderNo"`
+	ProductID int     `form:"product_id" json:"product_id"`
+	PayTime   string  `form:"payTime" json:"payTime" `
+	Sign      string  `form:"sign" json:"sign" `
+	BossID    int     `form:"boss_id" json:"boss_id"`
+	BossName  string  `form:"boss_name" json:"boss_name"`
+	Num       int     `form:"num" json:"num"`
+	Key       string  `form:"key" json:"key"`
 }
 
-
-func (service *OrderPay) PayDown(id uint) serializer.Response {
+func (service *OrderPay) PayDown(ctx context.Context, uId uint) serializer.Response {
 	util.Encrypt.SetKey(service.Key)
-	var order model.Order
 	code := e.SUCCESS
-	err := model.DB.Where("user_id=? AND product_id=?", id, service.ProductID).Find(&order).Error
+	orderDao := dao.NewOrderDao(ctx)
+	order, err := orderDao.GetOrderById(service.OrderId)
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
@@ -39,12 +39,13 @@ func (service *OrderPay) PayDown(id uint) serializer.Response {
 			Error:  err.Error(),
 		}
 	}
-	var user model.User
-	money := service.Money
-	num := service.Num
-	numFloat := float64(num)
-	money = money * numFloat
-	err = model.DB.First(&user, id).Error
+
+	money := order.Money
+	num := order.Num
+	money = money * float64(num)
+
+	userDao := dao.NewUserDao(ctx)
+	user, err := userDao.GetUserById(uId)
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
@@ -54,11 +55,15 @@ func (service *OrderPay) PayDown(id uint) serializer.Response {
 			Error:  err.Error(),
 		}
 	}
+
+	// 对钱进行解密。减去订单。再进行加密。
 	moneyStr := util.Encrypt.AesDecoding(user.Money)
 	moneyFloat, _ := strconv.ParseFloat(moneyStr, 64)
 	finMoney := fmt.Sprintf("%f", moneyFloat-money)
 	user.Money = util.Encrypt.AesEncoding(finMoney)
-	err = model.DB.Save(&user).Error
+
+	userDao = dao.NewUserDaoByDB(userDao.DB)
+	err = userDao.UpdateUserById(uId, user)
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
@@ -68,13 +73,16 @@ func (service *OrderPay) PayDown(id uint) serializer.Response {
 			Error:  err.Error(),
 		}
 	}
+
 	var boss model.User
-	err = model.DB.First(&boss, service.BossID).Error
-	moneyStr = util.Encrypt.AesDecoding(user.Money)
+	boss, err = userDao.GetUserById(uint(service.BossID))
+
+	moneyStr = util.Encrypt.AesDecoding(boss.Money)
 	moneyFloat, _ = strconv.ParseFloat(moneyStr, 64)
 	finMoney = fmt.Sprintf("%f", moneyFloat+money)
 	boss.Money = util.Encrypt.AesEncoding(finMoney)
-	err = model.DB.Save(&boss).Error
+
+	err = userDao.UpdateUserById(uint(service.BossID), boss)
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
@@ -84,10 +92,12 @@ func (service *OrderPay) PayDown(id uint) serializer.Response {
 			Error:  err.Error(),
 		}
 	}
+
 	var product model.Product
-	model.DB.First(&product).Where("product_id=? AND boss_id=?", service.ProductID, service.BossID)
+	productDao := dao.NewProductDao(ctx)
+	product, err = productDao.GetProductById(uint(service.ProductID))
 	product.Num -= num
-	err = model.DB.Save(&product).Error
+	err = productDao.UpdateProduct(uint(service.ProductID), product)
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
@@ -97,7 +107,8 @@ func (service *OrderPay) PayDown(id uint) serializer.Response {
 			Error:  err.Error(),
 		}
 	}
-	err = model.DB.Find(&order).Where("boss_id=? AND user_id=? AND product_id=?", service.BossID, id, service.ProductID).Error
+
+	err = orderDao.DeleteOrderById(service.OrderId)
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
@@ -107,43 +118,22 @@ func (service *OrderPay) PayDown(id uint) serializer.Response {
 			Error:  err.Error(),
 		}
 	}
-	err = model.DB.Delete(&order).Error
-	if err != nil {
-		logging.Info(err)
-		code = e.ErrorDatabase
-		return serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Error:  err.Error(),
-		}
+
+	productUser := model.Product{
+		Name:          product.Name,
+		CategoryID:    product.CategoryID,
+		Title:         product.Title,
+		Info:          product.Info,
+		ImgPath:       product.ImgPath,
+		Price:         product.Price,
+		DiscountPrice: product.DiscountPrice,
+		Num:           num,
+		OnSale:        false,
+		BossID:        int(uId),
+		BossName:      user.UserName,
+		BossAvatar:    user.Avatar,
 	}
-	var productTemp model.Product
-	err = model.DB.Where("id=?", service.ProductID).Find(&productTemp).Error
-	if err != nil {
-		logging.Info(err)
-		code = e.ErrorDatabase
-		return serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Error:  err.Error(),
-		}
-	}
-	var productBoss model.User
-	model.DB.Find(&productBoss).Where("id=?", id)
-	var productTest model.Product
-	productTest.Num = service.Num
-	productTest.BossID = int(id)
-	productTest.OnSale = false
-	productTest.ImgPath = productTemp.ImgPath
-	productTest.Price = productTemp.Price
-	productTest.Info = productTemp.Info
-	productTest.Name = productTemp.Name
-	productTest.Title = productTemp.Title
-	productTest.CategoryID = productTemp.CategoryID
-	productTest.DiscountPrice = productTemp.DiscountPrice
-	productTest.BossName = productBoss.UserName
-	productTest.BossAvatar = productBoss.Avatar
-	err = model.DB.Create(&productTest).Error
+	err = productDao.CreateProduct(&productUser)
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase

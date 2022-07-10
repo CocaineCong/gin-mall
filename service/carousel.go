@@ -1,20 +1,21 @@
 package service
 
 import (
+	"context"
 	logging "github.com/sirupsen/logrus"
-	"mall/model"
+	"mall/dao"
 	"mall/pkg/e"
 	"mall/serializer"
 )
 
 type ListCarouselsService struct {
-
 }
 
 func (service *ListCarouselsService) List() serializer.Response {
-	var carousels []model.Carousel
 	code := e.SUCCESS
-	if err := model.DB.Find(&carousels).Error; err != nil {
+	carouselsCtx := dao.NewCarouselDao(context.Background())
+	carousels, err := carouselsCtx.ListAddress()
+	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
 		return serializer.Response{
@@ -23,6 +24,5 @@ func (service *ListCarouselsService) List() serializer.Response {
 			Error:  err.Error(),
 		}
 	}
-	return serializer.BuildListResponse(serializer.BuildCarousels(carousels),uint(len(carousels)))
+	return serializer.BuildListResponse(serializer.BuildCarousels(carousels), uint(len(carousels)))
 }
-

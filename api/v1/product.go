@@ -1,23 +1,20 @@
 package v1
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	util "mall/pkg/utils"
 	"mall/service"
 )
 
-
 // 创建商品
 func CreateProduct(c *gin.Context) {
 	form, _ := c.MultipartForm()
-	fmt.Println("c.Request.MultipartForm",form)
 	files := form.File["file"]
 	claim, _ := util.ParseToken(c.GetHeader("Authorization"))
 	createProductService := service.ProductService{}
 	//c.SaveUploadedFile()
 	if err := c.ShouldBind(&createProductService); err == nil {
-		res := createProductService.Create(claim.ID, files)
+		res := createProductService.Create(c.Request.Context(), claim.ID, files)
 		c.JSON(200, res)
 	} else {
 		c.JSON(400, ErrorResponse(err))
@@ -29,7 +26,7 @@ func CreateProduct(c *gin.Context) {
 func ListProducts(c *gin.Context) {
 	listProductsService := service.ProductService{}
 	if err := c.ShouldBind(&listProductsService); err == nil {
-		res := listProductsService.List()
+		res := listProductsService.List(c.Request.Context())
 		c.JSON(200, res)
 	} else {
 		c.JSON(400, ErrorResponse(err))
@@ -40,14 +37,14 @@ func ListProducts(c *gin.Context) {
 //商品详情
 func ShowProduct(c *gin.Context) {
 	showProductService := service.ProductService{}
-	res := showProductService.Show(c.Param("id"))
+	res := showProductService.Show(c.Request.Context(), c.Param("id"))
 	c.JSON(200, res)
 }
 
 //删除商品
 func DeleteProduct(c *gin.Context) {
 	deleteProductService := service.ProductService{}
-	res := deleteProductService.Delete(c.Param("id"))
+	res := deleteProductService.Delete(c.Request.Context(), c.Param("id"))
 	c.JSON(200, res)
 }
 
@@ -55,7 +52,7 @@ func DeleteProduct(c *gin.Context) {
 func UpdateProduct(c *gin.Context) {
 	updateProductService := service.ProductService{}
 	if err := c.ShouldBind(&updateProductService); err == nil {
-		res := updateProductService.Update(c.Param("id"))
+		res := updateProductService.Update(c.Request.Context(), c.Param("id"))
 		c.JSON(200, res)
 	} else {
 		c.JSON(400, ErrorResponse(err))
@@ -63,13 +60,11 @@ func UpdateProduct(c *gin.Context) {
 	}
 }
 
-
-
 //搜索商品
 func SearchProducts(c *gin.Context) {
 	searchProductsService := service.ProductService{}
 	if err := c.ShouldBind(&searchProductsService); err == nil {
-		res := searchProductsService.Search()
+		res := searchProductsService.Search(c.Request.Context())
 		c.JSON(200, res)
 	} else {
 		c.JSON(400, ErrorResponse(err))
@@ -80,7 +75,7 @@ func SearchProducts(c *gin.Context) {
 func ListProductImg(c *gin.Context) {
 	var listProductImgService service.ListProductImgService
 	if err := c.ShouldBind(&listProductImgService); err == nil {
-		res := listProductImgService.List(c.Param("id"))
+		res := listProductImgService.List(c.Request.Context(), c.Param("id"))
 		c.JSON(200, res)
 	} else {
 		c.JSON(400, ErrorResponse(err))

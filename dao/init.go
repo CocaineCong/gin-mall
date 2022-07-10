@@ -1,18 +1,22 @@
-package model
+package dao
 
 import (
+	"context"
+	"time"
+
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
 	"gorm.io/plugin/dbresolver"
-	"time"
 )
 
-var DB *gorm.DB
+var (
+	_db *gorm.DB
+)
 
-func Database(connRead,connWrite string) {
+func Database(connRead, connWrite string) {
 	var ormLogger logger.Interface
 	if gin.Mode() == "debug" {
 		ormLogger = logger.Default.LogMode(logger.Info)
@@ -39,13 +43,18 @@ func Database(connRead,connWrite string) {
 	sqlDB.SetMaxIdleConns(20)  //设置连接池，空闲
 	sqlDB.SetMaxOpenConns(100) //打开
 	sqlDB.SetConnMaxLifetime(time.Second * 30)
-	DB = db
-	_ = DB.Use(dbresolver.
+	_db = db
+	_ = _db.Use(dbresolver.
 		Register(dbresolver.Config{
 			// `db2` 作为 sources，`db3`、`db4` 作为 replicas
 			Sources:  []gorm.Dialector{mysql.Open(connRead)},                         // 写操作
 			Replicas: []gorm.Dialector{mysql.Open(connWrite), mysql.Open(connWrite)}, // 读操作
 			Policy:   dbresolver.RandomPolicy{},                                      // sources/replicas 负载均衡策略
 		}))
-	migration()
+	Migration()
+}
+
+func NewDBClient(ctx context.Context) *gorm.DB {
+	db := _db
+	return db.WithContext(ctx)
 }

@@ -7,10 +7,10 @@ import (
 )
 
 func CreateCart(c *gin.Context) {
-	createCartService := service.CreateService{}
-	claim ,_ := util.ParseToken(c.GetHeader("Authorization"))
+	createCartService := service.CartService{}
+	claim, _ := util.ParseToken(c.GetHeader("Authorization"))
 	if err := c.ShouldBind(&createCartService); err == nil {
-		res := createCartService.Create(c.Param("id"),claim.ID)
+		res := createCartService.Create(c.Request.Context(), claim.ID)
 		c.JSON(200, res)
 	} else {
 		c.JSON(400, ErrorResponse(err))
@@ -20,16 +20,16 @@ func CreateCart(c *gin.Context) {
 
 //购物车详细信息
 func ShowCarts(c *gin.Context) {
-	showCartsService := service.CreateService{}
-	res := showCartsService.Show(c.Param("id"))
+	showCartsService := service.CartService{}
+	res := showCartsService.Show(c.Request.Context(), c.Param("id"))
 	c.JSON(200, res)
 }
 
 //修改购物车信息
 func UpdateCart(c *gin.Context) {
-	updateCartService := service.CreateService{}
+	updateCartService := service.CartService{}
 	if err := c.ShouldBind(&updateCartService); err == nil {
-		res := updateCartService.Update(c.Param("id"))
+		res := updateCartService.Update(c.Request.Context(), c.Param("id"))
 		c.JSON(200, res)
 	} else {
 		c.JSON(400, ErrorResponse(err))
@@ -39,10 +39,9 @@ func UpdateCart(c *gin.Context) {
 
 //删除购物车
 func DeleteCart(c *gin.Context) {
-	deleteCartService := service.CreateService{}
-	claim ,_ := util.ParseToken(c.GetHeader("Authorization"))
+	deleteCartService := service.CartService{}
 	if err := c.ShouldBind(&deleteCartService); err == nil {
-		res := deleteCartService.Delete(c.Param("id"),claim.ID)
+		res := deleteCartService.Delete(c.Request.Context())
 		c.JSON(200, res)
 	} else {
 		c.JSON(400, ErrorResponse(err))

@@ -10,11 +10,11 @@ import (
 
 // RedisClient Redis缓存客户端单例
 var (
-	RedisClient   *redis.Client
-	RedisDb    			string
-	RedisAddr  			string
-	RedisPw    			string
-	RedisDbName    		string
+	RedisClient *redis.Client
+	RedisDb     string
+	RedisAddr   string
+	RedisPw     string
+	RedisDbName string
 )
 
 // Redis 在中间件中初始化redis链接  防止循环导包，所以放在这里
@@ -31,9 +31,9 @@ func init() {
 func Redis() {
 	db, _ := strconv.ParseUint(RedisDbName, 10, 64)
 	client := redis.NewClient(&redis.Options{
-		Addr:     RedisAddr,
+		Addr: RedisAddr,
 		//Password: conf.RedisPw,
-		DB:       int(db),
+		DB: int(db),
 	})
 	_, err := client.Ping().Result()
 	if err != nil {
@@ -42,7 +42,6 @@ func Redis() {
 	}
 	RedisClient = client
 }
-
 
 func LoadRedisData(file *ini.File) {
 	RedisDb = file.Section("redis").Key("RedisDb").String()

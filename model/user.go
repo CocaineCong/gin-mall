@@ -9,17 +9,17 @@ import (
 type User struct {
 	gorm.Model
 	UserName       string `gorm:"unique"`
-	Email          string  //`gorm:"unique"`
+	Email          string
 	PasswordDigest string
-	Nickname       string `gorm:"not null"`
+	NickName       string
 	Status         string
 	Avatar         string `gorm:"size:1000"`
 	Money          string
 }
 
 const (
-	PassWordCost        = 12         //密码加密难度
-	Active       string = "active"   //激活用户
+	PassWordCost        = 12       //密码加密难度
+	Active       string = "active" //激活用户
 )
 
 //SetPassword 设置密码

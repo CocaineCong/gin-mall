@@ -8,9 +8,9 @@ import (
 
 func OrderPay(c *gin.Context) {
 	orderPay := service.OrderPay{}
-	claim,_ := util.ParseToken(c.GetHeader("Authorization"))
+	claim, _ := util.ParseToken(c.GetHeader("Authorization"))
 	if err := c.ShouldBind(&orderPay); err == nil {
-		res := orderPay.PayDown(claim.ID)
+		res := orderPay.PayDown(c.Request.Context(), claim.ID)
 		c.JSON(200, res)
 	} else {
 		util.LogrusObj.Infoln(err)

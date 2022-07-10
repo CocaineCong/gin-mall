@@ -1,24 +1,30 @@
 package service
 
 import (
+	"context"
 	logging "github.com/sirupsen/logrus"
+	"mall/dao"
 	"mall/model"
 	"mall/pkg/e"
 	"mall/serializer"
 	"strconv"
 )
 
-//创建购物车
-type CreateService struct {
+// CartService 创建购物车
+type CartService struct {
+	Id        uint `form:"id" json:"id"`
 	BossID    uint `form:"boss_id" json:"boss_id"`
+	ProductId uint `form:"product_id" json:"product_id"`
 	Num       uint `form:"num" json:"num"`
 }
 
-
-func (service *CreateService) Create(id string,uid uint) serializer.Response {
+func (service *CartService) Create(ctx context.Context, uId uint) serializer.Response {
 	var product model.Product
 	code := e.SUCCESS
-	err := model.DB.First(&product, id).Error
+
+	// 判断有无这个商品
+	productDao := dao.NewProductDao(ctx)
+	product, err := productDao.GetProductById(service.ProductId)
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
@@ -28,71 +34,32 @@ func (service *CreateService) Create(id string,uid uint) serializer.Response {
 			Error:  err.Error(),
 		}
 	}
-	if product == (model.Product{}) {
-		logging.Info(err)
-		code = e.ErrorDatabase
+
+	// 创建购物车
+	cartDao := dao.NewCartDao(ctx)
+	cart, status, err := cartDao.CreateCart(service.ProductId, uId, service.BossID)
+	if status == e.ErrorProductMoreCart {
 		return serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Error:  err.Error(),
+			Status: status,
+			Msg:    e.GetMsg(status),
 		}
 	}
-	idInt ,_ := strconv.Atoi(id)
-	var cart model.Cart
-	model.DB.Where("user_id=? AND product_id=? AND boss_id=?", uid,id, product.BossID).Find(&cart)
-	if cart == (model.Cart{}) {
-		cart = model.Cart{
-			UserID:    uid,
-			ProductID: uint(idInt),
-			BossID:    uint(product.BossID),
-			Num:       1,
-			MaxNum:    10,
-			Check:     false,
-		}
-		err = model.DB.Create(&cart).Error
-		if err != nil {
-			logging.Info(err)
-			code = e.ErrorDatabase
-			return serializer.Response{
-				Status: code,
-				Msg:    e.GetMsg(code),
-				Error:  err.Error(),
-			}
-		}
-		return serializer.Response{
-			Status: code,
-			Data:   serializer.BuildCart(cart, product, service.BossID),
-			Msg:    e.GetMsg(code),
-		}
-	} else if cart.Num < cart.MaxNum {
-		cart.Num++
-		err = model.DB.Save(&cart).Error
-		if err != nil {
-			logging.Info(err)
-			return serializer.Response{
-				Status: code,
-				Msg:    e.GetMsg(code),
-				Error:  err.Error(),
-			}
-		}
-		return serializer.Response{
-			Status: 201,
-			Msg:    "商品已经在购物车了，数量+1",
-			Data:   serializer.BuildCart(cart, product, service.BossID),
-		}
-	} else {
-		return serializer.Response{
-			Status: 202,
-			Msg:    "超过最大上限",
-		}
+
+	userDao := dao.NewUserDao(ctx)
+	boss, err := userDao.GetUserById(service.BossID)
+	return serializer.Response{
+		Status: status,
+		Msg:    e.GetMsg(status),
+		Data:   serializer.BuildCart(cart, product, boss),
 	}
 }
 
-//Show 订单
-func (service *CreateService) Show(id string) serializer.Response {
-	var carts []model.Cart
+//Show 购物车
+func (service *CartService) Show(ctx context.Context, uId string) serializer.Response {
 	code := e.SUCCESS
-	err := model.DB.Where("user_id=?", id).Find(&carts).Error
+	cartDao := dao.NewCartDao(ctx)
+	userId, _ := strconv.Atoi(uId)
+	carts, err := cartDao.ListCartByUserId(uint(userId))
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
@@ -109,11 +76,13 @@ func (service *CreateService) Show(id string) serializer.Response {
 	}
 }
 
-//修改购物车信息
-func (service *CreateService) Update(id string) serializer.Response {
-	var cart model.Cart
+// Update 修改购物车信息
+func (service *CartService) Update(ctx context.Context, cId string) serializer.Response {
 	code := e.SUCCESS
-	err := model.DB.Where("id=?",id).Find(&cart).Error
+	cartId, _ := strconv.Atoi(cId)
+
+	cartDao := dao.NewCartDao(ctx)
+	err := cartDao.UpdateCartNumById(uint(cartId), service.Num)
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
@@ -123,38 +92,18 @@ func (service *CreateService) Update(id string) serializer.Response {
 			Error:  err.Error(),
 		}
 	}
-	cart.Num = service.Num
-	err = model.DB.Save(&cart).Error
-	if err != nil {
-		logging.Info(err)
-		code = e.ErrorDatabase
-		return serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Error:  err.Error(),
-		}
-	}
+
 	return serializer.Response{
 		Status: code,
 		Msg:    e.GetMsg(code),
 	}
 }
 
-//删除购物车
-func (service *CreateService) Delete(pid string,uid uint) serializer.Response {
-	var cart model.Cart
+// 删除购物车
+func (service *CartService) Delete(ctx context.Context) serializer.Response {
 	code := e.SUCCESS
-	err := model.DB.Where("user_id=? AND product_id=?", uid, pid).Error
-	if err != nil {
-		logging.Info(err)
-		code = e.ErrorDatabase
-		return serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Error:  err.Error(),
-		}
-	}
-	err = model.DB.Delete(&cart).Error
+	cartDao := dao.NewCartDao(ctx)
+	err := cartDao.DeleteCartById(service.Id)
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
