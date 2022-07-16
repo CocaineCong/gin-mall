@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	logging "github.com/sirupsen/logrus"
 	"mall/dao"
@@ -29,6 +30,7 @@ func (service *OrderPay) PayDown(ctx context.Context, uId uint) serializer.Respo
 	util.Encrypt.SetKey(service.Key)
 	code := e.SUCCESS
 	orderDao := dao.NewOrderDao(ctx)
+	tx := orderDao.Begin()
 	order, err := orderDao.GetOrderById(service.OrderId)
 	if err != nil {
 		logging.Info(err)
@@ -39,7 +41,6 @@ func (service *OrderPay) PayDown(ctx context.Context, uId uint) serializer.Respo
 			Error:  err.Error(),
 		}
 	}
-
 	money := order.Money
 	num := order.Num
 	money = money * float64(num)
@@ -59,12 +60,25 @@ func (service *OrderPay) PayDown(ctx context.Context, uId uint) serializer.Respo
 	// 对钱进行解密。减去订单。再进行加密。
 	moneyStr := util.Encrypt.AesDecoding(user.Money)
 	moneyFloat, _ := strconv.ParseFloat(moneyStr, 64)
+	// 金额不足进行回滚
+	if moneyFloat-money < 0.0 {
+		tx.Rollback()
+		logging.Info(err)
+		code = e.ErrorDatabase
+		return serializer.Response{
+			Status: code,
+			Msg:    e.GetMsg(code),
+			Error:  errors.New("金额不足").Error(),
+		}
+	}
 	finMoney := fmt.Sprintf("%f", moneyFloat-money)
 	user.Money = util.Encrypt.AesEncoding(finMoney)
 
 	userDao = dao.NewUserDaoByDB(userDao.DB)
+	// 更新用户金额失败，回滚
 	err = userDao.UpdateUserById(uId, user)
 	if err != nil {
+		tx.Rollback()
 		logging.Info(err)
 		code = e.ErrorDatabase
 		return serializer.Response{
@@ -83,7 +97,9 @@ func (service *OrderPay) PayDown(ctx context.Context, uId uint) serializer.Respo
 	boss.Money = util.Encrypt.AesEncoding(finMoney)
 
 	err = userDao.UpdateUserById(uint(service.BossID), boss)
+	// 更新boss金额失败，回滚
 	if err != nil {
+		tx.Rollback()
 		logging.Info(err)
 		code = e.ErrorDatabase
 		return serializer.Response{
@@ -97,8 +113,10 @@ func (service *OrderPay) PayDown(ctx context.Context, uId uint) serializer.Respo
 	productDao := dao.NewProductDao(ctx)
 	product, err = productDao.GetProductById(uint(service.ProductID))
 	product.Num -= num
+	// 更新商品数量减少失败，回滚
 	err = productDao.UpdateProduct(uint(service.ProductID), product)
 	if err != nil {
+		tx.Rollback()
 		logging.Info(err)
 		code = e.ErrorDatabase
 		return serializer.Response{
@@ -109,7 +127,9 @@ func (service *OrderPay) PayDown(ctx context.Context, uId uint) serializer.Respo
 	}
 
 	err = orderDao.DeleteOrderById(service.OrderId)
+	// 删除订单失败，回滚
 	if err != nil {
+		tx.Rollback()
 		logging.Info(err)
 		code = e.ErrorDatabase
 		return serializer.Response{
@@ -133,8 +153,10 @@ func (service *OrderPay) PayDown(ctx context.Context, uId uint) serializer.Respo
 		BossName:      user.UserName,
 		BossAvatar:    user.Avatar,
 	}
+	// 买完商品后创建成了自己的商品失败。订单失败，回滚
 	err = productDao.CreateProduct(&productUser)
 	if err != nil {
+		tx.Rollback()
 		logging.Info(err)
 		code = e.ErrorDatabase
 		return serializer.Response{
@@ -143,6 +165,7 @@ func (service *OrderPay) PayDown(ctx context.Context, uId uint) serializer.Respo
 			Error:  err.Error(),
 		}
 	}
+	tx.Commit()
 	return serializer.Response{
 		Status: code,
 		Msg:    e.GetMsg(code),
