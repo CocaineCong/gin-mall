@@ -19,3 +19,4 @@ go.sum
 ci
 main
 logs
+static
