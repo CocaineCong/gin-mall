@@ -76,7 +76,7 @@ func (service UserService) Register(ctx context.Context) serializer.Response {
 			Msg:    e.GetMsg(code),
 		}
 	}
-	user.Avatar = "http://q1.qlogo.cn/g?b=qq&nk=294350394&s=640"
+	user.Avatar = "avatar.JPG"
 	//创建用户
 	err = userDao.CreateUser(user)
 	if err != nil {

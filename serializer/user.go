@@ -24,7 +24,7 @@ func BuildUser(user model.User) User {
 		NickName: user.NickName,
 		Email:    user.Email,
 		Status:   user.Status,
-		Avatar:   conf.ProductPhotoHost + conf.HttpPort + user.AvatarURL()[1:], // 去掉绝对路径的 . 符号,
+		Avatar:   conf.ProductPhotoHost + conf.HttpPort + conf.AvatarPath + user.AvatarURL(),
 		CreateAt: user.CreatedAt.Unix(),
 	}
 }

@@ -35,16 +35,16 @@ func UploadAvatarToLocalStatic(file multipart.File, userId uint, userName string
 	if !DirExistOrNot(basePath) {
 		CreateDir(basePath)
 	}
-	productPath := basePath + userName + ".jpg"
+	avatarPath := basePath + userName + ".jpg"
 	content, err := ioutil.ReadAll(file)
 	if err != nil {
 		return "", err
 	}
-	err = ioutil.WriteFile(productPath, content, 0666)
+	err = ioutil.WriteFile(avatarPath, content, 0666)
 	if err != nil {
 		return "", err
 	}
-	return productPath, err
+	return "user" + bId + "/" + userName + ".jpg", err
 }
 
 // DirExistOrNot 判断文件是否存在
