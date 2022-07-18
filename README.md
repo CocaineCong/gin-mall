@@ -3,7 +3,7 @@
 **基于 gin+gorm+mysql读写分离 的一个电子商场**
 
 本项目改自于作者[Congz](https://github.com/congz666)的[电子商城](https://github.com/congz666/cmall-go)
-去除了一些如第三方登录，极验，第三方支付等功能，新增了MySQL读写分离、ELK日志体系、AES对称加密保护数据。
+去除了一些如第三方登录，极验，第三方支付等功能，新增了MySQL读写分离、ELK日志体系、AES对称加密进行数据脱敏等。
 在此也非常感谢作者开源！
 
 此项目比较全面，比较适合小白入门`web开发`
@@ -16,21 +16,29 @@
 
 **其中V2.1是将图片上传至本地static目录**
 
+**默认的main分支下的是v2.0版本，如果需要v2.1，则需要拉取v2.1的代码**
+如以下命令
+```shell
+git clone -b v2.1 git@github.com:CocaineCong/gin-mall.git
+```
+
 # 项目的主要功能介绍
 
 - 用户注册登录(JWT-Go鉴权)
-- 用户基本信息修改，接绑定邮箱，修改密码
+- 用户基本信息修改，解绑定邮箱，修改密码
 - 商品的发布，浏览等
 - 购物车的加入，删除，浏览等
 - 订单的创建，删除，支付等
 - 地址的增加，删除，修改等
 - 各个商品的浏览次数，以及部分种类商品的排行
 - 设置了支付密码，对用户的金额进行了对称加密
+- 支持事务，支付过程发送错误进行回退处理
+- 可以将图片上传到对象存储，也可以切换分支上传到本地static目录下
 - 添加ELK体系，方便日志查看和管理
 
 # 项目需要完善的地方
 
-- 支付模块的如果支付错误要进行回退，订单，金额，都要进行回退
+- 考虑加入kafka或是rabbitmq，新增一个秒杀专场
 
 # 项目的主要依赖：
 Golang V1.16
@@ -51,8 +59,8 @@ gin-mall/
 ├── api
 ├── cache
 ├── conf
-├── doc
 ├── dao
+├── doc
 ├── middleware
 ├── model
 ├── pkg
@@ -65,8 +73,8 @@ gin-mall/
 - api : 用于定义接口函数
 - cache : 放置redis缓存
 - conf : 用于存储配置文件
+- dao : 对持久层进行操作
 - doc : 存放接口文档
-- dao : 持久层，对数据库进行操作
 - middleware : 应用中间件
 - model : 应用数据库模型
 - pkg/e : 封装错误码
@@ -90,19 +98,19 @@ DbHost = 127.0.0.1
 DbPort = 3306
 DbUser = root
 DbPassWord = root
-DbName = 
+DbName =
 
 [redis]
 RedisDb = redis
 RedisAddr = 127.0.0.1:6379
 RedisPw =
-RedisDbName = 
+RedisDbName =
 
 [qiniu]
-AccessKey = 
-SerectKey = 
-Bucket = 
-QiniuServer = 
+AccessKey =
+SerectKey =
+Bucket =
+QiniuServer =
 
 [email]
 ValidEmail=http://localhost:8080/#/vaild/email/
@@ -110,11 +118,6 @@ SmtpHost=smtp.qq.com
 SmtpEmail=
 SmtpPass=
 #SMTP服务的通行证
-
-[path]
-Host = http://127.0.0.1
-ProductPath = /static/imgs/product/
-AvatarPath = /static/imgs/avatar/
 
 [es]
 EsHost = 127.0.0.1
