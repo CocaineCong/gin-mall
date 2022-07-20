@@ -17,22 +17,22 @@ type User struct {
 }
 
 //BuildUser 序列化用户
-func BuildUser(user model.User) User {
-	return User{
+func BuildUser(user *model.User) *User {
+	return &User{
 		ID:       user.ID,
 		UserName: user.UserName,
 		NickName: user.NickName,
 		Email:    user.Email,
 		Status:   user.Status,
-		Avatar:   conf.ProductPhotoHost + conf.HttpPort + conf.AvatarPath + user.AvatarURL(),
+		Avatar:   conf.Host + conf.HttpPort + conf.AvatarPath + user.AvatarURL(),
 		CreateAt: user.CreatedAt.Unix(),
 	}
 }
 
-func BuildUsers(items []model.User) (users []User) {
+func BuildUsers(items []*model.User) (users []User) {
 	for _, item := range items {
 		user := BuildUser(item)
-		users = append(users, user)
+		users = append(users, *user)
 	}
 	return users
 }

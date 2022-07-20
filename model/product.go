@@ -18,7 +18,7 @@ type Product struct {
 	DiscountPrice string
 	OnSale        bool `gorm:"default:false"`
 	Num           int
-	BossID        int
+	BossID        uint
 	BossName      string
 	BossAvatar    string
 }
@@ -49,4 +49,3 @@ func (product *Product) AddAcceRank() {
 	// 增加配件排行点击数
 	cache.RedisClient.ZIncrBy(cache.AccessoryRank, 1, strconv.Itoa(int(product.ID)))
 }
-

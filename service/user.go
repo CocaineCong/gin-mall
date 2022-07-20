@@ -94,8 +94,8 @@ func (service UserService) Register(ctx context.Context) serializer.Response {
 }
 
 //Login 用户登陆函数
-func (service UserService) Login(ctx context.Context) serializer.Response {
-	var user model.User
+func (service *UserService) Login(ctx context.Context) serializer.Response {
+	var user *model.User
 	code := e.SUCCESS
 	userDao := dao.NewUserDao(ctx)
 	user, exist, err := userDao.ExistOrNotByUserName(service.UserName)
@@ -132,7 +132,7 @@ func (service UserService) Login(ctx context.Context) serializer.Response {
 
 //Update 用户修改信息
 func (service UserService) Update(ctx context.Context, uId uint) serializer.Response {
-	var user model.User
+	var user *model.User
 	var err error
 	code := e.SUCCESS
 	//找到用户
@@ -162,7 +162,7 @@ func (service UserService) Update(ctx context.Context, uId uint) serializer.Resp
 
 func (service *UserService) Post(ctx context.Context, uId uint, file multipart.File, fileSize int64) serializer.Response {
 	code := e.SUCCESS
-	var user model.User
+	var user *model.User
 	var err error
 
 	userDao := dao.NewUserDao(ctx)

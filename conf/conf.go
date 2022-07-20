@@ -29,7 +29,7 @@ var (
 	SmtpEmail  string
 	SmtpPass   string
 
-	ProductPhotoHost string
+	Host             string
 	ProductPhotoPath string
 	AvatarPath       string
 
@@ -97,7 +97,7 @@ func LoadEs(file *ini.File) {
 }
 
 func LoadPhotoPath(file *ini.File) {
-	ProductPhotoHost = file.Section("path").Key("Host").String()
+	Host = file.Section("path").Key("Host").String()
 	ProductPhotoPath = file.Section("path").Key("ProductPath").String()
 	AvatarPath = file.Section("path").Key("AvatarPath").String()
 }
