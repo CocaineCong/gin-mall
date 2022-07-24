@@ -24,7 +24,7 @@ type Order struct {
 	DiscountPrice string `json:"discount_price"`
 }
 
-func BuildOrder(item1 model.Order, item2 model.Product, item3 model.Address) Order {
+func BuildOrder(item1 *model.Order, item2 *model.Product, item3 *model.Address) Order {
 	return Order{
 		ID:            item1.ID,
 		OrderNum:      item1.OrderNum,
@@ -44,7 +44,7 @@ func BuildOrder(item1 model.Order, item2 model.Product, item3 model.Address) Ord
 	}
 }
 
-func BuildOrders(ctx context.Context, items []model.Order) (orders []Order) {
+func BuildOrders(ctx context.Context, items []*model.Order) (orders []Order) {
 	productDao := dao.NewProductDao(ctx)
 	addressDao := dao.NewAddressDao(ctx)
 

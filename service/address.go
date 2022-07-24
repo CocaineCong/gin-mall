@@ -17,10 +17,9 @@ type AddressService struct {
 }
 
 func (service *AddressService) Create(ctx context.Context, uId uint) serializer.Response {
-	var address model.Address
 	code := e.SUCCESS
 	addressDao := dao.NewAddressDao(ctx)
-	address = model.Address{
+	address := &model.Address{
 		UserID:  uId,
 		Name:    service.Name,
 		Phone:   service.Phone,
@@ -37,7 +36,7 @@ func (service *AddressService) Create(ctx context.Context, uId uint) serializer.
 		}
 	}
 	addressDao = dao.NewAddressDaoByDB(addressDao.DB)
-	var addresses []model.Address
+	var addresses []*model.Address
 	addresses, err = addressDao.ListAddressByUid(uId)
 	if err != nil {
 		logging.Info(err)
