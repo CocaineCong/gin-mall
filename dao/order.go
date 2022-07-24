@@ -19,13 +19,12 @@ func NewOrderDaoByDB(db *gorm.DB) *OrderDao {
 }
 
 // CreateOrder 创建订单
-func (dao *OrderDao) CreateOrder(order model.Order) (err error) {
-	err = dao.DB.Create(&order).Error
-	return
+func (dao *OrderDao) CreateOrder(order *model.Order) error {
+	return dao.DB.Create(&order).Error
 }
 
 // ListOrderByCondition 获取订单List
-func (dao *OrderDao) ListOrderByCondition(condition map[string]interface{}, page model.BasePage) (orders []model.Order, total int64, err error) {
+func (dao *OrderDao) ListOrderByCondition(condition map[string]interface{}, page model.BasePage) (orders []*model.Order, total int64, err error) {
 	err = dao.DB.Model(&model.Order{}).Where(condition).
 		Count(&total).Error
 	if err != nil {
@@ -39,14 +38,13 @@ func (dao *OrderDao) ListOrderByCondition(condition map[string]interface{}, page
 }
 
 // GetOrderById 获取订单详情
-func (dao *OrderDao) GetOrderById(id uint) (order model.Order, err error) {
+func (dao *OrderDao) GetOrderById(id uint) (order *model.Order, err error) {
 	err = dao.DB.Model(&model.Order{}).Where("id=?", id).
 		First(&order).Error
 	return
 }
 
 // DeleteOrderById 获取订单详情
-func (dao *OrderDao) DeleteOrderById(id uint) (err error) {
-	err = dao.DB.Where("id=?", id).Delete(&model.Order{}).Error
-	return
+func (dao *OrderDao) DeleteOrderById(id uint) error {
+	return dao.DB.Where("id=?", id).Delete(&model.Order{}).Error
 }
