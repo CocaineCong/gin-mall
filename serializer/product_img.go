@@ -13,7 +13,7 @@ type ProductImg struct {
 func BuildProductImg(item *model.ProductImg) ProductImg {
 	return ProductImg{
 		ProductID: item.ProductID,
-		ImgPath:   conf.ProductPhotoHost + conf.HttpPort + item.ImgPath[1:],
+		ImgPath:   conf.PhotoHost + conf.HttpPort + item.ImgPath[1:],
 	}
 }
 
