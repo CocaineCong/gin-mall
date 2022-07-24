@@ -32,7 +32,7 @@ type OrderService struct {
 func (service *OrderService) Create(ctx context.Context, id uint) serializer.Response {
 	code := e.SUCCESS
 
-	order := model.Order{
+	order := &model.Order{
 		UserID:    id,
 		ProductID: service.ProductID,
 		BossID:    service.BossID,
@@ -85,7 +85,7 @@ func (service *OrderService) Create(ctx context.Context, id uint) serializer.Res
 }
 
 func (service *OrderService) List(ctx context.Context, uId uint) serializer.Response {
-	var orders []model.Order
+	var orders []*model.Order
 	var total int64
 	code := e.SUCCESS
 	if service.PageSize == 0 {

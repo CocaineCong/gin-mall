@@ -34,7 +34,7 @@ type ValidEmailService struct {
 }
 
 func (service UserService) Register(ctx context.Context) serializer.Response {
-	var user model.User
+	var user *model.User
 	code := e.SUCCESS
 	if service.Key == "" || len(service.Key) != 16 {
 		code = e.ERROR
@@ -61,7 +61,7 @@ func (service UserService) Register(ctx context.Context) serializer.Response {
 			Msg:    e.GetMsg(code),
 		}
 	}
-	user = model.User{
+	user = &model.User{
 		NickName: service.NickName,
 		UserName: service.UserName,
 		Status:   model.Active,
@@ -76,7 +76,7 @@ func (service UserService) Register(ctx context.Context) serializer.Response {
 			Msg:    e.GetMsg(code),
 		}
 	}
-	user.Avatar = "http://q1.qlogo.cn/g?b=qq&nk=294350394&s=640"
+	user.Avatar = "avatar.JPG"
 	//创建用户
 	err = userDao.CreateUser(user)
 	if err != nil {
@@ -95,7 +95,7 @@ func (service UserService) Register(ctx context.Context) serializer.Response {
 
 //Login 用户登陆函数
 func (service UserService) Login(ctx context.Context) serializer.Response {
-	var user model.User
+	var user *model.User
 	code := e.SUCCESS
 	userDao := dao.NewUserDao(ctx)
 	user, exist, err := userDao.ExistOrNotByUserName(service.UserName)
@@ -132,7 +132,7 @@ func (service UserService) Login(ctx context.Context) serializer.Response {
 
 //Update 用户修改信息
 func (service UserService) Update(ctx context.Context, uId uint) serializer.Response {
-	var user model.User
+	var user *model.User
 	var err error
 	code := e.SUCCESS
 	//找到用户
@@ -162,7 +162,7 @@ func (service UserService) Update(ctx context.Context, uId uint) serializer.Resp
 
 func (service *UserService) Post(ctx context.Context, uId uint, file multipart.File, fileSize int64) serializer.Response {
 	code := e.SUCCESS
-	var user model.User
+	var user *model.User
 	var err error
 
 	userDao := dao.NewUserDao(ctx)
@@ -209,7 +209,7 @@ func (service *UserService) Post(ctx context.Context, uId uint, file multipart.F
 func (service *SendEmailService) Send(ctx context.Context, id uint) serializer.Response {
 	code := e.SUCCESS
 	var address string
-	var notice model.Notice
+	var notice *model.Notice
 
 	token, err := util.GenerateEmailToken(id, service.OperationType, service.Email, service.Password)
 	if err != nil {

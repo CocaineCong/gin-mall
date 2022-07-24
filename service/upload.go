@@ -25,7 +25,7 @@ func UploadProductToLocalStatic(file multipart.File, bossId uint, productName st
 	if err != nil {
 		return "", err
 	}
-	return productPath, err
+	return "boss" + bId + "/" + productName + ".jpg", err
 }
 
 // UploadAvatarToLocalStatic 上传头像
@@ -44,7 +44,7 @@ func UploadAvatarToLocalStatic(file multipart.File, userId uint, userName string
 	if err != nil {
 		return "", err
 	}
-	return productPath, err
+	return "user" + bId + "/" + userName + ".jpg", err
 }
 
 // DirExistOrNot 判断文件是否存在
