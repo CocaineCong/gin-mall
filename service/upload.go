@@ -25,7 +25,7 @@ func UploadProductToLocalStatic(file multipart.File, bossId uint, productName st
 	if err != nil {
 		return "", err
 	}
-	return productPath, err
+	return "boss" + bId + "/" + productName + ".jpg", err
 }
 
 // UploadAvatarToLocalStatic 上传头像

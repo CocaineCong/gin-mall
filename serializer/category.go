@@ -8,7 +8,7 @@ type Category struct {
 	CreateAt     int64  `json:"create_at"`
 }
 
-func BuildCategory(item model.Category) Category {
+func BuildCategory(item *model.Category) Category {
 	return Category{
 		ID:           item.ID,
 		CategoryName: item.CategoryName,
@@ -16,11 +16,10 @@ func BuildCategory(item model.Category) Category {
 	}
 }
 
-func BuildCategories(items []model.Category) (categories []Category) {
+func BuildCategories(items []*model.Category) (categories []Category) {
 	for _, item := range items {
 		category := BuildCategory(item)
 		categories = append(categories, category)
 	}
 	return categories
 }
-

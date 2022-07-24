@@ -37,15 +37,3 @@ func (product *Product) AddView() {
 	// 增加排行点击数
 	cache.RedisClient.ZIncrBy(cache.RankKey, 1, strconv.Itoa(int(product.ID)))
 }
-
-// AddElecRank 增加家电排行点击数
-func (product *Product) AddElecRank() {
-	// 增加家电排行点击数
-	cache.RedisClient.ZIncrBy(cache.ElectricalRank, 1, strconv.Itoa(int(product.ID)))
-}
-
-// AddAcceRank 增加配件排行点击数
-func (product *Product) AddAcceRank() {
-	// 增加配件排行点击数
-	cache.RedisClient.ZIncrBy(cache.AccessoryRank, 1, strconv.Itoa(int(product.ID)))
-}

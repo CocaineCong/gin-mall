@@ -88,7 +88,7 @@ func (service *OrderPay) PayDown(ctx context.Context, uId uint) serializer.Respo
 		}
 	}
 
-	var boss model.User
+	var boss *model.User
 	boss, err = userDao.GetUserById(uint(service.BossID))
 
 	moneyStr = util.Encrypt.AesDecoding(boss.Money)
@@ -109,7 +109,7 @@ func (service *OrderPay) PayDown(ctx context.Context, uId uint) serializer.Respo
 		}
 	}
 
-	var product model.Product
+	var product *model.Product
 	productDao := dao.NewProductDao(ctx)
 	product, err = productDao.GetProductById(uint(service.ProductID))
 	product.Num -= num
@@ -149,7 +149,7 @@ func (service *OrderPay) PayDown(ctx context.Context, uId uint) serializer.Respo
 		DiscountPrice: product.DiscountPrice,
 		Num:           num,
 		OnSale:        false,
-		BossID:        int(uId),
+		BossID:        uId,
 		BossName:      user.UserName,
 		BossAvatar:    user.Avatar,
 	}

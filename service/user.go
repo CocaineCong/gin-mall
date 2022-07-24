@@ -34,7 +34,7 @@ type ValidEmailService struct {
 }
 
 func (service UserService) Register(ctx context.Context) serializer.Response {
-	var user model.User
+	var user *model.User
 	code := e.SUCCESS
 	if service.Key == "" || len(service.Key) != 16 {
 		code = e.ERROR
@@ -61,7 +61,7 @@ func (service UserService) Register(ctx context.Context) serializer.Response {
 			Msg:    e.GetMsg(code),
 		}
 	}
-	user = model.User{
+	user = &model.User{
 		NickName: service.NickName,
 		UserName: service.UserName,
 		Status:   model.Active,
@@ -209,7 +209,7 @@ func (service *UserService) Post(ctx context.Context, uId uint, file multipart.F
 func (service *SendEmailService) Send(ctx context.Context, id uint) serializer.Response {
 	code := e.SUCCESS
 	var address string
-	var notice model.Notice
+	var notice *model.Notice
 
 	token, err := util.GenerateEmailToken(id, service.OperationType, service.Email, service.Password)
 	if err != nil {

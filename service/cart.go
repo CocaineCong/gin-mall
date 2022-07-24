@@ -19,7 +19,7 @@ type CartService struct {
 }
 
 func (service *CartService) Create(ctx context.Context, uId uint) serializer.Response {
-	var product model.Product
+	var product *model.Product
 	code := e.SUCCESS
 
 	// 判断有无这个商品

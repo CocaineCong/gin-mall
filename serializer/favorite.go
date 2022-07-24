@@ -23,7 +23,7 @@ type Favorite struct {
 }
 
 //序列化收藏夹
-func BuildFavorite(item1 model.Favorite, item2 model.Product, item3 model.User) Favorite {
+func BuildFavorite(item1 *model.Favorite, item2 *model.Product, item3 *model.User) Favorite {
 	return Favorite{
 		UserID:        item1.UserID,
 		ProductID:     item1.ProductID,
@@ -42,7 +42,7 @@ func BuildFavorite(item1 model.Favorite, item2 model.Product, item3 model.User) 
 }
 
 // 收藏夹列表
-func BuildFavorites(ctx context.Context, items []model.Favorite) (favorites []Favorite) {
+func BuildFavorites(ctx context.Context, items []*model.Favorite) (favorites []Favorite) {
 	productDao := dao.NewProductDao(ctx)
 	bossDao := dao.NewUserDao(ctx)
 
