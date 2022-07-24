@@ -24,7 +24,7 @@ func BuildUser(user *model.User) User {
 		NickName: user.NickName,
 		Email:    user.Email,
 		Status:   user.Status,
-		Avatar:   conf.PhotoHost + conf.HttpPort + conf.ProductPhotoPath + user.AvatarURL(),
+		Avatar:   conf.PhotoHost + conf.HttpPort + conf.AvatarPath + user.AvatarURL(),
 		CreateAt: user.CreatedAt.Unix(),
 	}
 }
