@@ -57,7 +57,7 @@ func (service *ProductService) Show(ctx context.Context, id string) serializer.R
 
 //创建商品
 func (service *ProductService) Create(ctx context.Context, uId uint, files []*multipart.FileHeader) serializer.Response {
-	var boss model.User
+	var boss *model.User
 	var err error
 	code := e.SUCCESS
 
@@ -74,7 +74,7 @@ func (service *ProductService) Create(ctx context.Context, uId uint, files []*mu
 			Error:  path,
 		}
 	}
-	product := model.Product{
+	product := &model.Product{
 		Name:          service.Name,
 		CategoryID:    uint(service.CategoryID),
 		Title:         service.Title,
@@ -89,7 +89,7 @@ func (service *ProductService) Create(ctx context.Context, uId uint, files []*mu
 		BossAvatar:    boss.Avatar,
 	}
 	productDao := dao.NewProductDao(ctx)
-	err = productDao.CreateProduct(&product)
+	err = productDao.CreateProduct(product)
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
@@ -114,7 +114,7 @@ func (service *ProductService) Create(ctx context.Context, uId uint, files []*mu
 				Error:  path,
 			}
 		}
-		productImg := model.ProductImg{
+		productImg := &model.ProductImg{
 			ProductID: product.ID,
 			ImgPath:   path,
 		}
@@ -140,7 +140,7 @@ func (service *ProductService) Create(ctx context.Context, uId uint, files []*mu
 }
 
 func (service *ProductService) List(ctx context.Context) serializer.Response {
-	var products []model.Product
+	var products []*model.Product
 	var total int64
 	code := e.SUCCESS
 
@@ -168,12 +168,6 @@ func (service *ProductService) List(ctx context.Context) serializer.Response {
 		wg.Done()
 	}()
 	wg.Wait()
-
-	var productList []serializer.Product
-	for _, item := range products {
-		products := serializer.BuildProduct(item)
-		productList = append(productList, products)
-	}
 
 	return serializer.BuildListResponse(serializer.BuildProducts(products), uint(total))
 }
@@ -206,7 +200,7 @@ func (service *ProductService) Update(ctx context.Context, pId string) serialize
 	productDao := dao.NewProductDao(ctx)
 
 	productId, _ := strconv.Atoi(pId)
-	product := model.Product{
+	product := &model.Product{
 		Name:          service.Name,
 		CategoryID:    uint(service.CategoryID),
 		Title:         service.Title,

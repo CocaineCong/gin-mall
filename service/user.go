@@ -34,7 +34,6 @@ type ValidEmailService struct {
 }
 
 func (service UserService) Register(ctx context.Context) serializer.Response {
-	var user model.User
 	code := e.SUCCESS
 	if service.Key == "" || len(service.Key) != 16 {
 		code = e.ERROR
@@ -61,7 +60,7 @@ func (service UserService) Register(ctx context.Context) serializer.Response {
 			Msg:    e.GetMsg(code),
 		}
 	}
-	user = model.User{
+	user := &model.User{
 		NickName: service.NickName,
 		UserName: service.UserName,
 		Status:   model.Active,
@@ -95,7 +94,6 @@ func (service UserService) Register(ctx context.Context) serializer.Response {
 
 //Login 用户登陆函数
 func (service UserService) Login(ctx context.Context) serializer.Response {
-	var user model.User
 	code := e.SUCCESS
 	userDao := dao.NewUserDao(ctx)
 	user, exist, err := userDao.ExistOrNotByUserName(service.UserName)
@@ -132,12 +130,11 @@ func (service UserService) Login(ctx context.Context) serializer.Response {
 
 //Update 用户修改信息
 func (service UserService) Update(ctx context.Context, uId uint) serializer.Response {
-	var user model.User
 	var err error
 	code := e.SUCCESS
 	//找到用户
 	userDao := dao.NewUserDao(ctx)
-	user, err = userDao.GetUserById(uId)
+	user, err := userDao.GetUserById(uId)
 	if service.NickName != "" {
 		user.NickName = service.NickName
 	}
@@ -162,7 +159,6 @@ func (service UserService) Update(ctx context.Context, uId uint) serializer.Resp
 
 func (service *UserService) Post(ctx context.Context, uId uint, file multipart.File, fileSize int64) serializer.Response {
 	code := e.SUCCESS
-	var user model.User
 	var err error
 
 	path, err := UploadToQiNiu(file, fileSize)
@@ -175,7 +171,7 @@ func (service *UserService) Post(ctx context.Context, uId uint, file multipart.F
 		}
 	}
 	userDao := dao.NewUserDao(ctx)
-	user, err = userDao.GetUserById(uId)
+	user, err := userDao.GetUserById(uId)
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
@@ -207,7 +203,6 @@ func (service *UserService) Post(ctx context.Context, uId uint, file multipart.F
 func (service *SendEmailService) Send(ctx context.Context, id uint) serializer.Response {
 	code := e.SUCCESS
 	var address string
-	var notice model.Notice
 
 	token, err := util.GenerateEmailToken(id, service.OperationType, service.Email, service.Password)
 	if err != nil {
@@ -220,7 +215,7 @@ func (service *SendEmailService) Send(ctx context.Context, id uint) serializer.R
 	}
 
 	noticeDao := dao.NewNoticeDao(ctx)
-	notice, err = noticeDao.GetNoticeById(service.OperationType)
+	notice, err := noticeDao.GetNoticeById(service.OperationType)
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase

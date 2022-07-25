@@ -19,13 +19,12 @@ func NewNoticeDaoByDB(db *gorm.DB) *NoticeDao {
 }
 
 // GetNoticeById 通过id获取notice
-func (dao *NoticeDao) GetNoticeById(id uint) (notice model.Notice, err error) {
+func (dao *NoticeDao) GetNoticeById(id uint) (notice *model.Notice, err error) {
 	err = dao.DB.Model(&model.Notice{}).Where("id=?", id).First(&notice).Error
 	return
 }
 
 // CreateNotice 创建notice
-func (dao *NoticeDao) CreateNotice(notice model.Notice) (err error) {
-	err = dao.DB.Model(&model.Notice{}).Create(&notice).Error
-	return
+func (dao *NoticeDao) CreateNotice(notice *model.Notice) error {
+	return dao.DB.Model(&model.Notice{}).Create(&notice).Error
 }

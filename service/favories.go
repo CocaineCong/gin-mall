@@ -41,7 +41,7 @@ func (service *FavoritesService) Show(ctx context.Context, uId uint) serializer.
 func (service *FavoritesService) Create(ctx context.Context, uId uint) serializer.Response {
 	code := e.SUCCESS
 	favoriteDao := dao.NewFavoritesDao(ctx)
-	exist, _ := favoriteDao.FavoriteExistOrNot(service.ProductId)
+	exist, _ := favoriteDao.FavoriteExistOrNot(service.ProductId, uId)
 	if exist {
 		code = e.ErrorExistFavorite
 		return serializer.Response{
@@ -80,13 +80,13 @@ func (service *FavoritesService) Create(ctx context.Context, uId uint) serialize
 		}
 	}
 
-	favorite := model.Favorite{
+	favorite := &model.Favorite{
 		UserID:    uId,
-		User:      user,
+		User:      *user,
 		ProductID: service.ProductId,
-		Product:   product,
+		Product:   *product,
 		BossID:    service.BossId,
-		Boss:      boss,
+		Boss:      *boss,
 	}
 	favoriteDao = dao.NewFavoritesDaoByDB(favoriteDao.DB)
 	err = favoriteDao.CreateFavorite(favorite)
