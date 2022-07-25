@@ -4,7 +4,6 @@ import (
 	"context"
 	logging "github.com/sirupsen/logrus"
 	"mall/dao"
-	"mall/model"
 	"mall/pkg/e"
 	"mall/serializer"
 	"strconv"
@@ -19,7 +18,6 @@ type CartService struct {
 }
 
 func (service *CartService) Create(ctx context.Context, uId uint) serializer.Response {
-	var product model.Product
 	code := e.SUCCESS
 
 	// 判断有无这个商品

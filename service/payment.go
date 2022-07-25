@@ -88,8 +88,7 @@ func (service *OrderPay) PayDown(ctx context.Context, uId uint) serializer.Respo
 		}
 	}
 
-	var boss model.User
-	boss, err = userDao.GetUserById(uint(service.BossID))
+	boss, err := userDao.GetUserById(uint(service.BossID))
 
 	moneyStr = util.Encrypt.AesDecoding(boss.Money)
 	moneyFloat, _ = strconv.ParseFloat(moneyStr, 64)
@@ -109,9 +108,8 @@ func (service *OrderPay) PayDown(ctx context.Context, uId uint) serializer.Respo
 		}
 	}
 
-	var product model.Product
 	productDao := dao.NewProductDao(ctx)
-	product, err = productDao.GetProductById(uint(service.ProductID))
+	product, err := productDao.GetProductById(uint(service.ProductID))
 	product.Num -= num
 	// 更新商品数量减少失败，回滚
 	err = productDao.UpdateProduct(uint(service.ProductID), product)
@@ -139,7 +137,7 @@ func (service *OrderPay) PayDown(ctx context.Context, uId uint) serializer.Respo
 		}
 	}
 
-	productUser := model.Product{
+	productUser := &model.Product{
 		Name:          product.Name,
 		CategoryID:    product.CategoryID,
 		Title:         product.Title,
@@ -154,7 +152,7 @@ func (service *OrderPay) PayDown(ctx context.Context, uId uint) serializer.Respo
 		BossAvatar:    user.Avatar,
 	}
 	// 买完商品后创建成了自己的商品失败。订单失败，回滚
-	err = productDao.CreateProduct(&productUser)
+	err = productDao.CreateProduct(productUser)
 	if err != nil {
 		tx.Rollback()
 		logging.Info(err)

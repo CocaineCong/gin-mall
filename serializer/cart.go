@@ -22,7 +22,7 @@ type Cart struct {
 	BossName      string `json:"boss_name"`
 }
 
-func BuildCart(cart model.Cart, product model.Product, boss model.User) Cart {
+func BuildCart(cart *model.Cart, product *model.Product, boss *model.User) Cart {
 	return Cart{
 		ID:            cart.ID,
 		UserID:        cart.UserID,
@@ -39,7 +39,7 @@ func BuildCart(cart model.Cart, product model.Product, boss model.User) Cart {
 	}
 }
 
-func BuildCarts(items []model.Cart) (carts []Cart) {
+func BuildCarts(items []*model.Cart) (carts []Cart) {
 	for _, item1 := range items {
 		product, err := dao.NewProductDao(context.Background()).
 			GetProductById(item1.ProductID)

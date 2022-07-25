@@ -14,7 +14,7 @@ type User struct {
 }
 
 //BuildUser 序列化用户
-func BuildUser(user model.User) User {
+func BuildUser(user *model.User) User {
 	return User{
 		ID:       user.ID,
 		UserName: user.UserName,
@@ -26,7 +26,7 @@ func BuildUser(user model.User) User {
 	}
 }
 
-func BuildUsers(items []model.User) (users []User) {
+func BuildUsers(items []*model.User) (users []User) {
 	for _, item := range items {
 		user := BuildUser(item)
 		users = append(users, user)

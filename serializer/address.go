@@ -13,7 +13,7 @@ type Address struct {
 }
 
 //收货地址购物车
-func BuildAddress(item model.Address) Address {
+func BuildAddress(item *model.Address) Address {
 	return Address{
 		ID:       item.ID,
 		UserID:   item.UserID,
@@ -26,7 +26,7 @@ func BuildAddress(item model.Address) Address {
 }
 
 //收货地址列表
-func BuildAddresses(items []model.Address) (addresses []Address) {
+func BuildAddresses(items []*model.Address) (addresses []Address) {
 	for _, item := range items {
 		address := BuildAddress(item)
 		addresses = append(addresses, address)
