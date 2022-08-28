@@ -36,6 +36,12 @@ var (
 	EsHost  string
 	EsPort  string
 	EsIndex string
+
+	RabbitMQ         string
+	RabbitMQUser     string
+	RabbitMQPassWord string
+	RabbitMQHost     string
+	RabbitMQPort     string
 )
 
 func Init() {
@@ -50,6 +56,7 @@ func Init() {
 	LoadEmail(file)
 	LoadEs(file)
 	LoadPhotoPath(file)
+	LoadRabbitMQ(file)
 	if err := LoadLocales("conf/locales/zh-cn.yaml"); err != nil {
 		logging.Info(err) //日志内容
 		panic(err)
@@ -100,4 +107,12 @@ func LoadPhotoPath(file *ini.File) {
 	PhotoHost = file.Section("path").Key("PhotoHost").String()
 	ProductPhotoPath = file.Section("path").Key("ProductPath").String()
 	AvatarPath = file.Section("path").Key("AvatarPath").String()
+}
+
+func LoadRabbitMQ(file *ini.File) {
+	RabbitMQ = file.Section("rabbitmq").Key("RabbitMQ").String()
+	RabbitMQUser = file.Section("rabbitmq").Key("RabbitMQUser").String()
+	RabbitMQPassWord = file.Section("rabbitmq").Key("RabbitMQPassWord").String()
+	RabbitMQHost = file.Section("rabbitmq").Key("RabbitMQHost").String()
+	RabbitMQPort = file.Section("rabbitmq").Key("RabbitMQPort").String()
 }
