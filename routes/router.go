@@ -79,6 +79,9 @@ func NewRouter() *gin.Engine {
 
 			// 显示金额
 			authed.POST("money", api.ShowMoney)
+
+			// 秒杀专场
+			authed.POST("import_skill_goods", api.ImportSkillGoods)
 		}
 	}
 	return r
