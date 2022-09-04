@@ -42,7 +42,10 @@ func (service *SkillGoodsImport) Import(ctx context.Context, file multipart.File
 	rows := xlFile.GetRows("Sheet1")
 	length := len(rows[1:])
 	skillGoods := make([]*model.SkillGoods, length, length)
-	for index, colCell := range rows[1:] {
+	for index, colCell := range rows {
+		if index == 0 {
+			continue
+		}
 		pId, _ := strconv.Atoi(colCell[0])
 		bId, _ := strconv.Atoi(colCell[1])
 		num, _ := strconv.Atoi(colCell[3])
@@ -77,21 +80,23 @@ func (service *SkillGoodsService) InitSkillGoods(ctx context.Context) error {
 	r := cache.RedisClient
 	// 加载到redis
 	for i := range skillGoods {
-		r.HSet(strconv.Itoa(int(skillGoods[i].Id)), "num", skillGoods[i].Num)
-		r.HSet(strconv.Itoa(int(skillGoods[i].Id)), "money", skillGoods[i].Money)
+		fmt.Println(*skillGoods[i])
+		r.HSet("SK"+strconv.Itoa(int(skillGoods[i].Id)), "num", skillGoods[i].Num)
+		r.HSet("SK"+strconv.Itoa(int(skillGoods[i].Id)), "money", skillGoods[i].Money)
 	}
 	return nil
 }
 
 func (service *SkillGoodsService) SkillGoods(ctx context.Context, uId uint) serializer.Response {
-	mo, _ := cache.RedisClient.HGet(strconv.Itoa(int(service.SkillGoodsId)), "money").Float64()
+	mo, _ := cache.RedisClient.HGet("SK"+strconv.Itoa(int(service.SkillGoodsId)), "money").Float64()
 	sk := &model.SkillGood2MQ{
-		ProductId: service.ProductId,
-		BossId:    service.BossId,
-		UserId:    uId,
-		AddressId: service.AddressId,
-		Key:       service.Key,
-		Money:     mo,
+		ProductId:   service.ProductId,
+		BossId:      service.BossId,
+		UserId:      uId,
+		AddressId:   service.AddressId,
+		Key:         service.Key,
+		Money:       mo,
+		SkillGoodId: service.SkillGoodsId,
 	}
 	err := RedissonSecKillGoods(sk)
 	if err != nil {
@@ -104,6 +109,7 @@ func (service *SkillGoodsService) SkillGoods(ctx context.Context, uId uint) seri
 func RedissonSecKillGoods(sk *model.SkillGood2MQ) error {
 	p := strconv.Itoa(int(sk.ProductId))
 	uuid := getUuid(p)
+	_, err := cache.RedisClient.Del(p).Result()
 	lockSuccess, err := cache.RedisClient.SetNX(p, uuid, time.Second*3).Result()
 	if err != nil || !lockSuccess {
 		fmt.Println("get lock fail", err)
@@ -132,7 +138,7 @@ func SendSecKillGoodsToMQ(sk *model.SkillGood2MQ) error {
 		err = errors.New("rabbitMQ err:" + err.Error())
 		return err
 	}
-	q, err := ch.QueueDeclare("skill_good", true, false, false, false, nil)
+	q, err := ch.QueueDeclare("skill_goods", true, false, false, false, nil)
 	if err != nil {
 		err = errors.New("rabbitMQ err:" + err.Error())
 		return err

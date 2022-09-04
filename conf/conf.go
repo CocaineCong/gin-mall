@@ -5,6 +5,7 @@ import (
 	logging "github.com/sirupsen/logrus"
 	"gopkg.in/ini.v1"
 	"mall/dao"
+	"mall/model"
 	"strings"
 )
 
@@ -67,6 +68,9 @@ func Init() {
 	dao.Database(pathRead, pathWrite)
 	//esConn := "http://"+EsHost+":"+EsPort //TODO 读取ES配置
 	//model.EsInit(esConn)
+	// RabbitMQ
+	pathRabbitMQ := strings.Join([]string{RabbitMQ, "://", RabbitMQUser, ":", RabbitMQPassWord, "@", RabbitMQHost, ":", RabbitMQPort, "/"}, "")
+	model.RabbitMQ(pathRabbitMQ)
 }
 
 func LoadServer(file *ini.File) {
@@ -104,7 +108,7 @@ func LoadEs(file *ini.File) {
 }
 
 func LoadPhotoPath(file *ini.File) {
-	PhotoHost = file.Section("path").Key("PhotoHost").String()
+	PhotoHost = file.Section("path").Key("Host").String()
 	ProductPhotoPath = file.Section("path").Key("ProductPath").String()
 	AvatarPath = file.Section("path").Key("AvatarPath").String()
 }
