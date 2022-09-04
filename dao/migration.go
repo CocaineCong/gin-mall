@@ -20,7 +20,8 @@ func Migration() {
 			&model.Cart{},
 			&model.Admin{},
 			&model.Address{},
-			&model.Notice{})
+			&model.Notice{},
+			&model.SkillGoods{})
 	if err != nil {
 		fmt.Println("register table fail")
 		os.Exit(0)
