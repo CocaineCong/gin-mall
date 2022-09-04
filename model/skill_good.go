@@ -16,5 +16,6 @@ type SkillGood2MQ struct {
 	BossId    uint    `json:"boss_id"`
 	UserId    uint    `json:"user_id"`
 	Money     float64 `json:"money"`
+	AddressId uint    `json:"address_id"`
 	Key       string  `json:"key"`
 }

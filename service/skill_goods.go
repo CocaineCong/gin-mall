@@ -26,9 +26,11 @@ type SkillGoodsImport struct {
 
 // 限购一个
 type SkillGoodsService struct {
-	ProductId uint   `json:"product_id" form:"product_id"`
-	BossId    uint   `json:"boss_id" form:"boss_id"`
-	Key       string `json:"key" form:"key"`
+	SkillGoodsId uint   `json:"skill_goods_id" form:"skill_goods_id"`
+	ProductId    uint   `json:"product_id" form:"product_id"`
+	BossId       uint   `json:"boss_id" form:"boss_id"`
+	AddressId    uint   `json:"address_id" form:"address_id"`
+	Key          string `json:"key" form:"key"`
 }
 
 func (service *SkillGoodsImport) Import(ctx context.Context, file multipart.File) serializer.Response {
@@ -81,9 +83,26 @@ func (service *SkillGoodsService) InitSkillGoods(ctx context.Context) error {
 	return nil
 }
 
+func (service *SkillGoodsService) SkillGoods(ctx context.Context, uId uint) serializer.Response {
+	mo, _ := cache.RedisClient.HGet(strconv.Itoa(int(service.SkillGoodsId)), "money").Float64()
+	sk := &model.SkillGood2MQ{
+		ProductId: service.ProductId,
+		BossId:    service.BossId,
+		UserId:    uId,
+		AddressId: service.AddressId,
+		Key:       service.Key,
+		Money:     mo,
+	}
+	err := RedissonSecKillGoods(sk)
+	if err != nil {
+		return serializer.Response{}
+	}
+	return serializer.Response{}
+}
+
 // 加锁
-func RedissonSecKillGoods(uId, pId, bossId uint, money float64) error {
-	p := strconv.Itoa(int(pId))
+func RedissonSecKillGoods(sk *model.SkillGood2MQ) error {
+	p := strconv.Itoa(int(sk.ProductId))
 	uuid := getUuid(p)
 	lockSuccess, err := cache.RedisClient.SetNX(p, uuid, time.Second*3).Result()
 	if err != nil || !lockSuccess {
@@ -92,7 +111,7 @@ func RedissonSecKillGoods(uId, pId, bossId uint, money float64) error {
 	} else {
 		fmt.Println("get lock success")
 	}
-	_ = SecKill(uId, pId, bossId, money)
+	_ = SendSecKillGoodsToMQ(sk)
 	value, _ := cache.RedisClient.Get(p).Result()
 	if value == uuid { //compare value,if equal then del
 		_, err := cache.RedisClient.Del(p).Result()
@@ -106,23 +125,8 @@ func RedissonSecKillGoods(uId, pId, bossId uint, money float64) error {
 	return nil
 }
 
-// 秒杀
-func SecKill(uId, pId, bossId uint, money float64) error {
-	err := SendSecKillGoodsToMQ(uId, pId, bossId, money)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
 // 传送到MQ
-func SendSecKillGoodsToMQ(uId, pId, bossId uint, money float64) error {
-	infoSend := model.SkillGood2MQ{
-		ProductId: pId,
-		BossId:    bossId,
-		UserId:    uId,
-		Money:     money,
-	}
+func SendSecKillGoodsToMQ(sk *model.SkillGood2MQ) error {
 	ch, err := model.MQ.Channel()
 	if err != nil {
 		err = errors.New("rabbitMQ err:" + err.Error())
@@ -133,7 +137,7 @@ func SendSecKillGoodsToMQ(uId, pId, bossId uint, money float64) error {
 		err = errors.New("rabbitMQ err:" + err.Error())
 		return err
 	}
-	body, _ := json.Marshal(infoSend)
+	body, _ := json.Marshal(sk)
 	err = ch.Publish("", q.Name, false, false, amqp.Publishing{
 		DeliveryMode: amqp.Persistent,
 		ContentType:  "application/json",
@@ -145,32 +149,6 @@ func SendSecKillGoodsToMQ(uId, pId, bossId uint, money float64) error {
 	}
 	log.Printf("Sent %s", body)
 	return nil
-}
-
-// MQ消费
-func MQ2MySQL() {
-	// redis
-	r := cache.RedisClient
-	ch, _ := model.MQ.Channel() //打开Channel
-	q, _ := ch.QueueDeclare("skill_goods", true, false, false, false, nil)
-	_ = ch.Qos(1, 0, false)
-	msgs, _ := ch.Consume(q.Name, "", false, false, false, false, nil)
-	for d := range msgs { // 开始消费
-		var p model.SkillGood2MQ
-		_ = json.Unmarshal(d.Body, &p)
-		// 创建订单
-
-		// 订单扣除
-
-		// redis扣除
-		r.HIncrBy(strconv.Itoa(int(p.ProductId)), "num", 1) // 数量 -1
-
-		// 存入数据库
-		log.Printf("Done")
-		_ = d.Ack(false) // 确认消息,必须为false
-	}
-	// 更新商品数量
-	dao.NewSkillGoodsDao(context.Background())
 }
 
 func getUuid(gid string) string {
