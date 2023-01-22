@@ -2,23 +2,24 @@ package service
 
 import (
 	"context"
+	"mime/multipart"
+	"strconv"
+	"sync"
+
 	logging "github.com/sirupsen/logrus"
 	"mall/dao"
 	"mall/model"
 	"mall/pkg/e"
 	"mall/serializer"
-	"mime/multipart"
-	"strconv"
-	"sync"
 )
 
-//更新商品的服务
+// 更新商品的服务
 type ProductService struct {
 	ID            uint   `form:"id" json:"id"`
 	Name          string `form:"name" json:"name"`
 	CategoryID    int    `form:"category_id" json:"category_id"`
-	Title         string `form:"title" json:"title" binding:"required,min=2,max=100"`
-	Info          string `form:"info" json:"info" binding:"max=1000"`
+	Title         string `form:"title" json:"title" `
+	Info          string `form:"info" json:"info" `
 	ImgPath       string `form:"img_path" json:"img_path"`
 	Price         string `form:"price" json:"price"`
 	DiscountPrice string `form:"discount_price" json:"discount_price"`
@@ -55,7 +56,7 @@ func (service *ProductService) Show(ctx context.Context, id string) serializer.R
 	}
 }
 
-//创建商品
+// 创建商品
 func (service *ProductService) Create(ctx context.Context, uId uint, files []*multipart.FileHeader) serializer.Response {
 	var boss *model.User
 	var err error
@@ -173,7 +174,7 @@ func (service *ProductService) List(ctx context.Context) serializer.Response {
 	return serializer.BuildListResponse(serializer.BuildProducts(products), uint(total))
 }
 
-//删除商品
+// 删除商品
 func (service *ProductService) Delete(ctx context.Context, pId string) serializer.Response {
 	code := e.SUCCESS
 

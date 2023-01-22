@@ -2,6 +2,7 @@ package dao
 
 import (
 	"context"
+
 	"gorm.io/gorm"
 	"mall/model"
 )
@@ -27,7 +28,7 @@ func (dao *ProductDao) GetProductById(id uint) (product *model.Product, err erro
 
 // ListProductByCondition 获取商品列表
 func (dao *ProductDao) ListProductByCondition(condition map[string]interface{}, page model.BasePage) (products []*model.Product, err error) {
-	err = dao.DB.Preload("Category").Where(condition).
+	err = dao.DB.Where(condition).
 		Offset((page.PageNum - 1) * page.PageSize).
 		Limit(page.PageSize).Find(&products).Error
 	return

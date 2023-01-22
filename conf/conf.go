@@ -2,11 +2,11 @@ package conf
 
 import (
 	"fmt"
+	"strings"
+
 	logging "github.com/sirupsen/logrus"
 	"gopkg.in/ini.v1"
 	"mall/dao"
-	"mall/model"
-	"strings"
 )
 
 var (
@@ -46,7 +46,7 @@ var (
 )
 
 func Init() {
-	//从本地读取环境变量
+	// 从本地读取环境变量
 	file, err := ini.Load("./conf/config.ini")
 	if err != nil {
 		fmt.Println("配置文件读取错误，请检查文件路径:", err)
@@ -59,18 +59,18 @@ func Init() {
 	LoadPhotoPath(file)
 	LoadRabbitMQ(file)
 	if err := LoadLocales("conf/locales/zh-cn.yaml"); err != nil {
-		logging.Info(err) //日志内容
+		logging.Info(err) // 日志内容
 		panic(err)
 	}
-	//MySQL
+	// MySQL
 	pathRead := strings.Join([]string{DbUser, ":", DbPassWord, "@tcp(", DbHost, ":", DbPort, ")/", DbName, "?charset=utf8&parseTime=true"}, "")
 	pathWrite := strings.Join([]string{DbUser, ":", DbPassWord, "@tcp(", DbHost, ":", DbPort, ")/", DbName, "?charset=utf8&parseTime=true"}, "")
 	dao.Database(pathRead, pathWrite)
-	//esConn := "http://"+EsHost+":"+EsPort //TODO 读取ES配置
-	//model.EsInit(esConn)
+	// esConn := "http://"+EsHost+":"+EsPort //TODO 读取ES配置
+	// model.EsInit(esConn)
 	// RabbitMQ
-	pathRabbitMQ := strings.Join([]string{RabbitMQ, "://", RabbitMQUser, ":", RabbitMQPassWord, "@", RabbitMQHost, ":", RabbitMQPort, "/"}, "")
-	model.RabbitMQ(pathRabbitMQ)
+	// pathRabbitMQ := strings.Join([]string{RabbitMQ, "://", RabbitMQUser, ":", RabbitMQPassWord, "@", RabbitMQHost, ":", RabbitMQPort, "/"}, "")
+	// model.RabbitMQ(pathRabbitMQ)
 }
 
 func LoadServer(file *ini.File) {

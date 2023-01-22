@@ -2,12 +2,13 @@ package service
 
 import (
 	"context"
+	"strconv"
+
 	logging "github.com/sirupsen/logrus"
 	"mall/dao"
 	"mall/model"
 	"mall/pkg/e"
 	"mall/serializer"
-	"strconv"
 )
 
 // CartService 创建购物车
@@ -54,7 +55,7 @@ func (service *CartService) Create(ctx context.Context, uId uint) serializer.Res
 	}
 }
 
-//Show 购物车
+// Show 购物车
 func (service *CartService) Show(ctx context.Context, uId string) serializer.Response {
 	code := e.SUCCESS
 	cartDao := dao.NewCartDao(ctx)

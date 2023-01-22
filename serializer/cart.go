@@ -2,12 +2,13 @@ package serializer
 
 import (
 	"context"
+
 	"mall/conf"
 	"mall/dao"
 	"mall/model"
 )
 
-//购物车
+// 购物车
 type Cart struct {
 	ID            uint   `json:"id"`
 	UserID        uint   `json:"user_id"`
@@ -33,7 +34,7 @@ func BuildCart(cart *model.Cart, product *model.Product, boss *model.User) Cart 
 		MaxNum:        cart.MaxNum,
 		Check:         cart.Check,
 		Name:          product.Name,
-		ImgPath:       conf.HttpPort + conf.HttpPort + conf.ProductPhotoPath + product.ImgPath,
+		ImgPath:       conf.PhotoHost + conf.HttpPort + conf.ProductPhotoPath + product.ImgPath,
 		DiscountPrice: product.DiscountPrice,
 		BossId:        boss.ID,
 		BossName:      boss.UserName,

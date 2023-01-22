@@ -40,11 +40,11 @@ func BuildProduct(item *model.Product) Product {
 		CreatedAt:     item.CreatedAt.Unix(),
 		BossID:        int(item.BossID),
 		BossName:      item.BossName,
-		BossAvatar:    item.BossAvatar,
+		BossAvatar:    conf.PhotoHost + conf.HttpPort + conf.AvatarPath + item.BossAvatar,
 	}
 }
 
-//序列化商品列表
+// 序列化商品列表
 func BuildProducts(items []*model.Product) (products []Product) {
 	for _, item := range items {
 		product := BuildProduct(item)
