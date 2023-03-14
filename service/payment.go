@@ -125,9 +125,11 @@ func (service *OrderPay) PayDown(ctx context.Context, uId uint) serializer.Respo
 			Error:  err.Error(),
 		}
 	}
-
-	err = orderDao.DeleteOrderById(service.OrderId)
-	// 删除订单失败，回滚
+        // 更新订单状态
+        // err = orderDao.DeleteOrderById(service.OrderId)
+        order.Type = 2
+        err = orderDao.UpdateOrderById(service.OrderId, order)
+	// 更新订单失败，回滚
 	if err != nil {
 		tx.Rollback()
 		logging.Info(err)
