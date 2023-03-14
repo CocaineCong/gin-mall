@@ -56,11 +56,10 @@ func (service *CartService) Create(ctx context.Context, uId uint) serializer.Res
 }
 
 // Show 购物车
-func (service *CartService) Show(ctx context.Context, uId string) serializer.Response {
+func (service *CartService) Show(ctx context.Context, uId uint) serializer.Response {
 	code := e.SUCCESS
 	cartDao := dao.NewCartDao(ctx)
-	userId, _ := strconv.Atoi(uId)
-	carts, err := cartDao.ListCartByUserId(uint(userId))
+	carts, err := cartDao.ListCartByUserId(uId)
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase

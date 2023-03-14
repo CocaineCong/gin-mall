@@ -22,6 +22,7 @@ type Cart struct {
 	DiscountPrice string `json:"discount_price"`
 	BossId        uint   `json:"boss_id"`
 	BossName      string `json:"boss_name"`
+	Desc          string `json:"desc"`
 }
 
 func BuildCart(cart *model.Cart, product *model.Product, boss *model.User) Cart {
@@ -38,6 +39,7 @@ func BuildCart(cart *model.Cart, product *model.Product, boss *model.User) Cart 
 		DiscountPrice: product.DiscountPrice,
 		BossId:        boss.ID,
 		BossName:      boss.UserName,
+		Desc:          product.Info,
 	}
 }
 
