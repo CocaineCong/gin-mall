@@ -33,7 +33,9 @@ func NewRouter() *gin.Engine {
 		v1.GET("product/:id", api.ShowProduct)
 		v1.POST("products", api.SearchProducts)
 		v1.GET("imgs/:id", api.ListProductImg)   // 商品图片
-		v1.GET("categories", api.ListCategories) // 商品分类
+
+		v1.POST("category", api.CreateCategory) // 创建商品分类
+		v1.GET("categories", api.ListCategories) // 查询商品分类
 		v1.GET("carousels", api.ListCarousels)   // 轮播图
 
 		authed := v1.Group("/") // 需要登陆保护

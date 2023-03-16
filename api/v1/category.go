@@ -6,6 +6,17 @@ import (
 	"mall/service"
 )
 
+func CreateCategory(c *gin.Context) {
+        service := service.CreateCategoryService{}
+        if err := c.ShouldBind(&service); err == nil {
+                res := service.Create(c.Request.Context())
+                c.JSON(200, res)
+        } else {
+                c.JSON(200, ErrorResponse(err))
+                util.LogrusObj.Infoln(err)
+        }
+}
+
 func ListCategories(c *gin.Context) {
 	listCategoriesService := service.ListCategoriesService{}
 	if err := c.ShouldBind(&listCategoriesService); err == nil {
