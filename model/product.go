@@ -1,12 +1,14 @@
 package model
 
 import (
-	"github.com/jinzhu/gorm"
-	"mall/cache"
 	"strconv"
+
+	"mall/cache"
+
+	"github.com/jinzhu/gorm"
 )
 
-//商品模型
+// 商品模型
 type Product struct {
 	gorm.Model
 	Name          string `gorm:"size:255;index"`
@@ -49,4 +51,3 @@ func (product *Product) AddAcceRank() {
 	// 增加配件排行点击数
 	cache.RedisClient.ZIncrBy(cache.AccessoryRank, 1, strconv.Itoa(int(product.ID)))
 }
-
