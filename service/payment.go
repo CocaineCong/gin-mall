@@ -115,7 +115,7 @@ func (service *OrderPay) PayDown(ctx context.Context, uId uint) serializer.Respo
 			DiscountPrice: product.DiscountPrice,
 			Num:           num,
 			OnSale:        false,
-			BossID:        uId,
+			BossID:        int(uId),
 			BossName:      user.UserName,
 			BossAvatar:    user.Avatar,
 		}
