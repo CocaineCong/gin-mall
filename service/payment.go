@@ -31,12 +31,12 @@ type OrderPay struct {
 
 func (service *OrderPay) PayDown(ctx context.Context, uId uint) serializer.Response {
 	code := e.SUCCESS
-	orderDao := dao.NewOrderDao(ctx)
 
-	err := orderDao.Transaction(func(tx *gorm.DB) error {
+	err := dao.NewOrderDao(ctx).Transaction(func(tx *gorm.DB) error {
 		util.Encrypt.SetKey(service.Key)
+		orderDao := dao.NewOrderDaoByDB(tx)
 
-		order, err := dao.NewOrderDaoByDB(tx).GetOrderById(service.OrderId)
+		order, err := orderDao.GetOrderById(service.OrderId)
 		if err != nil {
 			logging.Info(err)
 			return err
