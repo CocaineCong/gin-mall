@@ -194,9 +194,9 @@ func (service *UserService) Post(ctx context.Context, uId uint, file multipart.F
 	}
 	var path string
 	if conf.UploadModel == consts.UploadModelLocal { // 兼容两种存储方式
-		path, err = UploadAvatarToLocalStatic(file, uId, user.UserName)
+		path, err = util.UploadAvatarToLocalStatic(file, uId, user.UserName)
 	} else {
-		path, err = UploadToQiNiu(file, fileSize)
+		path, err = util.UploadToQiNiu(file, fileSize)
 	}
 	if err != nil {
 		code = e.ErrorUploadFile

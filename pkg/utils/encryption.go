@@ -18,12 +18,12 @@ func init() {
 	Encrypt = NewEncryption()
 }
 
-func NewEncryption() *Encryption{
+func NewEncryption() *Encryption {
 	return &Encryption{}
 }
 
 // 填充密码长度
-func PadPwd (srcByte []byte,blockSize int) []byte {
+func PadPwd(srcByte []byte, blockSize int) []byte {
 	padNum := blockSize - len(srcByte)%blockSize
 	ret := bytes.Repeat([]byte{byte(padNum)}, padNum)
 	srcByte = append(srcByte, ret...)
@@ -31,14 +31,14 @@ func PadPwd (srcByte []byte,blockSize int) []byte {
 }
 
 // 加密
-func (k *Encryption) AesEncoding (src string) string {
+func (k *Encryption) AesEncoding(src string) string {
 	srcByte := []byte(src)
 	block, err := aes.NewCipher([]byte(k.key))
 	if err != nil {
 		return src
 	}
 	// 密码填充
-	NewSrcByte := PadPwd(srcByte, block.BlockSize()) //由于字节长度不够，所以要进行字节的填充
+	NewSrcByte := PadPwd(srcByte, block.BlockSize()) // 由于字节长度不够，所以要进行字节的填充
 	dst := make([]byte, len(NewSrcByte))
 	block.Encrypt(dst, NewSrcByte)
 	// base64 编码
@@ -47,24 +47,23 @@ func (k *Encryption) AesEncoding (src string) string {
 }
 
 // 去掉填充的部分
-func UnPadPwd(dst []byte) ([]byte,error) {
+func UnPadPwd(dst []byte) ([]byte, error) {
 	if len(dst) <= 0 {
 		return dst, errors.New("长度有误")
 	}
 	// 去掉的长度
 	unpadNum := int(dst[len(dst)-1])
-	strErr :="error"
+	strErr := "error"
 	op := []byte(strErr)
 	if len(dst) < unpadNum {
-		return op,nil
+		return op, nil
 	}
-	str:=dst[:(len(dst) - unpadNum)]
+	str := dst[:(len(dst) - unpadNum)]
 	return str, nil
 }
 
 // 解密
-func (k *Encryption) AesDecoding (pwd string) string {
-	pwdByte := []byte(pwd)
+func (k *Encryption) AesDecoding(pwd string) string {
 	pwdByte, err := base64.StdEncoding.DecodeString(pwd)
 	if err != nil {
 		return pwd
@@ -83,6 +82,6 @@ func (k *Encryption) AesDecoding (pwd string) string {
 }
 
 // set方法
-func (k *Encryption) SetKey (key string) {
+func (k *Encryption) SetKey(key string) {
 	k.key = key
 }

@@ -12,15 +12,7 @@
 **V2版本，结构较比V1版本有很大的改动**
 **全部转化成 controller、dao、service 模式，更加符合企业开发**
 
-**其中V2.0是将图片上传至七牛云**
-
-**其中V2.1是将图片上传至本地static目录**
-
-**默认的main分支下的是v2.0版本，如果需要v2.1，则需要拉取v2.1的代码**
-如以下命令
-```shell
-git clone -b v2.1 git@github.com:CocaineCong/gin-mall.git
-```
+由于整合上传oss和上传到本地，需要在 conf 中进行配置 `UploadModel` 字段，上传到 oss 则配置 oss，上传本地则配置 local
 
 # 开源合作
 欢迎大家把自己的想法 pr 到这个项目中。

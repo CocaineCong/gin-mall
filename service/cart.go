@@ -39,7 +39,7 @@ func (service *CartService) Create(ctx context.Context, uId uint) serializer.Res
 
 	// 创建购物车
 	cartDao := dao2.NewCartDao(ctx)
-	cart, status, err := cartDao.CreateCart(service.ProductId, uId, service.BossID)
+	cart, status, _ := cartDao.CreateCart(service.ProductId, uId, service.BossID)
 	if status == e.ErrorProductMoreCart {
 		return serializer.Response{
 			Status: status,
@@ -48,7 +48,7 @@ func (service *CartService) Create(ctx context.Context, uId uint) serializer.Res
 	}
 
 	userDao := dao2.NewUserDao(ctx)
-	boss, err := userDao.GetUserById(service.BossID)
+	boss, _ := userDao.GetUserById(service.BossID)
 	return serializer.Response{
 		Status: status,
 		Msg:    e.GetMsg(status),

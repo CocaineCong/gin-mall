@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"mall/conf"
+	"mall/consts"
 	dao2 "mall/repository/db/dao"
 	model2 "mall/repository/db/model"
 )
@@ -26,7 +27,7 @@ type Cart struct {
 }
 
 func BuildCart(cart *model2.Cart, product *model2.Product, boss *model2.User) Cart {
-	return Cart{
+	c := Cart{
 		ID:            cart.ID,
 		UserID:        cart.UserID,
 		ProductID:     cart.ProductID,
@@ -41,6 +42,11 @@ func BuildCart(cart *model2.Cart, product *model2.Product, boss *model2.User) Ca
 		BossName:      boss.UserName,
 		Desc:          product.Info,
 	}
+	if conf.UploadModel == consts.UploadModelOss {
+		c.ImgPath = product.ImgPath
+	}
+
+	return c
 }
 
 func BuildCarts(items []*model2.Cart) (carts []Cart) {

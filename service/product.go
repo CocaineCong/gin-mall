@@ -11,6 +11,7 @@ import (
 	"mall/conf"
 	"mall/consts"
 	"mall/pkg/e"
+	util "mall/pkg/utils"
 	dao2 "mall/repository/db/dao"
 	model2 "mall/repository/db/model"
 	"mall/serializer"
@@ -71,9 +72,9 @@ func (service *ProductService) Create(ctx context.Context, uId uint, files []*mu
 	tmp, _ := files[0].Open()
 	var path string
 	if conf.UploadModel == consts.UploadModelLocal {
-		path, err = UploadProductToLocalStatic(tmp, uId, service.Name)
+		path, err = util.UploadProductToLocalStatic(tmp, uId, service.Name)
 	} else {
-		path, err = UploadToQiNiu(tmp, files[0].Size)
+		path, err = util.UploadToQiNiu(tmp, files[0].Size)
 	}
 	if err != nil {
 		code = e.ErrorUploadFile
@@ -116,9 +117,9 @@ func (service *ProductService) Create(ctx context.Context, uId uint, files []*mu
 		productImgDao := dao2.NewProductImgDaoByDB(productDao.DB)
 		tmp, _ = file.Open()
 		if conf.UploadModel == consts.UploadModelLocal {
-			path, err = UploadProductToLocalStatic(tmp, uId, service.Name+num)
+			path, err = util.UploadProductToLocalStatic(tmp, uId, service.Name+num)
 		} else {
-			path, err = UploadToQiNiu(tmp, file.Size)
+			path, err = util.UploadToQiNiu(tmp, file.Size)
 		}
 		if err != nil {
 			code = e.ErrorUploadFile

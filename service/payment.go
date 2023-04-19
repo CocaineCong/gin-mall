@@ -88,6 +88,9 @@ func (service *OrderPay) PayDown(ctx context.Context, uId uint) serializer.Respo
 		product := new(model2.Product)
 		productDao := dao2.NewProductDaoByDB(tx)
 		product, err = productDao.GetProductById(uint(service.ProductID))
+		if err != nil {
+			return err
+		}
 		product.Num -= num
 		err = productDao.UpdateProduct(uint(service.ProductID), product)
 		if err != nil { // 更新商品数量减少失败，回滚
