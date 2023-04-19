@@ -58,31 +58,45 @@ Golang V1.16
 ```
 gin-mall/
 ├── api
-├── cache
+├── cmd
 ├── conf
-├── dao
 ├── doc
 ├── middleware
 ├── model
 ├── pkg
 │  ├── e
 │  └── util
+├── repository
+│  ├── cache
+│  ├── db
+│  ├── es
+│  ├── mq
+│  └── redis
 ├── routes
 ├── serializer
-└── service
+├── service
+└── static
 ```
-- api : 用于定义接口函数
-- cache : 放置redis缓存
+- api : 用于定义接口函数，也就是controller的作用
 - conf : 用于存储配置文件
 - dao : 对持久层进行操作
 - doc : 存放接口文档
+- loading : 需要加载的应用
 - middleware : 应用中间件
 - model : 应用数据库模型
 - pkg/e : 封装错误码
 - pkg/util : 工具函数
+- repository : 存放存储仓库
+- repository/cache : 放置redis缓存
+- repository/db : 放置持久层的mysql
+- repository/db/dao : dao层，对db进行操作
+- repository/db/model : 定义mysql的模型
+- repository/es : 放置es，形成elk体系
+- repository/mq : 放置各种mq，kafka，rabbitmq等等...
 - routes : 路由逻辑处理
-- serializer : 将数据序列化为 json 的函数
+- serializer : 将数据序列化为 json 的函数，便于返回给前端
 - service : 接口函数的实现
+- static : 存放静态文件
 
 # 配置文件
 `conf/config.ini` 文件配置
