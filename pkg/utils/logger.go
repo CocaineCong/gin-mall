@@ -7,27 +7,25 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
-
-	"mall/repository/es"
 )
 
 var LogrusObj *logrus.Logger
 
-func init() {
+func InitLog() {
 	if LogrusObj != nil {
 		src, _ := setOutputFile()
-		//设置输出
+		// 设置输出
 		LogrusObj.Out = src
 		return
 	}
-	//实例化
+	// 实例化
 	logger := logrus.New()
 	src, _ := setOutputFile()
-	//设置输出
+	// 设置输出
 	logger.Out = src
-	//设置日志级别
+	// 设置日志级别
 	logger.SetLevel(logrus.DebugLevel)
-	//设置日志格式
+	// 设置日志格式
 	logger.SetFormatter(&logrus.TextFormatter{
 		TimestampFormat: "2006-01-02 15:04:05",
 	})
@@ -37,8 +35,8 @@ func init() {
 		所以这里的ELK体系加了注释，如果想引入可以直接注释去掉，
 		如果不想引入这样注释掉也是没问题的。
 	*/
-	hook := es.EsHookLog()
-	logger.AddHook(hook)
+	// hook := es.EsHookLog()
+	// logger.AddHook(hook)
 	LogrusObj = logger
 }
 
@@ -56,7 +54,7 @@ func setOutputFile() (*os.File, error) {
 		}
 	}
 	logFileName := now.Format("2006-01-02") + ".log"
-	//日志文件
+	// 日志文件
 	fileName := path.Join(logFilePath, logFileName)
 	if _, err := os.Stat(fileName); err != nil {
 		if _, err := os.Create(fileName); err != nil {
@@ -64,7 +62,7 @@ func setOutputFile() (*os.File, error) {
 			return nil, err
 		}
 	}
-	//写入文件
+	// 写入文件
 	src, err := os.OpenFile(fileName, os.O_APPEND|os.O_WRONLY, os.ModeAppend)
 	if err != nil {
 		log.Println(err)

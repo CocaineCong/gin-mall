@@ -3,10 +3,7 @@ package conf
 import (
 	"fmt"
 
-	logging "github.com/sirupsen/logrus"
 	"gopkg.in/ini.v1"
-
-	"mall/model"
 )
 
 var (
@@ -66,14 +63,8 @@ func Init() {
 	LoadRabbitMQ(file)
 	LoadRedisData(file)
 	if err := LoadLocales("conf/locales/zh-cn.yaml"); err != nil {
-		logging.Info(err) // 日志内容
 		panic(err)
 	}
-	esConn := "http://" + EsHost + ":" + EsPort
-	model.EsInit(esConn)
-	// RabbitMQ
-	// pathRabbitMQ := strings.Join([]string{RabbitMQ, "://", RabbitMQUser, ":", RabbitMQPassWord, "@", RabbitMQHost, ":", RabbitMQPort, "/"}, "")
-	// model.RabbitMQ(pathRabbitMQ)
 }
 
 func LoadRedisData(file *ini.File) {

@@ -145,6 +145,15 @@ func (service UserService) Update(ctx context.Context, uId uint) serializer.Resp
 	// 找到用户
 	userDao := dao2.NewUserDao(ctx)
 	user, err = userDao.GetUserById(uId)
+	if err != nil {
+		logging.Info(err)
+		code = e.ErrorDatabase
+		return serializer.Response{
+			Status: code,
+			Msg:    e.GetMsg(code),
+			Error:  err.Error(),
+		}
+	}
 	if service.NickName != "" {
 		user.NickName = service.NickName
 	}

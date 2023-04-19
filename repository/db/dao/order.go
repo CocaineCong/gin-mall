@@ -55,8 +55,3 @@ func (dao *OrderDao) DeleteOrderById(id uint) error {
 func (dao *OrderDao) UpdateOrderById(id uint, order *model2.Order) error {
 	return dao.DB.Where("id=?", id).Updates(order).Error
 }
-
-// UpdateOrderById 更新订单详情
-func (dao *OrderDao) UpdateOrderById(id uint, order *model2.Order) error {
-	return dao.DB.Where("id=?", id).Updates(order).Error
-}
