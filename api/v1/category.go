@@ -1,18 +1,20 @@
 package v1
 
 import (
-	"github.com/gin-gonic/gin"
+	"mall/consts"
 	util "mall/pkg/utils"
 	"mall/service"
+
+	"github.com/gin-gonic/gin"
 )
 
 func ListCategories(c *gin.Context) {
 	listCategoriesService := service.ListCategoriesService{}
 	if err := c.ShouldBind(&listCategoriesService); err == nil {
 		res := listCategoriesService.List(c.Request.Context())
-		c.JSON(200, res)
+		c.JSON(consts.StatusOK, res)
 	} else {
-		c.JSON(400, ErrorResponse(err))
+		c.JSON(consts.IlleageRequest, ErrorResponse(err))
 		util.LogrusObj.Infoln(err)
 	}
 }

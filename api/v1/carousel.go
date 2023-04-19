@@ -1,18 +1,20 @@
 package v1
 
 import (
-	"github.com/gin-gonic/gin"
+	"mall/consts"
 	util "mall/pkg/utils"
 	"mall/service"
+
+	"github.com/gin-gonic/gin"
 )
 
 func ListCarousels(c *gin.Context) {
 	listCarouselsService := service.ListCarouselsService{}
 	if err := c.ShouldBind(&listCarouselsService); err == nil {
 		res := listCarouselsService.List()
-		c.JSON(200, res)
+		c.JSON(consts.StatusOK, res)
 	} else {
-		c.JSON(400, ErrorResponse(err))
+		c.JSON(consts.IlleageRequest, ErrorResponse(err))
 		util.LogrusObj.Infoln(err)
 	}
 }

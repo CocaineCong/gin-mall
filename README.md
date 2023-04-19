@@ -39,8 +39,8 @@
 
 # 项目需要完善的地方
 
-- 考虑加入kafka或是rabbitmq，新增一个秒杀专场 
-- 优化 service 返回的参数，加上返回值 error，因为go的函数返回都是要有error的，这才是go的代码风格（我也不懂go为啥要这样设置，很多优秀的开源项目都是这样写函数的返回值） 
+- 考虑加入kafka或是rabbitmq，新增一个秒杀专场
+- 优化 service 返回的参数，加上返回值 error，因为go的函数返回都是要有error的，这才是go的代码风格（我也不懂go为啥要这样设置，很多优秀的开源项目都是这样写函数的返回值）
 - 抽离 service 的结构体到 types，引入 sync.Once 模块，重构 service 层
 - 优化鉴权模块，加上 refreshToken，将 token 改成 accessToken
 - 优化日志输出，统一用日志对象
@@ -151,7 +151,7 @@ EsIndex = mylog
 3. 由于使用的是AES对称加密算法，这个算法并不保存在数据库或是文件中，是第一次登录的时候需要给的值，因为第一次登录系统会送1w作为初始金额进行购物，所以对其的加密，后续支付必须要再次输入，否则无法进行购物。
 4. 本项目运用了gorm的读写分离，所以要保证mysql的数据一致性。
 5. 引入了ELK体系，可以通过docker-compose全部up起来，也可以本地跑(确保ES和Kibana都开启)
-6. 用户创建默认金额为 **1w** ，默认头像为 `static/imgs/avatar/avatar.JPG` 
+6. 用户创建默认金额为 **1w** ，默认头像为 `static/imgs/avatar/avatar.JPG`
 # 导入接口文档
 
 打开postman，点击导入

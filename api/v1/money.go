@@ -1,9 +1,11 @@
 package v1
 
 import (
-	"github.com/gin-gonic/gin"
+	"mall/consts"
 	util "mall/pkg/utils"
 	"mall/service"
+
+	"github.com/gin-gonic/gin"
 )
 
 func ShowMoney(c *gin.Context) {
@@ -11,9 +13,9 @@ func ShowMoney(c *gin.Context) {
 	claim, _ := util.ParseToken(c.GetHeader("Authorization"))
 	if err := c.ShouldBind(&showMoneyService); err == nil {
 		res := showMoneyService.Show(c.Request.Context(), claim.ID)
-		c.JSON(200, res)
+		c.JSON(consts.StatusOK, res)
 	} else {
-		c.JSON(400, ErrorResponse(err))
+		c.JSON(consts.IlleageRequest, ErrorResponse(err))
 		util.LogrusObj.Infoln(err)
 	}
 }

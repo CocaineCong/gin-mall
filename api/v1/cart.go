@@ -1,9 +1,11 @@
 package v1
 
 import (
-	"github.com/gin-gonic/gin"
+	"mall/consts"
 	util "mall/pkg/utils"
 	"mall/service"
+
+	"github.com/gin-gonic/gin"
 )
 
 func CreateCart(c *gin.Context) {
@@ -11,9 +13,9 @@ func CreateCart(c *gin.Context) {
 	claim, _ := util.ParseToken(c.GetHeader("Authorization"))
 	if err := c.ShouldBind(&createCartService); err == nil {
 		res := createCartService.Create(c.Request.Context(), claim.ID)
-		c.JSON(200, res)
+		c.JSON(consts.StatusOK, res)
 	} else {
-		c.JSON(400, ErrorResponse(err))
+		c.JSON(consts.IlleageRequest, ErrorResponse(err))
 		util.LogrusObj.Infoln(err)
 	}
 }
@@ -23,7 +25,7 @@ func ShowCarts(c *gin.Context) {
 	showCartsService := service.CartService{}
 	claim, _ := util.ParseToken(c.GetHeader("Authorization"))
 	res := showCartsService.Show(c.Request.Context(), claim.ID)
-	c.JSON(200, res)
+	c.JSON(consts.StatusOK, res)
 }
 
 // 修改购物车信息
@@ -31,9 +33,9 @@ func UpdateCart(c *gin.Context) {
 	updateCartService := service.CartService{}
 	if err := c.ShouldBind(&updateCartService); err == nil {
 		res := updateCartService.Update(c.Request.Context(), c.Param("id"))
-		c.JSON(200, res)
+		c.JSON(consts.StatusOK, res)
 	} else {
-		c.JSON(400, ErrorResponse(err))
+		c.JSON(consts.IlleageRequest, ErrorResponse(err))
 		util.LogrusObj.Infoln(err)
 	}
 }
@@ -43,9 +45,9 @@ func DeleteCart(c *gin.Context) {
 	deleteCartService := service.CartService{}
 	if err := c.ShouldBind(&deleteCartService); err == nil {
 		res := deleteCartService.Delete(c.Request.Context())
-		c.JSON(200, res)
+		c.JSON(consts.StatusOK, res)
 	} else {
-		c.JSON(400, ErrorResponse(err))
+		c.JSON(consts.IlleageRequest, ErrorResponse(err))
 		util.LogrusObj.Infoln(err)
 	}
 }
