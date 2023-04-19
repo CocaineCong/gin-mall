@@ -33,6 +33,6 @@ func (Admin *Admin) AvatarURL() string {
 	//client, _ := oss.New(os.Getenv("OSS_END_POINT"), os.Getenv("OSS_ACCESS_KEY_ID"), os.Getenv("OSS_ACCESS_KEY_SECRET"))
 	//bucket, _ := client.Bucket(os.Getenv("OSS_BUCKET"))
 	//signedGetURL, _ := bucket.SignURL(admin.Avatar, oss.HTTPGet, 24*60*60)
-	signedGetURL := "D:/CodeProjects/GoLandProjects/GoSuperMark/gin-mail/static/img/avatar/3.jpg"
+	signedGetURL := "https://github.com/CocaineCong/gin-mall/blob/main/static/imgs/avatar/avatar.JPG"
 	return signedGetURL
 }
