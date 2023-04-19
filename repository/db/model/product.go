@@ -3,9 +3,9 @@ package model
 import (
 	"strconv"
 
-	"mall/cache"
-
 	"github.com/jinzhu/gorm"
+
+	"mall/repository/cache"
 )
 
 // 商品模型

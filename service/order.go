@@ -3,16 +3,18 @@ package service
 import (
 	"context"
 	"fmt"
-	"github.com/go-redis/redis"
-	logging "github.com/sirupsen/logrus"
-	"mall/cache"
-	"mall/dao"
-	"mall/model"
-	"mall/pkg/e"
-	"mall/serializer"
 	"math/rand"
 	"strconv"
 	"time"
+
+	"github.com/go-redis/redis"
+	logging "github.com/sirupsen/logrus"
+
+	"mall/pkg/e"
+	"mall/repository/cache"
+	dao2 "mall/repository/db/dao"
+	model2 "mall/repository/db/model"
+	"mall/serializer"
 )
 
 const OrderTimeKey = "OrderTime"
@@ -26,13 +28,13 @@ type OrderService struct {
 	UserID    uint `form:"user_id" json:"user_id"`
 	OrderNum  uint `form:"order_num" json:"order_num"`
 	Type      int  `form:"type" json:"type"`
-	model.BasePage
+	model2.BasePage
 }
 
 func (service *OrderService) Create(ctx context.Context, id uint) serializer.Response {
 	code := e.SUCCESS
 
-	order := &model.Order{
+	order := &model2.Order{
 		UserID:    id,
 		ProductID: service.ProductID,
 		BossID:    service.BossID,
@@ -40,7 +42,7 @@ func (service *OrderService) Create(ctx context.Context, id uint) serializer.Res
 		Money:     float64(service.Money),
 		Type:      1,
 	}
-	addressDao := dao.NewAddressDao(ctx)
+	addressDao := dao2.NewAddressDao(ctx)
 	address, err := addressDao.GetAddressByAid(service.AddressID)
 	if err != nil {
 		logging.Info(err)
@@ -60,7 +62,7 @@ func (service *OrderService) Create(ctx context.Context, id uint) serializer.Res
 	orderNum, _ := strconv.ParseUint(number, 10, 64)
 	order.OrderNum = orderNum
 
-	orderDao := dao.NewOrderDao(ctx)
+	orderDao := dao2.NewOrderDao(ctx)
 	err = orderDao.CreateOrder(order)
 	if err != nil {
 		logging.Info(err)
@@ -72,7 +74,7 @@ func (service *OrderService) Create(ctx context.Context, id uint) serializer.Res
 		}
 	}
 
-	//订单号存入Redis中，设置过期时间
+	// 订单号存入Redis中，设置过期时间
 	data := redis.Z{
 		Score:  float64(time.Now().Unix()) + 15*time.Minute.Seconds(),
 		Member: orderNum,
@@ -85,14 +87,14 @@ func (service *OrderService) Create(ctx context.Context, id uint) serializer.Res
 }
 
 func (service *OrderService) List(ctx context.Context, uId uint) serializer.Response {
-	var orders []*model.Order
+	var orders []*model2.Order
 	var total int64
 	code := e.SUCCESS
 	if service.PageSize == 0 {
 		service.PageSize = 5
 	}
 
-	orderDao := dao.NewOrderDao(ctx)
+	orderDao := dao2.NewOrderDao(ctx)
 	condition := make(map[string]interface{})
 	condition["user_id"] = uId
 
@@ -117,10 +119,10 @@ func (service *OrderService) Show(ctx context.Context, uId string) serializer.Re
 	code := e.SUCCESS
 
 	orderId, _ := strconv.Atoi(uId)
-	orderDao := dao.NewOrderDao(ctx)
+	orderDao := dao2.NewOrderDao(ctx)
 	order, _ := orderDao.GetOrderById(uint(orderId))
 
-	addressDao := dao.NewAddressDao(ctx)
+	addressDao := dao2.NewAddressDao(ctx)
 	address, err := addressDao.GetAddressByAid(order.AddressID)
 	if err != nil {
 		logging.Info(err)
@@ -131,7 +133,7 @@ func (service *OrderService) Show(ctx context.Context, uId string) serializer.Re
 		}
 	}
 
-	productDao := dao.NewProductDao(ctx)
+	productDao := dao2.NewProductDao(ctx)
 	product, err := productDao.GetProductById(order.ProductID)
 	if err != nil {
 		logging.Info(err)
@@ -152,7 +154,7 @@ func (service *OrderService) Show(ctx context.Context, uId string) serializer.Re
 func (service *OrderService) Delete(ctx context.Context, oId string) serializer.Response {
 	code := e.SUCCESS
 
-	orderDao := dao.NewOrderDao(ctx)
+	orderDao := dao2.NewOrderDao(ctx)
 	orderId, _ := strconv.Atoi(oId)
 	err := orderDao.DeleteOrderById(uint(orderId))
 	if err != nil {

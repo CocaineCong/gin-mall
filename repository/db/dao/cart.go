@@ -2,9 +2,11 @@ package dao
 
 import (
 	"context"
+
 	"gorm.io/gorm"
-	"mall/model"
+
 	"mall/pkg/e"
+	"mall/repository/db/model"
 )
 
 type CartDao struct {

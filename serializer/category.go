@@ -1,6 +1,8 @@
 package serializer
 
-import "mall/model"
+import (
+	"mall/repository/db/model"
+)
 
 type Category struct {
 	ID           uint   `json:"id"`

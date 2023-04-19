@@ -2,8 +2,9 @@ package serializer
 
 import (
 	"context"
-	"mall/dao"
-	"mall/model"
+
+	dao2 "mall/repository/db/dao"
+	model2 "mall/repository/db/model"
 )
 
 type Favorite struct {
@@ -22,8 +23,8 @@ type Favorite struct {
 	OnSale        bool   `json:"on_sale"`
 }
 
-//序列化收藏夹
-func BuildFavorite(item1 *model.Favorite, item2 *model.Product, item3 *model.User) Favorite {
+// 序列化收藏夹
+func BuildFavorite(item1 *model2.Favorite, item2 *model2.Product, item3 *model2.User) Favorite {
 	return Favorite{
 		UserID:        item1.UserID,
 		ProductID:     item1.ProductID,
@@ -42,9 +43,9 @@ func BuildFavorite(item1 *model.Favorite, item2 *model.Product, item3 *model.Use
 }
 
 // 收藏夹列表
-func BuildFavorites(ctx context.Context, items []*model.Favorite) (favorites []Favorite) {
-	productDao := dao.NewProductDao(ctx)
-	bossDao := dao.NewUserDao(ctx)
+func BuildFavorites(ctx context.Context, items []*model2.Favorite) (favorites []Favorite) {
+	productDao := dao2.NewProductDao(ctx)
+	bossDao := dao2.NewUserDao(ctx)
 
 	for _, fav := range items {
 		product, err := productDao.GetProductById(fav.ProductID)

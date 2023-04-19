@@ -2,7 +2,8 @@ package serializer
 
 import (
 	"mall/conf"
-	"mall/model"
+	"mall/consts"
+	"mall/repository/db/model"
 )
 
 type User struct {
@@ -16,9 +17,9 @@ type User struct {
 	CreateAt int64  `json:"create_at"`
 }
 
-//BuildUser 序列化用户
-func BuildUser(user *model.User) User {
-	return User{
+// BuildUser 序列化用户
+func BuildUser(user *model.User) *User {
+	u := &User{
 		ID:       user.ID,
 		UserName: user.UserName,
 		NickName: user.NickName,
@@ -27,9 +28,15 @@ func BuildUser(user *model.User) User {
 		Avatar:   conf.PhotoHost + conf.HttpPort + conf.AvatarPath + user.AvatarURL(),
 		CreateAt: user.CreatedAt.Unix(),
 	}
+
+	if conf.UploadModel == consts.UploadModelOss {
+		u.Avatar = user.Avatar
+	}
+
+	return u
 }
 
-func BuildUsers(items []*model.User) (users []User) {
+func BuildUsers(items []*model.User) (users []*User) {
 	for _, item := range items {
 		user := BuildUser(item)
 		users = append(users, user)

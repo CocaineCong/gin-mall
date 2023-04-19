@@ -2,9 +2,11 @@ package serializer
 
 import (
 	"context"
+
 	"mall/conf"
-	"mall/dao"
-	"mall/model"
+	"mall/consts"
+	dao2 "mall/repository/db/dao"
+	model2 "mall/repository/db/model"
 )
 
 type Order struct {
@@ -25,8 +27,8 @@ type Order struct {
 	DiscountPrice string `json:"discount_price"`
 }
 
-func BuildOrder(item1 *model.Order, item2 *model.Product, item3 *model.Address) Order {
-	return Order{
+func BuildOrder(item1 *model2.Order, item2 *model2.Product, item3 *model2.Address) Order {
+	o := Order{
 		ID:            item1.ID,
 		OrderNum:      item1.OrderNum,
 		CreatedAt:     item1.CreatedAt.Unix(),
@@ -43,11 +45,17 @@ func BuildOrder(item1 *model.Order, item2 *model.Product, item3 *model.Address) 
 		ImgPath:       conf.PhotoHost + conf.HttpPort + conf.ProductPhotoPath + item2.ImgPath,
 		DiscountPrice: item2.DiscountPrice,
 	}
+
+	if conf.UploadModel == consts.UploadModelOss {
+		o.ImgPath = item2.ImgPath
+	}
+
+	return o
 }
 
-func BuildOrders(ctx context.Context, items []*model.Order) (orders []Order) {
-	productDao := dao.NewProductDao(ctx)
-	addressDao := dao.NewAddressDao(ctx)
+func BuildOrders(ctx context.Context, items []*model2.Order) (orders []Order) {
+	productDao := dao2.NewProductDao(ctx)
+	addressDao := dao2.NewAddressDao(ctx)
 
 	for _, item := range items {
 		product, err := productDao.GetProductById(item.ProductID)

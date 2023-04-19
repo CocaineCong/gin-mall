@@ -2,7 +2,8 @@ package serializer
 
 import (
 	"mall/conf"
-	"mall/model"
+	"mall/consts"
+	"mall/repository/db/model"
 )
 
 type Product struct {
@@ -25,7 +26,7 @@ type Product struct {
 
 // 序列化商品
 func BuildProduct(item *model.Product) Product {
-	return Product{
+	p := Product{
 		ID:            item.ID,
 		Name:          item.Name,
 		CategoryID:    item.CategoryID,
@@ -42,6 +43,14 @@ func BuildProduct(item *model.Product) Product {
 		BossName:      item.BossName,
 		BossAvatar:    conf.PhotoHost + conf.HttpPort + conf.AvatarPath + item.BossAvatar,
 	}
+
+	if conf.UploadModel == consts.UploadModelOss {
+		p.ImgPath = item.ImgPath
+		p.BossAvatar = item.BossAvatar
+	}
+
+	return p
+
 }
 
 // 序列化商品列表

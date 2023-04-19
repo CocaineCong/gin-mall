@@ -2,8 +2,10 @@ package dao
 
 import (
 	"context"
+
 	"gorm.io/gorm"
-	"mall/model"
+
+	"mall/repository/db/model"
 )
 
 type CarouselDao struct {

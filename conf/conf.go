@@ -2,12 +2,11 @@ package conf
 
 import (
 	"fmt"
-	"strings"
 
 	logging "github.com/sirupsen/logrus"
 	"gopkg.in/ini.v1"
 
-	"mall/dao"
+	"mall/model"
 )
 
 var (
@@ -21,6 +20,11 @@ var (
 	DbUser     string
 	DbPassWord string
 	DbName     string
+
+	RedisDb     string
+	RedisAddr   string
+	RedisPw     string
+	RedisDbName string
 
 	AccessKey   string
 	SerectKey   string
@@ -60,19 +64,23 @@ func Init() {
 	LoadEs(file)
 	LoadPhotoPath(file)
 	LoadRabbitMQ(file)
+	LoadRedisData(file)
 	if err := LoadLocales("conf/locales/zh-cn.yaml"); err != nil {
 		logging.Info(err) // 日志内容
 		panic(err)
 	}
-	// MySQL
-	pathRead := strings.Join([]string{DbUser, ":", DbPassWord, "@tcp(", DbHost, ":", DbPort, ")/", DbName, "?charset=utf8&parseTime=true"}, "")
-	pathWrite := strings.Join([]string{DbUser, ":", DbPassWord, "@tcp(", DbHost, ":", DbPort, ")/", DbName, "?charset=utf8&parseTime=true"}, "")
-	dao.Database(pathRead, pathWrite)
-	// esConn := "http://"+EsHost+":"+EsPort //TODO 读取ES配置
-	// model.EsInit(esConn)
+	esConn := "http://" + EsHost + ":" + EsPort
+	model.EsInit(esConn)
 	// RabbitMQ
 	// pathRabbitMQ := strings.Join([]string{RabbitMQ, "://", RabbitMQUser, ":", RabbitMQPassWord, "@", RabbitMQHost, ":", RabbitMQPort, "/"}, "")
 	// model.RabbitMQ(pathRabbitMQ)
+}
+
+func LoadRedisData(file *ini.File) {
+	RedisDb = file.Section("redis").Key("RedisDb").String()
+	RedisAddr = file.Section("redis").Key("RedisAddr").String()
+	RedisPw = file.Section("redis").Key("RedisPw").String()
+	RedisDbName = file.Section("redis").Key("RedisDbName").String()
 }
 
 func LoadServer(file *ini.File) {

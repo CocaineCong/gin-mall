@@ -2,9 +2,10 @@ package dao
 
 import (
 	"context"
-	"mall/model"
 
 	"gorm.io/gorm"
+
+	"mall/repository/db/model"
 )
 
 type AddressDao struct {

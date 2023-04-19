@@ -9,10 +9,10 @@ import (
 	logging "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 
-	"mall/dao"
-	"mall/model"
 	"mall/pkg/e"
 	util "mall/pkg/utils"
+	dao2 "mall/repository/db/dao"
+	model2 "mall/repository/db/model"
 	"mall/serializer"
 )
 
@@ -32,9 +32,9 @@ type OrderPay struct {
 func (service *OrderPay) PayDown(ctx context.Context, uId uint) serializer.Response {
 	code := e.SUCCESS
 
-	err := dao.NewOrderDao(ctx).Transaction(func(tx *gorm.DB) error {
+	err := dao2.NewOrderDao(ctx).Transaction(func(tx *gorm.DB) error {
 		util.Encrypt.SetKey(service.Key)
-		orderDao := dao.NewOrderDaoByDB(tx)
+		orderDao := dao2.NewOrderDaoByDB(tx)
 
 		order, err := orderDao.GetOrderById(service.OrderId)
 		if err != nil {
@@ -45,7 +45,7 @@ func (service *OrderPay) PayDown(ctx context.Context, uId uint) serializer.Respo
 		num := order.Num
 		money = money * float64(num)
 
-		userDao := dao.NewUserDaoByDB(tx)
+		userDao := dao2.NewUserDaoByDB(tx)
 		user, err := userDao.GetUserById(uId)
 		if err != nil {
 			logging.Info(err)
@@ -71,7 +71,7 @@ func (service *OrderPay) PayDown(ctx context.Context, uId uint) serializer.Respo
 			code = e.ErrorDatabase
 			return err
 		}
-		boss := new(model.User)
+		boss := new(model2.User)
 		boss, err = userDao.GetUserById(uint(service.BossID))
 		moneyStr = util.Encrypt.AesDecoding(boss.Money)
 		moneyFloat, _ = strconv.ParseFloat(moneyStr, 64)
@@ -85,8 +85,8 @@ func (service *OrderPay) PayDown(ctx context.Context, uId uint) serializer.Respo
 			return err
 		}
 
-		product := new(model.Product)
-		productDao := dao.NewProductDaoByDB(tx)
+		product := new(model2.Product)
+		productDao := dao2.NewProductDaoByDB(tx)
 		product, err = productDao.GetProductById(uint(service.ProductID))
 		product.Num -= num
 		err = productDao.UpdateProduct(uint(service.ProductID), product)
@@ -105,7 +105,7 @@ func (service *OrderPay) PayDown(ctx context.Context, uId uint) serializer.Respo
 			return err
 		}
 
-		productUser := model.Product{
+		productUser := model2.Product{
 			Name:          product.Name,
 			CategoryID:    product.CategoryID,
 			Title:         product.Title,

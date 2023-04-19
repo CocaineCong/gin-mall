@@ -2,10 +2,12 @@ package service
 
 import (
 	"context"
+
 	logging "github.com/sirupsen/logrus"
-	"mall/dao"
-	"mall/model"
+
 	"mall/pkg/e"
+	dao2 "mall/repository/db/dao"
+	"mall/repository/db/model"
 	"mall/serializer"
 )
 
@@ -19,7 +21,7 @@ type FavoritesService struct {
 
 // Show 商品收藏夹
 func (service *FavoritesService) Show(ctx context.Context, uId uint) serializer.Response {
-	favoritesDao := dao.NewFavoritesDao(ctx)
+	favoritesDao := dao2.NewFavoritesDao(ctx)
 	code := e.SUCCESS
 	if service.PageSize == 0 {
 		service.PageSize = 15
@@ -40,7 +42,7 @@ func (service *FavoritesService) Show(ctx context.Context, uId uint) serializer.
 // Create 创建收藏夹
 func (service *FavoritesService) Create(ctx context.Context, uId uint) serializer.Response {
 	code := e.SUCCESS
-	favoriteDao := dao.NewFavoritesDao(ctx)
+	favoriteDao := dao2.NewFavoritesDao(ctx)
 	exist, _ := favoriteDao.FavoriteExistOrNot(service.ProductId, uId)
 	if exist {
 		code = e.ErrorExistFavorite
@@ -50,7 +52,7 @@ func (service *FavoritesService) Create(ctx context.Context, uId uint) serialize
 		}
 	}
 
-	userDao := dao.NewUserDao(ctx)
+	userDao := dao2.NewUserDao(ctx)
 	user, err := userDao.GetUserById(uId)
 	if err != nil {
 		code = e.ErrorDatabase
@@ -60,7 +62,7 @@ func (service *FavoritesService) Create(ctx context.Context, uId uint) serialize
 		}
 	}
 
-	bossDao := dao.NewUserDaoByDB(userDao.DB)
+	bossDao := dao2.NewUserDaoByDB(userDao.DB)
 	boss, err := bossDao.GetUserById(service.BossId)
 	if err != nil {
 		code = e.ErrorDatabase
@@ -70,7 +72,7 @@ func (service *FavoritesService) Create(ctx context.Context, uId uint) serialize
 		}
 	}
 
-	productDao := dao.NewProductDao(ctx)
+	productDao := dao2.NewProductDao(ctx)
 	product, err := productDao.GetProductById(service.ProductId)
 	if err != nil {
 		code = e.ErrorDatabase
@@ -88,7 +90,7 @@ func (service *FavoritesService) Create(ctx context.Context, uId uint) serialize
 		BossID:    service.BossId,
 		Boss:      *boss,
 	}
-	favoriteDao = dao.NewFavoritesDaoByDB(favoriteDao.DB)
+	favoriteDao = dao2.NewFavoritesDaoByDB(favoriteDao.DB)
 	err = favoriteDao.CreateFavorite(favorite)
 	if err != nil {
 		code = e.ErrorDatabase
@@ -108,7 +110,7 @@ func (service *FavoritesService) Create(ctx context.Context, uId uint) serialize
 func (service *FavoritesService) Delete(ctx context.Context) serializer.Response {
 	code := e.SUCCESS
 
-	favoriteDao := dao.NewFavoritesDao(ctx)
+	favoriteDao := dao2.NewFavoritesDao(ctx)
 	err := favoriteDao.DeleteFavoriteById(service.FavoriteId)
 	if err != nil {
 		logging.Info(err)

@@ -4,9 +4,9 @@ import (
 	"context"
 	"strconv"
 
-	"mall/dao"
-	"mall/model"
 	"mall/pkg/e"
+	dao2 "mall/repository/db/dao"
+	"mall/repository/db/model"
 	"mall/serializer"
 
 	logging "github.com/sirupsen/logrus"
@@ -25,7 +25,7 @@ func (service *CartService) Create(ctx context.Context, uId uint) serializer.Res
 	code := e.SUCCESS
 
 	// 判断有无这个商品
-	productDao := dao.NewProductDao(ctx)
+	productDao := dao2.NewProductDao(ctx)
 	product, err := productDao.GetProductById(service.ProductId)
 	if err != nil {
 		logging.Info(err)
@@ -38,7 +38,7 @@ func (service *CartService) Create(ctx context.Context, uId uint) serializer.Res
 	}
 
 	// 创建购物车
-	cartDao := dao.NewCartDao(ctx)
+	cartDao := dao2.NewCartDao(ctx)
 	cart, status, err := cartDao.CreateCart(service.ProductId, uId, service.BossID)
 	if status == e.ErrorProductMoreCart {
 		return serializer.Response{
@@ -47,7 +47,7 @@ func (service *CartService) Create(ctx context.Context, uId uint) serializer.Res
 		}
 	}
 
-	userDao := dao.NewUserDao(ctx)
+	userDao := dao2.NewUserDao(ctx)
 	boss, err := userDao.GetUserById(service.BossID)
 	return serializer.Response{
 		Status: status,
@@ -59,7 +59,7 @@ func (service *CartService) Create(ctx context.Context, uId uint) serializer.Res
 // Show 购物车
 func (service *CartService) Show(ctx context.Context, uId uint) serializer.Response {
 	code := e.SUCCESS
-	cartDao := dao.NewCartDao(ctx)
+	cartDao := dao2.NewCartDao(ctx)
 	carts, err := cartDao.ListCartByUserId(uId)
 	if err != nil {
 		logging.Info(err)
@@ -82,7 +82,7 @@ func (service *CartService) Update(ctx context.Context, cId string) serializer.R
 	code := e.SUCCESS
 	cartId, _ := strconv.Atoi(cId)
 
-	cartDao := dao.NewCartDao(ctx)
+	cartDao := dao2.NewCartDao(ctx)
 	err := cartDao.UpdateCartNumById(uint(cartId), service.Num)
 	if err != nil {
 		logging.Info(err)
@@ -103,7 +103,7 @@ func (service *CartService) Update(ctx context.Context, cId string) serializer.R
 // 删除购物车
 func (service *CartService) Delete(ctx context.Context) serializer.Response {
 	code := e.SUCCESS
-	cartDao := dao.NewCartDao(ctx)
+	cartDao := dao2.NewCartDao(ctx)
 	err := cartDao.DeleteCartById(service.Id)
 	if err != nil {
 		logging.Info(err)

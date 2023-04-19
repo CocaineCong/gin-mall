@@ -2,7 +2,8 @@ package serializer
 
 import (
 	"mall/conf"
-	"mall/model"
+	"mall/consts"
+	"mall/repository/db/model"
 )
 
 type ProductImg struct {
@@ -11,10 +12,15 @@ type ProductImg struct {
 }
 
 func BuildProductImg(item *model.ProductImg) ProductImg {
-	return ProductImg{
+	pImg := ProductImg{
 		ProductID: item.ProductID,
 		ImgPath:   conf.PhotoHost + conf.HttpPort + conf.ProductPhotoPath + item.ImgPath,
 	}
+	if conf.UploadModel == consts.UploadModelOss {
+		pImg.ImgPath = item.ImgPath
+	}
+
+	return pImg
 }
 
 func BuildProductImgs(items []*model.ProductImg) (productImgs []ProductImg) {

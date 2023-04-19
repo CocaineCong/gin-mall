@@ -7,10 +7,11 @@ import (
 	"time"
 
 	"mall/conf"
-	"mall/dao"
-	"mall/model"
+	"mall/consts"
 	"mall/pkg/e"
 	util "mall/pkg/utils"
+	dao2 "mall/repository/db/dao"
+	model2 "mall/repository/db/model"
 	"mall/serializer"
 
 	logging "github.com/sirupsen/logrus"
@@ -36,7 +37,7 @@ type ValidEmailService struct {
 }
 
 func (service UserService) Register(ctx context.Context) serializer.Response {
-	var user *model.User
+	var user *model2.User
 	code := e.SUCCESS
 	if service.Key == "" || len(service.Key) != 16 {
 		code = e.ERROR
@@ -47,7 +48,7 @@ func (service UserService) Register(ctx context.Context) serializer.Response {
 		}
 	}
 	util.Encrypt.SetKey(service.Key)
-	userDao := dao.NewUserDao(ctx)
+	userDao := dao2.NewUserDao(ctx)
 	_, exist, err := userDao.ExistOrNotByUserName(service.UserName)
 	if err != nil {
 		code = e.ErrorDatabase
@@ -63,10 +64,10 @@ func (service UserService) Register(ctx context.Context) serializer.Response {
 			Msg:    e.GetMsg(code),
 		}
 	}
-	user = &model.User{
+	user = &model2.User{
 		NickName: service.NickName,
 		UserName: service.UserName,
-		Status:   model.Active,
+		Status:   model2.Active,
 		Money:    util.Encrypt.AesEncoding("10000"), // 初始金额
 	}
 	// 加密密码
@@ -78,8 +79,11 @@ func (service UserService) Register(ctx context.Context) serializer.Response {
 			Msg:    e.GetMsg(code),
 		}
 	}
-	user.Avatar = "http://q1.qlogo.cn/g?b=qq&nk=294350394&s=640"
-	user.Avatar = "avatar.JPG"
+	if conf.UploadModel == consts.UploadModelOss {
+		user.Avatar = "http://q1.qlogo.cn/g?b=qq&nk=294350394&s=640"
+	} else {
+		user.Avatar = "avatar.JPG"
+	}
 	// 创建用户
 	err = userDao.CreateUser(user)
 	if err != nil {
@@ -98,9 +102,9 @@ func (service UserService) Register(ctx context.Context) serializer.Response {
 
 // Login 用户登陆函数
 func (service *UserService) Login(ctx context.Context) serializer.Response {
-	var user *model.User
+	var user *model2.User
 	code := e.SUCCESS
-	userDao := dao.NewUserDao(ctx)
+	userDao := dao2.NewUserDao(ctx)
 	user, exist, err := userDao.ExistOrNotByUserName(service.UserName)
 	if !exist { // 如果查询不到，返回相应的错误
 		logging.Info(err)
@@ -135,11 +139,11 @@ func (service *UserService) Login(ctx context.Context) serializer.Response {
 
 // Update 用户修改信息
 func (service UserService) Update(ctx context.Context, uId uint) serializer.Response {
-	var user *model.User
+	var user *model2.User
 	var err error
 	code := e.SUCCESS
 	// 找到用户
-	userDao := dao.NewUserDao(ctx)
+	userDao := dao2.NewUserDao(ctx)
 	user, err = userDao.GetUserById(uId)
 	if service.NickName != "" {
 		user.NickName = service.NickName
@@ -165,10 +169,10 @@ func (service UserService) Update(ctx context.Context, uId uint) serializer.Resp
 
 func (service *UserService) Post(ctx context.Context, uId uint, file multipart.File, fileSize int64) serializer.Response {
 	code := e.SUCCESS
-	var user *model.User
+	var user *model2.User
 	var err error
 
-	userDao := dao.NewUserDao(ctx)
+	userDao := dao2.NewUserDao(ctx)
 	user, err = userDao.GetUserById(uId)
 	if err != nil {
 		logging.Info(err)
@@ -179,8 +183,12 @@ func (service *UserService) Post(ctx context.Context, uId uint, file multipart.F
 			Error:  err.Error(),
 		}
 	}
-
-	path, err := UploadAvatarToLocalStatic(file, uId, user.UserName)
+	var path string
+	if conf.UploadModel == consts.UploadModelLocal { // 兼容两种存储方式
+		path, err = UploadAvatarToLocalStatic(file, uId, user.UserName)
+	} else {
+		path, err = UploadToQiNiu(file, fileSize)
+	}
 	if err != nil {
 		code = e.ErrorUploadFile
 		return serializer.Response{
@@ -212,7 +220,7 @@ func (service *UserService) Post(ctx context.Context, uId uint, file multipart.F
 func (service *SendEmailService) Send(ctx context.Context, id uint) serializer.Response {
 	code := e.SUCCESS
 	var address string
-	var notice *model.Notice
+	var notice *model2.Notice
 
 	token, err := util.GenerateEmailToken(id, service.OperationType, service.Email, service.Password)
 	if err != nil {
@@ -224,7 +232,7 @@ func (service *SendEmailService) Send(ctx context.Context, id uint) serializer.R
 		}
 	}
 
-	noticeDao := dao.NewNoticeDao(ctx)
+	noticeDao := dao2.NewNoticeDao(ctx)
 	notice, err = noticeDao.GetNoticeById(service.OperationType)
 	if err != nil {
 		logging.Info(err)
@@ -292,7 +300,7 @@ func (service ValidEmailService) Valid(ctx context.Context, token string) serial
 	}
 
 	// 获取该用户信息
-	userDao := dao.NewUserDao(ctx)
+	userDao := dao2.NewUserDao(ctx)
 	user, err := userDao.GetUserById(userID)
 	if err != nil {
 		code = e.ErrorDatabase

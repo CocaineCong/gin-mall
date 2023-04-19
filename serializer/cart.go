@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"mall/conf"
-	"mall/dao"
-	"mall/model"
+	dao2 "mall/repository/db/dao"
+	model2 "mall/repository/db/model"
 )
 
 // 购物车
@@ -25,7 +25,7 @@ type Cart struct {
 	Desc          string `json:"desc"`
 }
 
-func BuildCart(cart *model.Cart, product *model.Product, boss *model.User) Cart {
+func BuildCart(cart *model2.Cart, product *model2.Product, boss *model2.User) Cart {
 	return Cart{
 		ID:            cart.ID,
 		UserID:        cart.UserID,
@@ -43,14 +43,14 @@ func BuildCart(cart *model.Cart, product *model.Product, boss *model.User) Cart 
 	}
 }
 
-func BuildCarts(items []*model.Cart) (carts []Cart) {
+func BuildCarts(items []*model2.Cart) (carts []Cart) {
 	for _, item1 := range items {
-		product, err := dao.NewProductDao(context.Background()).
+		product, err := dao2.NewProductDao(context.Background()).
 			GetProductById(item1.ProductID)
 		if err != nil {
 			continue
 		}
-		boss, err := dao.NewUserDao(context.Background()).
+		boss, err := dao2.NewUserDao(context.Background()).
 			GetUserById(item1.BossID)
 		if err != nil {
 			continue

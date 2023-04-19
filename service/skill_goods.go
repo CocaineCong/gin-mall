@@ -6,19 +6,21 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	xlsx "github.com/360EntSecGroup-Skylar/excelize"
-	logging "github.com/sirupsen/logrus"
-	"github.com/streadway/amqp"
 	"log"
-	"mall/cache"
-	"mall/dao"
-	"mall/model"
-	"mall/pkg/e"
-	"mall/serializer"
 	"math/rand"
 	"mime/multipart"
 	"strconv"
 	"time"
+
+	xlsx "github.com/360EntSecGroup-Skylar/excelize"
+	logging "github.com/sirupsen/logrus"
+	"github.com/streadway/amqp"
+
+	"mall/pkg/e"
+	"mall/repository/cache"
+	"mall/repository/db/dao"
+	model2 "mall/repository/db/model"
+	"mall/serializer"
 )
 
 type SkillGoodsImport struct {
@@ -41,7 +43,7 @@ func (service *SkillGoodsImport) Import(ctx context.Context, file multipart.File
 	code := e.SUCCESS
 	rows := xlFile.GetRows("Sheet1")
 	length := len(rows[1:])
-	skillGoods := make([]*model.SkillGoods, length, length)
+	skillGoods := make([]*model2.SkillGoods, length, length)
 	for index, colCell := range rows {
 		if index == 0 {
 			continue
@@ -50,7 +52,7 @@ func (service *SkillGoodsImport) Import(ctx context.Context, file multipart.File
 		bId, _ := strconv.Atoi(colCell[1])
 		num, _ := strconv.Atoi(colCell[3])
 		money, _ := strconv.ParseFloat(colCell[4], 64)
-		skillGood := &model.SkillGoods{
+		skillGood := &model2.SkillGoods{
 			ProductId: uint(pId),
 			BossId:    uint(bId),
 			Title:     colCell[2],
@@ -89,7 +91,7 @@ func (service *SkillGoodsService) InitSkillGoods(ctx context.Context) error {
 
 func (service *SkillGoodsService) SkillGoods(ctx context.Context, uId uint) serializer.Response {
 	mo, _ := cache.RedisClient.HGet("SK"+strconv.Itoa(int(service.SkillGoodsId)), "money").Float64()
-	sk := &model.SkillGood2MQ{
+	sk := &model2.SkillGood2MQ{
 		ProductId:   service.ProductId,
 		BossId:      service.BossId,
 		UserId:      uId,
@@ -106,7 +108,7 @@ func (service *SkillGoodsService) SkillGoods(ctx context.Context, uId uint) seri
 }
 
 // 加锁
-func RedissonSecKillGoods(sk *model.SkillGood2MQ) error {
+func RedissonSecKillGoods(sk *model2.SkillGood2MQ) error {
 	p := strconv.Itoa(int(sk.ProductId))
 	uuid := getUuid(p)
 	_, err := cache.RedisClient.Del(p).Result()
@@ -119,7 +121,7 @@ func RedissonSecKillGoods(sk *model.SkillGood2MQ) error {
 	}
 	_ = SendSecKillGoodsToMQ(sk)
 	value, _ := cache.RedisClient.Get(p).Result()
-	if value == uuid { //compare value,if equal then del
+	if value == uuid { // compare value,if equal then del
 		_, err := cache.RedisClient.Del(p).Result()
 		if err != nil {
 			fmt.Println("unlock fail")
@@ -132,8 +134,8 @@ func RedissonSecKillGoods(sk *model.SkillGood2MQ) error {
 }
 
 // 传送到MQ
-func SendSecKillGoodsToMQ(sk *model.SkillGood2MQ) error {
-	ch, err := model.MQ.Channel()
+func SendSecKillGoodsToMQ(sk *model2.SkillGood2MQ) error {
+	ch, err := model2.MQ.Channel()
 	if err != nil {
 		err = errors.New("rabbitMQ err:" + err.Error())
 		return err

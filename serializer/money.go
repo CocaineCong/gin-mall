@@ -1,8 +1,8 @@
 package serializer
 
 import (
-	"mall/model"
 	util "mall/pkg/utils"
+	"mall/repository/db/model"
 )
 
 type Money struct {

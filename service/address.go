@@ -2,12 +2,14 @@ package service
 
 import (
 	"context"
-	logging "github.com/sirupsen/logrus"
-	"mall/dao"
-	"mall/model"
-	"mall/pkg/e"
-	"mall/serializer"
 	"strconv"
+
+	logging "github.com/sirupsen/logrus"
+
+	"mall/pkg/e"
+	"mall/repository/db/dao"
+	"mall/repository/db/model"
+	"mall/serializer"
 )
 
 type AddressService struct {

@@ -2,9 +2,11 @@ package service
 
 import (
 	"context"
+
 	logging "github.com/sirupsen/logrus"
-	"mall/dao"
+
 	"mall/pkg/e"
+	"mall/repository/db/dao"
 	"mall/serializer"
 )
 
