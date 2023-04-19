@@ -2,17 +2,19 @@ package service
 
 import (
 	"context"
-	logging "github.com/sirupsen/logrus"
-	"gopkg.in/mail.v2"
+	"mime/multipart"
+	"strings"
+	"time"
+
 	"mall/conf"
 	"mall/dao"
 	"mall/model"
 	"mall/pkg/e"
 	util "mall/pkg/utils"
 	"mall/serializer"
-	"mime/multipart"
-	"strings"
-	"time"
+
+	logging "github.com/sirupsen/logrus"
+	"gopkg.in/mail.v2"
 )
 
 // UserService 管理用户服务
@@ -26,7 +28,7 @@ type UserService struct {
 type SendEmailService struct {
 	Email    string `form:"email" json:"email"`
 	Password string `form:"password" json:"password"`
-	//OpertionType 1:绑定邮箱 2：解绑邮箱 3：改密码
+	// OpertionType 1:绑定邮箱 2：解绑邮箱 3：改密码
 	OperationType uint `form:"operation_type" json:"operation_type"`
 }
 
@@ -34,6 +36,7 @@ type ValidEmailService struct {
 }
 
 func (service UserService) Register(ctx context.Context) serializer.Response {
+	var user *model.User
 	code := e.SUCCESS
 	if service.Key == "" || len(service.Key) != 16 {
 		code = e.ERROR
@@ -60,13 +63,13 @@ func (service UserService) Register(ctx context.Context) serializer.Response {
 			Msg:    e.GetMsg(code),
 		}
 	}
-	user := &model.User{
+	user = &model.User{
 		NickName: service.NickName,
 		UserName: service.UserName,
 		Status:   model.Active,
 		Money:    util.Encrypt.AesEncoding("10000"), // 初始金额
 	}
-	//加密密码
+	// 加密密码
 	if err = user.SetPassword(service.Password); err != nil {
 		logging.Info(err)
 		code = e.ErrorFailEncryption
@@ -76,7 +79,8 @@ func (service UserService) Register(ctx context.Context) serializer.Response {
 		}
 	}
 	user.Avatar = "http://q1.qlogo.cn/g?b=qq&nk=294350394&s=640"
-	//创建用户
+	user.Avatar = "avatar.JPG"
+	// 创建用户
 	err = userDao.CreateUser(user)
 	if err != nil {
 		logging.Info(err)
@@ -92,12 +96,13 @@ func (service UserService) Register(ctx context.Context) serializer.Response {
 	}
 }
 
-//Login 用户登陆函数
-func (service UserService) Login(ctx context.Context) serializer.Response {
+// Login 用户登陆函数
+func (service *UserService) Login(ctx context.Context) serializer.Response {
+	var user *model.User
 	code := e.SUCCESS
 	userDao := dao.NewUserDao(ctx)
 	user, exist, err := userDao.ExistOrNotByUserName(service.UserName)
-	if !exist { //如果查询不到，返回相应的错误
+	if !exist { // 如果查询不到，返回相应的错误
 		logging.Info(err)
 		code = e.ErrorUserNotFound
 		return serializer.Response{
@@ -128,13 +133,14 @@ func (service UserService) Login(ctx context.Context) serializer.Response {
 	}
 }
 
-//Update 用户修改信息
+// Update 用户修改信息
 func (service UserService) Update(ctx context.Context, uId uint) serializer.Response {
+	var user *model.User
 	var err error
 	code := e.SUCCESS
-	//找到用户
+	// 找到用户
 	userDao := dao.NewUserDao(ctx)
-	user, err := userDao.GetUserById(uId)
+	user, err = userDao.GetUserById(uId)
 	if service.NickName != "" {
 		user.NickName = service.NickName
 	}
@@ -159,19 +165,11 @@ func (service UserService) Update(ctx context.Context, uId uint) serializer.Resp
 
 func (service *UserService) Post(ctx context.Context, uId uint, file multipart.File, fileSize int64) serializer.Response {
 	code := e.SUCCESS
+	var user *model.User
 	var err error
 
-	path, err := UploadToQiNiu(file, fileSize)
-	if err != nil {
-		code = e.ErrorUploadFile
-		return serializer.Response{
-			Status: code,
-			Data:   e.GetMsg(code),
-			Error:  path,
-		}
-	}
 	userDao := dao.NewUserDao(ctx)
-	user, err := userDao.GetUserById(uId)
+	user, err = userDao.GetUserById(uId)
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
@@ -181,6 +179,17 @@ func (service *UserService) Post(ctx context.Context, uId uint, file multipart.F
 			Error:  err.Error(),
 		}
 	}
+
+	path, err := UploadAvatarToLocalStatic(file, uId, user.UserName)
+	if err != nil {
+		code = e.ErrorUploadFile
+		return serializer.Response{
+			Status: code,
+			Data:   e.GetMsg(code),
+			Error:  path,
+		}
+	}
+
 	user.Avatar = path
 	err = userDao.UpdateUserById(uId, user)
 	if err != nil {
@@ -203,6 +212,7 @@ func (service *UserService) Post(ctx context.Context, uId uint, file multipart.F
 func (service *SendEmailService) Send(ctx context.Context, id uint) serializer.Response {
 	code := e.SUCCESS
 	var address string
+	var notice *model.Notice
 
 	token, err := util.GenerateEmailToken(id, service.OperationType, service.Email, service.Password)
 	if err != nil {
@@ -215,7 +225,7 @@ func (service *SendEmailService) Send(ctx context.Context, id uint) serializer.R
 	}
 
 	noticeDao := dao.NewNoticeDao(ctx)
-	notice, err := noticeDao.GetNoticeById(service.OperationType)
+	notice, err = noticeDao.GetNoticeById(service.OperationType)
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
@@ -257,7 +267,7 @@ func (service ValidEmailService) Valid(ctx context.Context, token string) serial
 	var operationType uint
 	code := e.SUCCESS
 
-	//验证token
+	// 验证token
 	if token == "" {
 		code = e.InvalidParams
 	} else {
@@ -281,7 +291,7 @@ func (service ValidEmailService) Valid(ctx context.Context, token string) serial
 		}
 	}
 
-	//获取该用户信息
+	// 获取该用户信息
 	userDao := dao.NewUserDao(ctx)
 	user, err := userDao.GetUserById(userID)
 	if err != nil {
@@ -292,13 +302,13 @@ func (service ValidEmailService) Valid(ctx context.Context, token string) serial
 		}
 	}
 	if operationType == 1 {
-		//1:绑定邮箱
+		// 1:绑定邮箱
 		user.Email = email
 	} else if operationType == 2 {
-		//2：解绑邮箱
+		// 2：解绑邮箱
 		user.Email = ""
 	} else if operationType == 3 {
-		//3：修改密码
+		// 3：修改密码
 		err = user.SetPassword(password)
 		if err != nil {
 			code = e.ErrorDatabase

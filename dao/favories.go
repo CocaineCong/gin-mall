@@ -52,7 +52,6 @@ func (dao *FavoritesDao) FavoriteExistOrNot(pId, uId uint) (exist bool, err erro
 }
 
 // DeleteFavoriteById 删除收藏夹
-func (dao *FavoritesDao) DeleteFavoriteById(fId uint) (err error) {
-	err = dao.DB.Where("id=?", fId).Delete(&model.Favorite{}).Error
-	return
+func (dao *FavoritesDao) DeleteFavoriteById(fId uint) error {
+	return dao.DB.Where("id=?", fId).Delete(&model.Favorite{}).Error
 }

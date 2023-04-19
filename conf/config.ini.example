@@ -1,6 +1,7 @@
 [service]
 AppMode = debug
-HttpPort = :3000
+HttpPort = :4000
+UploadModel = oss
 
 [mysql]
 Db = mysql
@@ -8,7 +9,7 @@ DbHost = 127.0.0.1
 DbPort = 3306
 DbUser = root
 DbPassWord = root
-DbName = mall_db
+DbName = mall
 
 [redis]
 RedisDb = redis
@@ -28,7 +29,19 @@ SmtpHost = smtp.qq.com
 SmtpEmail = 你的邮箱
 SmtpPass = 你的邮箱的通信码
 
+[path]
+Host = http://127.0.0.1
+ProductPath = /static/imgs/product/
+AvatarPath = /static/imgs/avatar/
+
 [es]
 EsHost = 127.0.0.1
 EsPort = 9200
 EsIndex = mylog
+
+[rabbitmq]
+RabbitMQ = amqp
+RabbitMQUser = guest
+RabbitMQPassWord = guest
+RabbitMQHost = localhost
+RabbitMQPort = 5672

@@ -1,6 +1,7 @@
 package serializer
 
 import (
+	"mall/conf"
 	"mall/model"
 )
 
@@ -30,20 +31,20 @@ func BuildProduct(item *model.Product) Product {
 		CategoryID:    item.CategoryID,
 		Title:         item.Title,
 		Info:          item.Info,
-		ImgPath:       item.ImgPath,
+		ImgPath:       conf.PhotoHost + conf.HttpPort + conf.ProductPhotoPath + item.ImgPath,
 		Price:         item.Price,
 		DiscountPrice: item.DiscountPrice,
 		View:          item.View(),
 		Num:           item.Num,
 		OnSale:        item.OnSale,
 		CreatedAt:     item.CreatedAt.Unix(),
-		BossID:        item.BossID,
+		BossID:        int(item.BossID),
 		BossName:      item.BossName,
-		BossAvatar:    item.BossAvatar,
+		BossAvatar:    conf.PhotoHost + conf.HttpPort + conf.AvatarPath + item.BossAvatar,
 	}
 }
 
-//序列化商品列表
+// 序列化商品列表
 func BuildProducts(items []*model.Product) (products []Product) {
 	for _, item := range items {
 		product := BuildProduct(item)

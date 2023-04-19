@@ -2,23 +2,24 @@ package service
 
 import (
 	"context"
+	"mime/multipart"
+	"strconv"
+	"sync"
+
 	logging "github.com/sirupsen/logrus"
 	"mall/dao"
 	"mall/model"
 	"mall/pkg/e"
 	"mall/serializer"
-	"mime/multipart"
-	"strconv"
-	"sync"
 )
 
-//更新商品的服务
+// 更新商品的服务
 type ProductService struct {
 	ID            uint   `form:"id" json:"id"`
 	Name          string `form:"name" json:"name"`
 	CategoryID    int    `form:"category_id" json:"category_id"`
-	Title         string `form:"title" json:"title" binding:"required,min=2,max=100"`
-	Info          string `form:"info" json:"info" binding:"max=1000"`
+	Title         string `form:"title" json:"title" `
+	Info          string `form:"info" json:"info" `
 	ImgPath       string `form:"img_path" json:"img_path"`
 	Price         string `form:"price" json:"price"`
 	DiscountPrice string `form:"discount_price" json:"discount_price"`
@@ -55,7 +56,7 @@ func (service *ProductService) Show(ctx context.Context, id string) serializer.R
 	}
 }
 
-//创建商品
+// 创建商品
 func (service *ProductService) Create(ctx context.Context, uId uint, files []*multipart.FileHeader) serializer.Response {
 	var boss *model.User
 	var err error
@@ -65,7 +66,7 @@ func (service *ProductService) Create(ctx context.Context, uId uint, files []*mu
 	boss, _ = userDao.GetUserById(uId)
 	// 以第一张作为封面图
 	tmp, _ := files[0].Open()
-	path, err := UploadToQiNiu(tmp, files[0].Size)
+	path, err := UploadProductToLocalStatic(tmp, uId, service.Name)
 	if err != nil {
 		code = e.ErrorUploadFile
 		return serializer.Response{
@@ -84,7 +85,7 @@ func (service *ProductService) Create(ctx context.Context, uId uint, files []*mu
 		DiscountPrice: service.DiscountPrice,
 		Num:           service.Num,
 		OnSale:        true,
-		BossID:        int(uId),
+		BossID:        uId,
 		BossName:      boss.UserName,
 		BossAvatar:    boss.Avatar,
 	}
@@ -102,10 +103,11 @@ func (service *ProductService) Create(ctx context.Context, uId uint, files []*mu
 
 	wg := new(sync.WaitGroup)
 	wg.Add(len(files))
-	for _, file := range files {
-		productImgDao := dao.NewProductImgDao(ctx)
+	for index, file := range files {
+		num := strconv.Itoa(index)
+		productImgDao := dao.NewProductImgDaoByDB(productDao.DB)
 		tmp, _ = file.Open()
-		path, err = UploadToQiNiu(tmp, file.Size)
+		path, err = UploadProductToLocalStatic(tmp, uId, service.Name+num)
 		if err != nil {
 			code = e.ErrorUploadFile
 			return serializer.Response{
@@ -172,7 +174,7 @@ func (service *ProductService) List(ctx context.Context) serializer.Response {
 	return serializer.BuildListResponse(serializer.BuildProducts(products), uint(total))
 }
 
-//删除商品
+// 删除商品
 func (service *ProductService) Delete(ctx context.Context, pId string) serializer.Response {
 	code := e.SUCCESS
 

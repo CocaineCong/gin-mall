@@ -47,9 +47,13 @@ func (dao *OrderDao) GetOrderById(id uint) (order *model.Order, err error) {
 }
 
 // DeleteOrderById 获取订单详情
-func (dao *OrderDao) DeleteOrderById(id uint) (err error) {
-	err = dao.DB.Where("id=?", id).Delete(&model.Order{}).Error
-	return
+func (dao *OrderDao) DeleteOrderById(id uint) error {
+	return dao.DB.Where("id=?", id).Delete(&model.Order{}).Error
+}
+
+// UpdateOrderById 更新订单详情
+func (dao *OrderDao) UpdateOrderById(id uint, order *model.Order) error {
+	return dao.DB.Where("id=?", id).Updates(order).Error
 }
 
 // UpdateOrderById 更新订单详情

@@ -20,7 +20,7 @@ type Product struct {
 	DiscountPrice string
 	OnSale        bool `gorm:"default:false"`
 	Num           int
-	BossID        int
+	BossID        uint
 	BossName      string
 	BossAvatar    string
 }
@@ -38,16 +38,4 @@ func (product *Product) AddView() {
 	cache.RedisClient.Incr(cache.ProductViewKey(product.ID))
 	// 增加排行点击数
 	cache.RedisClient.ZIncrBy(cache.RankKey, 1, strconv.Itoa(int(product.ID)))
-}
-
-// AddElecRank 增加家电排行点击数
-func (product *Product) AddElecRank() {
-	// 增加家电排行点击数
-	cache.RedisClient.ZIncrBy(cache.ElectricalRank, 1, strconv.Itoa(int(product.ID)))
-}
-
-// AddAcceRank 增加配件排行点击数
-func (product *Product) AddAcceRank() {
-	// 增加配件排行点击数
-	cache.RedisClient.ZIncrBy(cache.AccessoryRank, 1, strconv.Itoa(int(product.ID)))
 }

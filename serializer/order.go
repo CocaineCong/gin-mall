@@ -2,6 +2,7 @@ package serializer
 
 import (
 	"context"
+	"mall/conf"
 	"mall/dao"
 	"mall/model"
 )
@@ -39,7 +40,7 @@ func BuildOrder(item1 *model.Order, item2 *model.Product, item3 *model.Address) 
 		Address:       item3.Address,
 		Type:          item1.Type,
 		Name:          item2.Name,
-		ImgPath:       item2.ImgPath,
+		ImgPath:       conf.PhotoHost + conf.HttpPort + conf.ProductPhotoPath + item2.ImgPath,
 		DiscountPrice: item2.DiscountPrice,
 	}
 }

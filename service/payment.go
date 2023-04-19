@@ -6,14 +6,14 @@ import (
 	"fmt"
 	"strconv"
 
+	logging "github.com/sirupsen/logrus"
+	"gorm.io/gorm"
+
 	"mall/dao"
 	"mall/model"
 	"mall/pkg/e"
 	util "mall/pkg/utils"
 	"mall/serializer"
-
-	logging "github.com/sirupsen/logrus"
-	"gorm.io/gorm"
 )
 
 type OrderPay struct {
@@ -115,7 +115,7 @@ func (service *OrderPay) PayDown(ctx context.Context, uId uint) serializer.Respo
 			DiscountPrice: product.DiscountPrice,
 			Num:           num,
 			OnSale:        false,
-			BossID:        int(uId),
+			BossID:        uId,
 			BossName:      user.UserName,
 			BossAvatar:    user.Avatar,
 		}

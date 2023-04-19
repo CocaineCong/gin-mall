@@ -68,15 +68,13 @@ func (dao *CartDao) ListCartByUserId(uId uint) (cart []*model.Cart, err error) {
 }
 
 // UpdateCartNumById 通过id更新Cart信息
-func (dao *CartDao) UpdateCartNumById(cId, num uint) (err error) {
-	err = dao.DB.Model(&model.Cart{}).
+func (dao *CartDao) UpdateCartNumById(cId, num uint) error {
+	return dao.DB.Model(&model.Cart{}).
 		Where("id=?", cId).Update("num", num).Error
-	return
 }
 
 // DeleteCartById 通过 cart_id 删除 cart
-func (dao *CartDao) DeleteCartById(cId uint) (err error) {
-	err = dao.DB.Model(&model.Cart{}).
+func (dao *CartDao) DeleteCartById(cId uint) error {
+	return dao.DB.Model(&model.Cart{}).
 		Where("id=?", cId).Delete(&model.Cart{}).Error
-	return
 }

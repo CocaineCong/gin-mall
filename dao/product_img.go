@@ -2,8 +2,9 @@ package dao
 
 import (
 	"context"
-	"gorm.io/gorm"
 	"mall/model"
+
+	"gorm.io/gorm"
 )
 
 type ProductImgDao struct {
@@ -19,8 +20,9 @@ func NewProductImgDaoByDB(db *gorm.DB) *ProductImgDao {
 }
 
 // CreateProductImg 创建商品图片
-func (dao *ProductImgDao) CreateProductImg(productImg *model.ProductImg) error {
-	return dao.DB.Model(&model.ProductImg{}).Create(&productImg).Error
+func (dao *ProductImgDao) CreateProductImg(productImg *model.ProductImg) (err error) {
+	err = dao.DB.Model(&model.ProductImg{}).Create(&productImg).Error
+	return
 }
 
 // ListProductImgByProductId 根据商品id获取商品图片

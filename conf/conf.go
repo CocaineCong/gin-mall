@@ -2,15 +2,18 @@ package conf
 
 import (
 	"fmt"
+	"strings"
+
 	logging "github.com/sirupsen/logrus"
 	"gopkg.in/ini.v1"
+
 	"mall/dao"
-	"strings"
 )
 
 var (
-	AppMode  string
-	HttpPort string
+	AppMode     string
+	HttpPort    string
+	UploadModel string
 
 	Db         string
 	DbHost     string
@@ -29,13 +32,23 @@ var (
 	SmtpEmail  string
 	SmtpPass   string
 
+	PhotoHost        string
+	ProductPhotoPath string
+	AvatarPath       string
+
 	EsHost  string
 	EsPort  string
 	EsIndex string
+
+	RabbitMQ         string
+	RabbitMQUser     string
+	RabbitMQPassWord string
+	RabbitMQHost     string
+	RabbitMQPort     string
 )
 
 func Init() {
-	//从本地读取环境变量
+	// 从本地读取环境变量
 	file, err := ini.Load("./conf/config.ini")
 	if err != nil {
 		fmt.Println("配置文件读取错误，请检查文件路径:", err)
@@ -45,21 +58,27 @@ func Init() {
 	LoadQiniu(file)
 	LoadEmail(file)
 	LoadEs(file)
+	LoadPhotoPath(file)
+	LoadRabbitMQ(file)
 	if err := LoadLocales("conf/locales/zh-cn.yaml"); err != nil {
-		logging.Info(err) //日志内容
+		logging.Info(err) // 日志内容
 		panic(err)
 	}
-	//MySQL
+	// MySQL
 	pathRead := strings.Join([]string{DbUser, ":", DbPassWord, "@tcp(", DbHost, ":", DbPort, ")/", DbName, "?charset=utf8&parseTime=true"}, "")
 	pathWrite := strings.Join([]string{DbUser, ":", DbPassWord, "@tcp(", DbHost, ":", DbPort, ")/", DbName, "?charset=utf8&parseTime=true"}, "")
 	dao.Database(pathRead, pathWrite)
-	//esConn := "http://"+EsHost+":"+EsPort //TODO 读取ES配置
-	//model.EsInit(esConn)
+	// esConn := "http://"+EsHost+":"+EsPort //TODO 读取ES配置
+	// model.EsInit(esConn)
+	// RabbitMQ
+	// pathRabbitMQ := strings.Join([]string{RabbitMQ, "://", RabbitMQUser, ":", RabbitMQPassWord, "@", RabbitMQHost, ":", RabbitMQPort, "/"}, "")
+	// model.RabbitMQ(pathRabbitMQ)
 }
 
 func LoadServer(file *ini.File) {
 	AppMode = file.Section("service").Key("AppMode").String()
 	HttpPort = file.Section("service").Key("HttpPort").String()
+	UploadModel = file.Section("service").Key("UploadModel").String()
 }
 
 func LoadMysqlData(file *ini.File) {
@@ -89,4 +108,18 @@ func LoadEs(file *ini.File) {
 	EsHost = file.Section("es").Key("EsHost").String()
 	EsPort = file.Section("es").Key("EsPort").String()
 	EsIndex = file.Section("es").Key("EsIndex").String()
+}
+
+func LoadPhotoPath(file *ini.File) {
+	PhotoHost = file.Section("path").Key("Host").String()
+	ProductPhotoPath = file.Section("path").Key("ProductPath").String()
+	AvatarPath = file.Section("path").Key("AvatarPath").String()
+}
+
+func LoadRabbitMQ(file *ini.File) {
+	RabbitMQ = file.Section("rabbitmq").Key("RabbitMQ").String()
+	RabbitMQUser = file.Section("rabbitmq").Key("RabbitMQUser").String()
+	RabbitMQPassWord = file.Section("rabbitmq").Key("RabbitMQPassWord").String()
+	RabbitMQHost = file.Section("rabbitmq").Key("RabbitMQHost").String()
+	RabbitMQPort = file.Section("rabbitmq").Key("RabbitMQPort").String()
 }

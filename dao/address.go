@@ -2,8 +2,9 @@ package dao
 
 import (
 	"context"
-	"gorm.io/gorm"
 	"mall/model"
+
+	"gorm.io/gorm"
 )
 
 type AddressDao struct {
@@ -35,17 +36,20 @@ func (dao *AddressDao) ListAddressByUid(uid uint) (addressList []*model.Address,
 }
 
 // CreateAddress 创建地址
-func (dao *AddressDao) CreateAddress(address *model.Address) error {
-	return dao.DB.Model(&model.Address{}).Create(&address).Error
+func (dao *AddressDao) CreateAddress(address *model.Address) (err error) {
+	err = dao.DB.Model(&model.Address{}).Create(&address).Error
+	return
 }
 
 // DeleteAddressById 根据 id 删除地址
-func (dao *AddressDao) DeleteAddressById(aId uint) error {
-	return dao.DB.Where("id=?", aId).Delete(&model.Address{}).Error
+func (dao *AddressDao) DeleteAddressById(aId uint) (err error) {
+	err = dao.DB.Where("id=?", aId).Delete(&model.Address{}).Error
+	return
 }
 
 // UpdateAddressById 通过 id 修改地址信息
-func (dao *AddressDao) UpdateAddressById(aId uint, address *model.Address) error {
-	return dao.DB.Model(&model.Address{}).
+func (dao *AddressDao) UpdateAddressById(aId uint, address *model.Address) (err error) {
+	err = dao.DB.Model(&model.Address{}).
 		Where("id=?", aId).Updates(address).Error
+	return
 }

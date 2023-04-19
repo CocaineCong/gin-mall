@@ -1,6 +1,9 @@
 package serializer
 
-import "mall/model"
+import (
+	"mall/conf"
+	"mall/model"
+)
 
 type ProductImg struct {
 	ProductID uint   `json:"product_id" form:"product_id"`
@@ -10,7 +13,7 @@ type ProductImg struct {
 func BuildProductImg(item *model.ProductImg) ProductImg {
 	return ProductImg{
 		ProductID: item.ProductID,
-		ImgPath:   item.ImgPath,
+		ImgPath:   conf.PhotoHost + conf.HttpPort + conf.ProductPhotoPath + item.ImgPath,
 	}
 }
 

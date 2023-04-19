@@ -26,7 +26,7 @@ git clone -b v2.1 git@github.com:CocaineCong/gin-mall.git
 欢迎大家把自己的想法 pr 到这个项目中。
 
 **说明：**
-1. 大家可以根据自己的需要进行分支的合并，记得合并的时候，看好是合并到 v2.0 还是合去 v2.1 
+1. 大家可以根据自己的需要进行分支的合并，记得合并的时候，看好是合并到 v2.0 还是合去 v2.1
 2. CR 通过之后，就会到合并到 v2.x 分支，同样的 main 分支下的 v2.0 版本也会对应合并。
 
 之前的 t0分支 就取消了，直接合上去到 v2.x 分支就好了～
@@ -107,19 +107,19 @@ DbHost = 127.0.0.1
 DbPort = 3306
 DbUser = root
 DbPassWord = root
-DbName = 
+DbName =
 
 [redis]
 RedisDb = redis
 RedisAddr = 127.0.0.1:6379
 RedisPw =
-RedisDbName = 
+RedisDbName =
 
 [qiniu]
-AccessKey = 
-SerectKey = 
-Bucket = 
-QiniuServer = 
+AccessKey =
+SerectKey =
+Bucket =
+QiniuServer =
 
 [email]
 ValidEmail=http://localhost:8080/#/vaild/email/
@@ -140,7 +140,7 @@ EsIndex = mylog
 3. 由于使用的是AES对称加密算法，这个算法并不保存在数据库或是文件中，是第一次登录的时候需要给的值，因为第一次登录系统会送1w作为初始金额进行购物，所以对其的加密，后续支付必须要再次输入，否则无法进行购物。
 4. 本项目运用了gorm的读写分离，所以要保证mysql的数据一致性。
 5. 引入了ELK体系，可以通过docker-compose全部up起来，也可以本地跑(确保ES和Kibana都开启)
-
+6. 用户创建默认金额为 **1w** ，默认头像为 `static/imgs/avatar/avatar.JPG` 
 # 导入接口文档
 
 打开postman，点击导入
