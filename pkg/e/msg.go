@@ -44,6 +44,9 @@ var MsgFlags = map[int]string{
 	ErrorDatabase: "数据库操作出错,请重试",
 
 	ErrorOss: "OSS配置错误",
+
+	ErrorRedis:                "redis调用错误",
+	ErrorRedissonSecKillGoods: "商品秒杀下单错误",
 }
 
 // GetMsg 获取状态码对应信息

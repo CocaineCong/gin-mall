@@ -84,6 +84,7 @@ func NewRouter() *gin.Engine {
 			authed.POST("import_skill_goods", api.ImportSkillGoods)
 			authed.POST("init_skill_goods", api.InitSkillGoods)
 			authed.POST("skill_goods", api.SkillGoods)
+			authed.GET("skill_goods_result", api.GetSkillGoodsResult)
 		}
 	}
 	return r

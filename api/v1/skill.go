@@ -40,3 +40,15 @@ func SkillGoods(c *gin.Context) {
 		util.LogrusObj.Infoln(err, "SkillGoods")
 	}
 }
+
+func GetSkillGoodsResult(c *gin.Context) {
+	var skillGoods service.SkillGoodsService
+	claim, _ := util.ParseToken(c.GetHeader("Authorization"))
+	if err := c.ShouldBind(&skillGoods); err == nil {
+		res := skillGoods.GetSkillGoodsResult(c.Request.Context(), claim.ID)
+		c.JSON(200, res)
+	} else {
+		c.JSON(400, ErrorResponse(err))
+		util.LogrusObj.Infoln(err, "GetSkillGoodsResult")
+	}
+}

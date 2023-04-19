@@ -2,20 +2,19 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"github.com/go-redis/redis"
 	logging "github.com/sirupsen/logrus"
 	"mall/cache"
 	"mall/dao"
 	"mall/model"
 	"mall/pkg/e"
+	util "mall/pkg/utils"
 	"mall/serializer"
-	"math/rand"
 	"strconv"
 	"time"
 )
 
-const OrderTimeKey = "OrderTime"
+const OrderTimeOutKey = "order_timeout_queue"
 
 type OrderService struct {
 	ProductID uint `form:"product_id" json:"product_id"`
@@ -53,11 +52,10 @@ func (service *OrderService) Create(ctx context.Context, id uint) serializer.Res
 	}
 
 	order.AddressID = address.ID
-	number := fmt.Sprintf("%09v", rand.New(rand.NewSource(time.Now().UnixNano())).Int31n(1000000000))
+	number, _ := util.SnowflakeID() //改用snowflake生成uuid
 	productNum := strconv.Itoa(int(service.ProductID))
 	userNum := strconv.Itoa(int(id))
-	number = number + productNum + userNum
-	orderNum, _ := strconv.ParseUint(number, 10, 64)
+	orderNum, _ := strconv.ParseUint(number+productNum+userNum, 10, 64)
 	order.OrderNum = orderNum
 
 	orderDao := dao.NewOrderDao(ctx)
@@ -72,12 +70,19 @@ func (service *OrderService) Create(ctx context.Context, id uint) serializer.Res
 		}
 	}
 
-	//订单号存入Redis中，设置过期时间
+	//订单号存入Redis中，设置过期时间   设置分数是当前时间加上15分钟
 	data := redis.Z{
 		Score:  float64(time.Now().Unix()) + 15*time.Minute.Seconds(),
 		Member: orderNum,
 	}
-	cache.RedisClient.ZAdd(OrderTimeKey, data)
+	if err = cache.RedisClient.ZAdd(OrderTimeOutKey, data).Err(); err != nil {
+		util.LogrusObj.Infoln("订单【%d】加入延迟队列失败, err: %v", orderNum, err)
+		code = e.ErrorDatabase
+		return serializer.Response{
+			Status: code,
+			Msg:    e.GetMsg(code),
+		}
+	}
 	return serializer.Response{
 		Status: code,
 		Msg:    e.GetMsg(code),
@@ -154,7 +159,8 @@ func (service *OrderService) Delete(ctx context.Context, oId string) serializer.
 
 	orderDao := dao.NewOrderDao(ctx)
 	orderId, _ := strconv.Atoi(oId)
-	err := orderDao.DeleteOrderById(uint(orderId))
+	// 删除订单实际上是修改订单状态为关闭
+	err := orderDao.CloseOrderById(uint(orderId))
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase

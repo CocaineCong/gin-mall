@@ -48,4 +48,10 @@ const (
 	//对象存储错误
 	ErrorOss        = 50001
 	ErrorUploadFile = 50002
+
+	//redis错误
+	ErrorRedis = 60001
+
+	//secKill错误
+	ErrorRedissonSecKillGoods = 70001
 )
