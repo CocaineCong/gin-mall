@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"strconv"
+	"sync"
 
 	logging "github.com/sirupsen/logrus"
 
@@ -11,6 +12,19 @@ import (
 	"mall/repository/db/model"
 	"mall/serializer"
 )
+
+var AddressLogicIns *AddressLogic
+var AddressLogicOnce sync.Once
+
+type AddressLogic struct {
+}
+
+func GetAddressLogic() *AddressLogic {
+	AddressLogicOnce.Do(func() {
+		AddressLogicIns = &AddressLogic{}
+	})
+	return AddressLogicIns
+}
 
 type AddressService struct {
 	Name    string `form:"name" json:"name"`
