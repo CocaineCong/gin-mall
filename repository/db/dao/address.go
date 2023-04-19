@@ -43,8 +43,8 @@ func (dao *AddressDao) CreateAddress(address *model.Address) (err error) {
 }
 
 // DeleteAddressById 根据 id 删除地址
-func (dao *AddressDao) DeleteAddressById(aId uint) (err error) {
-	err = dao.DB.Where("id=?", aId).Delete(&model.Address{}).Error
+func (dao *AddressDao) DeleteAddressById(aId, uId uint) (err error) {
+	err = dao.DB.Where("id=? AND user_id = ?", aId, uId).Delete(&model.Address{}).Error
 	return
 }
 

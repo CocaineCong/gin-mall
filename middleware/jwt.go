@@ -1,13 +1,15 @@
 package middleware
 
 import (
-	"github.com/gin-gonic/gin"
-	"mall/pkg/e"
-	"mall/pkg/utils"
 	"time"
+
+	"github.com/gin-gonic/gin"
+
+	"mall/pkg/e"
+	util "mall/pkg/utils"
 )
 
-//JWT token验证中间件
+// JWT token验证中间件
 func JWT() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var code int
@@ -23,6 +25,7 @@ func JWT() gin.HandlerFunc {
 			} else if time.Now().Unix() > claims.ExpiresAt {
 				code = e.ErrorAuthCheckTokenTimeout
 			}
+			c.Set("user_id", claims.ID)
 		}
 		if code != e.SUCCESS {
 			c.JSON(200, gin.H{
@@ -37,7 +40,7 @@ func JWT() gin.HandlerFunc {
 	}
 }
 
-//JWTAdmin token验证中间件
+// JWTAdmin token验证中间件
 func JWTAdmin() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var code int
