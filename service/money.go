@@ -2,19 +2,31 @@ package service
 
 import (
 	"context"
+	"sync"
 
 	logging "github.com/sirupsen/logrus"
 
 	"mall/pkg/e"
 	"mall/repository/db/dao"
 	"mall/serializer"
+	"mall/types"
 )
 
-type ShowMoneyService struct {
-	Key string `json:"key" form:"key"`
+var MoneySrvIns *MoneySrv
+var MoneySrvOnce sync.Once
+
+type MoneySrv struct {
 }
 
-func (service *ShowMoneyService) Show(ctx context.Context, uId uint) serializer.Response {
+func GetMoneySrv() *MoneySrv {
+	MoneySrvOnce.Do(func() {
+		MoneySrvIns = &MoneySrv{}
+	})
+	return MoneySrvIns
+}
+
+// MoneyShow 展示用户的金额
+func (s *MoneySrv) MoneyShow(ctx context.Context, uId uint, req *types.ShowMoneyServiceReq) serializer.Response {
 	code := e.SUCCESS
 	userDao := dao.NewUserDao(ctx)
 	user, err := userDao.GetUserById(uId)
@@ -29,7 +41,7 @@ func (service *ShowMoneyService) Show(ctx context.Context, uId uint) serializer.
 	}
 	return serializer.Response{
 		Status: code,
-		Data:   serializer.BuildMoney(user, service.Key),
+		Data:   serializer.BuildMoney(user, req.Key),
 		Msg:    e.GetMsg(code),
 	}
 }
