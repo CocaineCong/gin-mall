@@ -6,6 +6,7 @@ import (
 	"gorm.io/gorm"
 
 	model2 "mall/repository/db/model"
+	"mall/types"
 )
 
 type ProductDao struct {
@@ -28,7 +29,7 @@ func (dao *ProductDao) GetProductById(id uint) (product *model2.Product, err err
 }
 
 // ListProductByCondition 获取商品列表
-func (dao *ProductDao) ListProductByCondition(condition map[string]interface{}, page model2.BasePage) (products []*model2.Product, err error) {
+func (dao *ProductDao) ListProductByCondition(condition map[string]interface{}, page *types.BasePage) (products []*model2.Product, err error) {
 	err = dao.DB.Where(condition).
 		Offset((page.PageNum - 1) * page.PageSize).
 		Limit(page.PageSize).Find(&products).Error
@@ -58,7 +59,7 @@ func (dao *ProductDao) UpdateProduct(pId uint, product *model2.Product) error {
 }
 
 // SearchProduct 搜索商品
-func (dao *ProductDao) SearchProduct(info string, page model2.BasePage) (products []*model2.Product, err error) {
+func (dao *ProductDao) SearchProduct(info string, page *types.BasePage) (products []*model2.Product, err error) {
 	err = dao.DB.Model(&model2.Product{}).
 		Where("name LIKE ? OR info LIKE ?", "%"+info+"%", "%"+info+"%").
 		Offset((page.PageNum - 1) * page.PageSize).

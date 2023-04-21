@@ -4,6 +4,7 @@ import (
 	"context"
 	"mime/multipart"
 	"strings"
+	"sync"
 	"time"
 
 	"mall/conf"
@@ -13,33 +14,29 @@ import (
 	dao2 "mall/repository/db/dao"
 	model2 "mall/repository/db/model"
 	"mall/serializer"
+	"mall/types"
 
 	logging "github.com/sirupsen/logrus"
 	"gopkg.in/mail.v2"
 )
 
-// UserService 管理用户服务
-type UserService struct {
-	NickName string `form:"nick_name" json:"nick_name"`
-	UserName string `form:"user_name" json:"user_name"`
-	Password string `form:"password" json:"password"`
-	Key      string `form:"key" json:"key"` // 前端进行判断
+var UserSrvIns *UserSrv
+var UserSrvOnce sync.Once
+
+type UserSrv struct {
 }
 
-type SendEmailService struct {
-	Email    string `form:"email" json:"email"`
-	Password string `form:"password" json:"password"`
-	// OpertionType 1:绑定邮箱 2：解绑邮箱 3：改密码
-	OperationType uint `form:"operation_type" json:"operation_type"`
+func GetUserSrv() *UserSrv {
+	UserSrvOnce.Do(func() {
+		UserSrvIns = &UserSrv{}
+	})
+	return UserSrvIns
 }
 
-type ValidEmailService struct {
-}
-
-func (service UserService) Register(ctx context.Context) serializer.Response {
+func (s *UserSrv) Register(ctx context.Context, req *types.UserServiceReq) serializer.Response {
 	var user *model2.User
 	code := e.SUCCESS
-	if service.Key == "" || len(service.Key) != 16 {
+	if req.Key == "" || len(req.Key) != 16 {
 		code = e.ERROR
 		return serializer.Response{
 			Status: code,
@@ -47,9 +44,9 @@ func (service UserService) Register(ctx context.Context) serializer.Response {
 			Data:   "密钥长度不足",
 		}
 	}
-	util.Encrypt.SetKey(service.Key)
+	util.Encrypt.SetKey(req.Key)
 	userDao := dao2.NewUserDao(ctx)
-	_, exist, err := userDao.ExistOrNotByUserName(service.UserName)
+	_, exist, err := userDao.ExistOrNotByUserName(req.UserName)
 	if err != nil {
 		code = e.ErrorDatabase
 		return serializer.Response{
@@ -65,13 +62,13 @@ func (service UserService) Register(ctx context.Context) serializer.Response {
 		}
 	}
 	user = &model2.User{
-		NickName: service.NickName,
-		UserName: service.UserName,
+		NickName: req.NickName,
+		UserName: req.UserName,
 		Status:   model2.Active,
 		Money:    util.Encrypt.AesEncoding("10000"), // 初始金额
 	}
 	// 加密密码
-	if err = user.SetPassword(service.Password); err != nil {
+	if err = user.SetPassword(req.Password); err != nil {
 		logging.Info(err)
 		code = e.ErrorFailEncryption
 		return serializer.Response{
@@ -101,11 +98,11 @@ func (service UserService) Register(ctx context.Context) serializer.Response {
 }
 
 // Login 用户登陆函数
-func (service *UserService) Login(ctx context.Context) serializer.Response {
+func (s *UserSrv) Login(ctx context.Context, req *types.UserServiceReq) serializer.Response {
 	var user *model2.User
 	code := e.SUCCESS
 	userDao := dao2.NewUserDao(ctx)
-	user, exist, err := userDao.ExistOrNotByUserName(service.UserName)
+	user, exist, err := userDao.ExistOrNotByUserName(req.UserName)
 	if !exist { // 如果查询不到，返回相应的错误
 		logging.Info(err)
 		code = e.ErrorUserNotFound
@@ -114,14 +111,14 @@ func (service *UserService) Login(ctx context.Context) serializer.Response {
 			Msg:    e.GetMsg(code),
 		}
 	}
-	if user.CheckPassword(service.Password) == false {
+	if user.CheckPassword(req.Password) == false {
 		code = e.ErrorNotCompare
 		return serializer.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
 		}
 	}
-	token, err := util.GenerateToken(user.ID, service.UserName, 0)
+	token, err := util.GenerateToken(user.ID, req.UserName, 0)
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorAuthToken
@@ -138,7 +135,7 @@ func (service *UserService) Login(ctx context.Context) serializer.Response {
 }
 
 // Update 用户修改信息
-func (service UserService) Update(ctx context.Context, uId uint) serializer.Response {
+func (s *UserSrv) Update(ctx context.Context, uId uint, req *types.UserServiceReq) serializer.Response {
 	var user *model2.User
 	var err error
 	code := e.SUCCESS
@@ -154,8 +151,8 @@ func (service UserService) Update(ctx context.Context, uId uint) serializer.Resp
 			Error:  err.Error(),
 		}
 	}
-	if service.NickName != "" {
-		user.NickName = service.NickName
+	if req.NickName != "" {
+		user.NickName = req.NickName
 	}
 
 	err = userDao.UpdateUserById(uId, user)
@@ -176,7 +173,7 @@ func (service UserService) Update(ctx context.Context, uId uint) serializer.Resp
 	}
 }
 
-func (service *UserService) Post(ctx context.Context, uId uint, file multipart.File, fileSize int64) serializer.Response {
+func (s *UserSrv) Post(ctx context.Context, uId uint, file multipart.File, fileSize int64, req *types.UserServiceReq) serializer.Response {
 	code := e.SUCCESS
 	var user *model2.User
 	var err error
@@ -226,12 +223,12 @@ func (service *UserService) Post(ctx context.Context, uId uint, file multipart.F
 }
 
 // Send 发送邮件
-func (service *SendEmailService) Send(ctx context.Context, id uint) serializer.Response {
+func (s *UserSrv) Send(ctx context.Context, id uint, req *types.SendEmailServiceReq) serializer.Response {
 	code := e.SUCCESS
 	var address string
 	var notice *model2.Notice
 
-	token, err := util.GenerateEmailToken(id, service.OperationType, service.Email, service.Password)
+	token, err := util.GenerateEmailToken(id, req.OperationType, req.Email, req.Password)
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorAuthToken
@@ -242,7 +239,7 @@ func (service *SendEmailService) Send(ctx context.Context, id uint) serializer.R
 	}
 
 	noticeDao := dao2.NewNoticeDao(ctx)
-	notice, err = noticeDao.GetNoticeById(service.OperationType)
+	notice, err = noticeDao.GetNoticeById(req.OperationType)
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
@@ -257,7 +254,7 @@ func (service *SendEmailService) Send(ctx context.Context, id uint) serializer.R
 	mailText := strings.Replace(mailStr, "Email", address, -1)
 	m := mail.NewMessage()
 	m.SetHeader("From", conf.SmtpEmail)
-	m.SetHeader("To", service.Email)
+	m.SetHeader("To", req.Email)
 	m.SetHeader("Subject", "FanOne")
 	m.SetBody("text/html", mailText)
 	d := mail.NewDialer(conf.SmtpHost, 465, conf.SmtpEmail, conf.SmtpPass)
@@ -277,7 +274,7 @@ func (service *SendEmailService) Send(ctx context.Context, id uint) serializer.R
 }
 
 // Valid 验证内容
-func (service ValidEmailService) Valid(ctx context.Context, token string) serializer.Response {
+func (s *UserSrv) Valid(ctx context.Context, token string, req *types.ValidEmailServiceReq) serializer.Response {
 	var userID uint
 	var email string
 	var password string

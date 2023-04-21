@@ -10,6 +10,7 @@ import (
 	"math/rand"
 	"mime/multipart"
 	"strconv"
+	"sync"
 	"time"
 
 	xlsx "github.com/360EntSecGroup-Skylar/excelize"
@@ -19,24 +20,26 @@ import (
 	"mall/pkg/e"
 	"mall/repository/cache"
 	"mall/repository/db/dao"
-	model2 "mall/repository/db/model"
+	"mall/repository/db/model"
 	"mall/repository/mq"
 	"mall/serializer"
+	"mall/types"
 )
 
-type SkillGoodsImport struct {
+var SkillProductSrvIns *SkillProductSrv
+var SkillProductSrvOnce sync.Once
+
+type SkillProductSrv struct {
 }
 
-// 限购一个
-type SkillGoodsService struct {
-	SkillGoodsId uint   `json:"skill_goods_id" form:"skill_goods_id"`
-	ProductId    uint   `json:"product_id" form:"product_id"`
-	BossId       uint   `json:"boss_id" form:"boss_id"`
-	AddressId    uint   `json:"address_id" form:"address_id"`
-	Key          string `json:"key" form:"key"`
+func GetSkillProductSrv() *SkillProductSrv {
+	SkillProductSrvOnce.Do(func() {
+		SkillProductSrvIns = &SkillProductSrv{}
+	})
+	return SkillProductSrvIns
 }
 
-func (service *SkillGoodsImport) Import(ctx context.Context, file multipart.File) serializer.Response {
+func (s *SkillProductSrv) Import(ctx context.Context, file multipart.File) serializer.Response {
 	xlFile, err := xlsx.OpenReader(file)
 	if err != nil {
 		logging.Info(err)
@@ -44,7 +47,7 @@ func (service *SkillGoodsImport) Import(ctx context.Context, file multipart.File
 	code := e.SUCCESS
 	rows := xlFile.GetRows("Sheet1")
 	length := len(rows[1:])
-	skillGoods := make([]*model2.SkillGoods, length, length)
+	skillGoods := make([]*model.SkillProduct, length, length)
 	for index, colCell := range rows {
 		if index == 0 {
 			continue
@@ -53,7 +56,7 @@ func (service *SkillGoodsImport) Import(ctx context.Context, file multipart.File
 		bId, _ := strconv.Atoi(colCell[1])
 		num, _ := strconv.Atoi(colCell[3])
 		money, _ := strconv.ParseFloat(colCell[4], 64)
-		skillGood := &model2.SkillGoods{
+		skillGood := &model.SkillProduct{
 			ProductId: uint(pId),
 			BossId:    uint(bId),
 			Title:     colCell[2],
@@ -78,7 +81,7 @@ func (service *SkillGoodsImport) Import(ctx context.Context, file multipart.File
 }
 
 // 直接放到这里，初始化秒杀商品信息，将mysql的信息存入redis中
-func (service *SkillGoodsService) InitSkillGoods(ctx context.Context) error {
+func (s *SkillProductSrv) InitSkillGoods(ctx context.Context) error {
 	skillGoods, _ := dao.NewSkillGoodsDao(ctx).ListSkillGoods()
 	r := cache.RedisClient
 	// 加载到redis
@@ -90,16 +93,16 @@ func (service *SkillGoodsService) InitSkillGoods(ctx context.Context) error {
 	return nil
 }
 
-func (service *SkillGoodsService) SkillGoods(ctx context.Context, uId uint) serializer.Response {
-	mo, _ := cache.RedisClient.HGet("SK"+strconv.Itoa(int(service.SkillGoodsId)), "money").Float64()
-	sk := &model2.SkillGood2MQ{
-		ProductId:   service.ProductId,
-		BossId:      service.BossId,
-		UserId:      uId,
-		AddressId:   service.AddressId,
-		Key:         service.Key,
-		Money:       mo,
-		SkillGoodId: service.SkillGoodsId,
+func (s *SkillProductSrv) SkillGoods(ctx context.Context, uId uint, req *types.SkillProductServiceReq) serializer.Response {
+	mo, _ := cache.RedisClient.HGet("SK"+strconv.Itoa(int(req.SkillProductId)), "money").Float64()
+	sk := &model.SkillProduct2MQ{
+		ProductId:      req.ProductId,
+		BossId:         req.BossId,
+		UserId:         uId,
+		AddressId:      req.AddressId,
+		Key:            req.Key,
+		Money:          mo,
+		SkillProductId: req.SkillProductId,
 	}
 	err := RedissonSecKillGoods(sk)
 	if err != nil {
@@ -109,8 +112,8 @@ func (service *SkillGoodsService) SkillGoods(ctx context.Context, uId uint) seri
 }
 
 // 加锁
-func RedissonSecKillGoods(sk *model2.SkillGood2MQ) error {
-	p := strconv.Itoa(int(sk.ProductId))
+func RedissonSecKillGoods(sk *model.SkillProduct2MQ) error {
+	p := strconv.Itoa(int(sk.SkillProductId))
 	uuid := getUuid(p)
 	_, err := cache.RedisClient.Del(p).Result()
 	lockSuccess, err := cache.RedisClient.SetNX(p, uuid, time.Second*3).Result()
@@ -135,7 +138,7 @@ func RedissonSecKillGoods(sk *model2.SkillGood2MQ) error {
 }
 
 // 传送到MQ
-func SendSecKillGoodsToMQ(sk *model2.SkillGood2MQ) error {
+func SendSecKillGoodsToMQ(sk *model.SkillProduct2MQ) error {
 	ch, err := mq.RabbitMQ.Channel()
 	if err != nil {
 		err = errors.New("rabbitMQ err:" + err.Error())

@@ -6,6 +6,7 @@ import (
 	"gorm.io/gorm"
 
 	model2 "mall/repository/db/model"
+	"mall/types"
 )
 
 type OrderDao struct {
@@ -26,7 +27,7 @@ func (dao *OrderDao) CreateOrder(order *model2.Order) error {
 }
 
 // ListOrderByCondition 获取订单List
-func (dao *OrderDao) ListOrderByCondition(condition map[string]interface{}, page model2.BasePage) (orders []*model2.Order, total int64, err error) {
+func (dao *OrderDao) ListOrderByCondition(condition map[string]interface{}, page *types.BasePage) (orders []*model2.Order, total int64, err error) {
 	err = dao.DB.Model(&model2.Order{}).Where(condition).
 		Count(&total).Error
 	if err != nil {
