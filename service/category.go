@@ -2,18 +2,31 @@ package service
 
 import (
 	"context"
+	"sync"
 
 	logging "github.com/sirupsen/logrus"
 
 	"mall/pkg/e"
 	"mall/repository/db/dao"
 	"mall/serializer"
+	"mall/types"
 )
 
-type ListCategoriesService struct {
+var CategorySrvIns *CategorySrv
+var CategorySrvOnce sync.Once
+
+type CategorySrv struct {
 }
 
-func (service *ListCategoriesService) List(ctx context.Context) serializer.Response {
+func GetCategorySrv() *CategorySrv {
+	CategorySrvOnce.Do(func() {
+		CategorySrvIns = &CategorySrv{}
+	})
+	return CategorySrvIns
+}
+
+// ListCategory 列举分类
+func (s *CategorySrv) ListCategory(ctx context.Context, req *types.ListCategoryServiceReq) serializer.Response {
 	code := e.SUCCESS
 	categoryDao := dao.NewCategoryDao(ctx)
 	categories, err := categoryDao.ListCategory()

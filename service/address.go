@@ -14,20 +14,20 @@ import (
 	"mall/types"
 )
 
-var AddressLogicIns *AddressLogic
-var AddressLogicOnce sync.Once
+var AddressSrvIns *AddressSrv
+var AddressSrvOnce sync.Once
 
-type AddressLogic struct {
+type AddressSrv struct {
 }
 
-func GetAddressLogic() *AddressLogic {
-	AddressLogicOnce.Do(func() {
-		AddressLogicIns = &AddressLogic{}
+func GetAddressSrv() *AddressSrv {
+	AddressSrvOnce.Do(func() {
+		AddressSrvIns = &AddressSrv{}
 	})
-	return AddressLogicIns
+	return AddressSrvIns
 }
 
-func (s *AddressLogic) Create(ctx context.Context, req *types.AddressServiceReq, uId uint) (resp interface{}, err error) {
+func (s *AddressSrv) Create(ctx context.Context, req *types.AddressServiceReq, uId uint) (resp interface{}, err error) {
 	code := e.SUCCESS
 	addressDao := dao.NewAddressDao(ctx)
 	address := &model.Address{
@@ -65,7 +65,7 @@ func (s *AddressLogic) Create(ctx context.Context, req *types.AddressServiceReq,
 	}, nil
 }
 
-func (s *AddressLogic) Show(ctx context.Context, aId string) (resp interface{}, err error) {
+func (s *AddressSrv) Show(ctx context.Context, aId string) (resp interface{}, err error) {
 	code := e.SUCCESS
 	addressDao := dao.NewAddressDao(ctx)
 	addressId, _ := strconv.Atoi(aId)
@@ -86,7 +86,7 @@ func (s *AddressLogic) Show(ctx context.Context, aId string) (resp interface{}, 
 	}, nil
 }
 
-func (s *AddressLogic) List(ctx context.Context, uId uint) (resp interface{}, err error) {
+func (s *AddressSrv) List(ctx context.Context, uId uint) (resp interface{}, err error) {
 	code := e.SUCCESS
 	addressDao := dao.NewAddressDao(ctx)
 	address, err := addressDao.ListAddressByUid(uId)
@@ -106,7 +106,7 @@ func (s *AddressLogic) List(ctx context.Context, uId uint) (resp interface{}, er
 	}, nil
 }
 
-func (s *AddressLogic) Delete(ctx context.Context, aId, uId uint) (serializer.Response, error) {
+func (s *AddressSrv) Delete(ctx context.Context, aId, uId uint) (serializer.Response, error) {
 	addressDao := dao.NewAddressDao(ctx)
 	code := e.SUCCESS
 	err := addressDao.DeleteAddressById(aId, uId)
@@ -125,7 +125,7 @@ func (s *AddressLogic) Delete(ctx context.Context, aId, uId uint) (serializer.Re
 	}, nil
 }
 
-func (s *AddressLogic) Update(ctx context.Context, req *types.AddressServiceReq, uid, aid uint) (serializer.Response, error) {
+func (s *AddressSrv) Update(ctx context.Context, req *types.AddressServiceReq, uid, aid uint) (serializer.Response, error) {
 	code := e.SUCCESS
 
 	addressDao := dao.NewAddressDao(ctx)

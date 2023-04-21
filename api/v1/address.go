@@ -18,7 +18,7 @@ func CreateAddress() gin.HandlerFunc {
 
 		if err := ctx.ShouldBind(&req); err == nil {
 			// 参数校验
-			l := service.GetAddressLogic()
+			l := service.GetAddressSrv()
 			userId := ctx.Keys["user_id"].(uint)
 			resp, err := l.Create(ctx.Request.Context(), req, userId)
 			if err != nil {
@@ -42,7 +42,7 @@ func GetAddress() gin.HandlerFunc {
 
 		if err := ctx.ShouldBind(&req); err == nil {
 			// 参数校验
-			l := service.GetAddressLogic()
+			l := service.GetAddressSrv()
 			resp, err := l.Show(ctx.Request.Context(), ctx.Param("id"))
 			if err != nil {
 				util.LogrusObj.Infoln(err)
@@ -64,7 +64,7 @@ func ListAddress() gin.HandlerFunc {
 
 		if err := ctx.ShouldBind(&req); err == nil {
 			// 参数校验
-			l := service.GetAddressLogic()
+			l := service.GetAddressSrv()
 			resp, err := l.List(ctx.Request.Context(), cast.ToUint(ctx.Param("id")))
 			if err != nil {
 				util.LogrusObj.Infoln(err)
@@ -87,7 +87,7 @@ func UpdateAddress() gin.HandlerFunc {
 		if err := ctx.ShouldBind(&req); err == nil {
 			// 参数校验
 			userId := ctx.Keys["user_id"].(uint)
-			l := service.GetAddressLogic()
+			l := service.GetAddressSrv()
 			resp, err := l.Update(ctx.Request.Context(), req, userId, cast.ToUint(ctx.Param("id")))
 			if err != nil {
 				util.LogrusObj.Infoln(err)
@@ -110,7 +110,7 @@ func DeleteAddress() gin.HandlerFunc {
 		if err := ctx.ShouldBind(&req); err == nil {
 			// 参数校验
 			userId := ctx.Keys["user_id"].(uint)
-			l := service.GetAddressLogic()
+			l := service.GetAddressSrv()
 			resp, err := l.Delete(ctx.Request.Context(), cast.ToUint(ctx.Param("id")), userId)
 			if err != nil {
 				util.LogrusObj.Infoln(err)
