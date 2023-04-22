@@ -33,9 +33,9 @@ func NewRouter() *gin.Engine {
 		v1.GET("products", api.ListProducts)
 		v1.GET("product/:id", api.ShowProduct)
 		v1.POST("products", api.SearchProducts)
-		v1.GET("imgs/:id", api.ListProductImg)   // 商品图片
-		v1.GET("categories", api.ListCategories) // 商品分类
-		v1.GET("carousels", api.ListCarousels)   // 轮播图
+		v1.GET("imgs/:id", api.ListProductImg)          // 商品图片
+		v1.GET("categories", api.ListCategoryHandler()) // 商品分类
+		v1.GET("carousels", api.ListCarouselsHandler()) // 轮播图
 
 		authed := v1.Group("/") // 需要登陆保护
 		authed.Use(middleware.JWT())
@@ -52,9 +52,9 @@ func NewRouter() *gin.Engine {
 			authed.PUT("product/:id", api.UpdateProduct)
 			authed.DELETE("product/:id", api.DeleteProduct)
 			// 收藏夹
-			authed.GET("favorites", api.ShowFavorites)
-			authed.POST("favorites", api.CreateFavorite)
-			authed.DELETE("favorites/:id", api.DeleteFavorite)
+			authed.GET("favorites", api.ListFavoritesHandler())
+			authed.POST("favorites", api.CreateFavoriteHandler())
+			authed.DELETE("favorites/:id", api.DeleteFavoriteHandler())
 
 			// 订单操作
 			authed.POST("orders", api.CreateOrder)
@@ -63,17 +63,17 @@ func NewRouter() *gin.Engine {
 			authed.DELETE("orders/:id", api.DeleteOrder)
 
 			// 购物车
-			authed.POST("carts", api.CreateCart)
-			authed.GET("carts", api.ShowCarts)
-			authed.PUT("carts/:id", api.UpdateCart) // 购物车id
-			authed.DELETE("carts/:id", api.DeleteCart)
+			authed.POST("carts", api.CreateCartHandler())
+			authed.GET("carts", api.ListCartHandler())
+			authed.PUT("carts/:id", api.UpdateCartHandler()) // 购物车id
+			authed.DELETE("carts/:id", api.DeleteCartHandler())
 
 			// 收获地址操作
-			authed.POST("addresses", api.CreateAddress)
-			authed.GET("addresses/:id", api.GetAddress)
-			authed.GET("addresses", api.ListAddress)
-			authed.PUT("addresses/:id", api.UpdateAddress)
-			authed.DELETE("addresses/:id", api.DeleteAddress)
+			authed.POST("addresses", api.CreateAddressHandler())
+			authed.GET("addresses/:id", api.GetAddressHandler())
+			authed.GET("addresses", api.ListAddressHandler())
+			authed.PUT("addresses/:id", api.UpdateAddressHandler())
+			authed.DELETE("addresses/:id", api.DeleteAddressHandler())
 
 			// 支付功能
 			authed.POST("paydown", api.OrderPay)

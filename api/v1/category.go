@@ -1,18 +1,32 @@
 package v1
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
+
 	util "mall/pkg/utils"
 	"mall/service"
+	"mall/types"
 )
 
-func ListCategories(c *gin.Context) {
-	listCategoriesService := service.ListCategoriesService{}
-	if err := c.ShouldBind(&listCategoriesService); err == nil {
-		res := listCategoriesService.List(c.Request.Context())
-		c.JSON(200, res)
-	} else {
-		c.JSON(400, ErrorResponse(err))
-		util.LogrusObj.Infoln(err)
+func ListCategoryHandler() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		var req types.ListCategoryServiceReq
+
+		if err := ctx.ShouldBind(&req); err == nil {
+			// 参数校验
+			l := service.GetCategorySrv()
+			resp, err := l.ListCategory(ctx.Request.Context(), &req)
+			if err != nil {
+				util.LogrusObj.Infoln(err)
+				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+				return
+			}
+			ctx.JSON(http.StatusOK, resp)
+		} else {
+			util.LogrusObj.Infoln(err)
+			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+		}
 	}
 }

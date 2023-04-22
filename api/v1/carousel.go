@@ -11,7 +11,7 @@ import (
 	"mall/types"
 )
 
-func ListCarousels() gin.HandlerFunc {
+func ListCarouselsHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		req := new(types.AddressServiceReq)
 

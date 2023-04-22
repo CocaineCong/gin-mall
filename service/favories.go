@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"sync"
 
 	logging "github.com/sirupsen/logrus"
@@ -27,7 +28,7 @@ func GetFavoriteSrv() *FavoriteSrv {
 }
 
 // FavoriteList 商品收藏夹
-func (s *FavoriteSrv) FavoriteList(ctx context.Context, uId uint, req *types.FavoritesServiceReq) serializer.Response {
+func (s *FavoriteSrv) FavoriteList(ctx context.Context, uId uint, req *types.FavoritesServiceReq) (serializer.Response, error) {
 	favoritesDao := dao.NewFavoritesDao(ctx)
 	code := e.SUCCESS
 	if req.PageSize == 0 {
@@ -41,13 +42,13 @@ func (s *FavoriteSrv) FavoriteList(ctx context.Context, uId uint, req *types.Fav
 			Status: code,
 			Msg:    e.GetMsg(code),
 			Error:  err.Error(),
-		}
+		}, err
 	}
-	return serializer.BuildListResponse(serializer.BuildFavorites(ctx, favorites), uint(total))
+	return serializer.BuildListResponse(serializer.BuildFavorites(ctx, favorites), uint(total)), nil
 }
 
 // FavoriteCreate 创建收藏夹
-func (s *FavoriteSrv) FavoriteCreate(ctx context.Context, uId uint, req *types.FavoritesServiceReq) serializer.Response {
+func (s *FavoriteSrv) FavoriteCreate(ctx context.Context, uId uint, req *types.FavoritesServiceReq) (serializer.Response, error) {
 	code := e.SUCCESS
 	favoriteDao := dao.NewFavoritesDao(ctx)
 	exist, _ := favoriteDao.FavoriteExistOrNot(req.ProductId, uId)
@@ -56,7 +57,7 @@ func (s *FavoriteSrv) FavoriteCreate(ctx context.Context, uId uint, req *types.F
 		return serializer.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
-		}
+		}, errors.New("已经存在了")
 	}
 
 	userDao := dao.NewUserDao(ctx)
@@ -66,7 +67,7 @@ func (s *FavoriteSrv) FavoriteCreate(ctx context.Context, uId uint, req *types.F
 		return serializer.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
-		}
+		}, err
 	}
 
 	bossDao := dao.NewUserDaoByDB(userDao.DB)
@@ -76,7 +77,7 @@ func (s *FavoriteSrv) FavoriteCreate(ctx context.Context, uId uint, req *types.F
 		return serializer.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
-		}
+		}, err
 	}
 
 	productDao := dao.NewProductDao(ctx)
@@ -86,7 +87,7 @@ func (s *FavoriteSrv) FavoriteCreate(ctx context.Context, uId uint, req *types.F
 		return serializer.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
-		}
+		}, err
 	}
 
 	favorite := &model.Favorite{
@@ -104,17 +105,17 @@ func (s *FavoriteSrv) FavoriteCreate(ctx context.Context, uId uint, req *types.F
 		return serializer.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
-		}
+		}, err
 	}
 
 	return serializer.Response{
 		Status: code,
 		Msg:    e.GetMsg(code),
-	}
+	}, nil
 }
 
 // FavoriteDelete 删除收藏夹
-func (s *FavoriteSrv) FavoriteDelete(ctx context.Context, req *types.FavoritesServiceReq) serializer.Response {
+func (s *FavoriteSrv) FavoriteDelete(ctx context.Context, req *types.FavoritesServiceReq) (serializer.Response, error) {
 	code := e.SUCCESS
 
 	favoriteDao := dao.NewFavoritesDao(ctx)
@@ -126,11 +127,11 @@ func (s *FavoriteSrv) FavoriteDelete(ctx context.Context, req *types.FavoritesSe
 			Status: code,
 			Data:   e.GetMsg(code),
 			Error:  err.Error(),
-		}
+		}, err
 	}
 
 	return serializer.Response{
 		Status: code,
 		Data:   e.GetMsg(code),
-	}
+	}, nil
 }

@@ -26,7 +26,7 @@ func GetCategorySrv() *CategorySrv {
 }
 
 // ListCategory 列举分类
-func (s *CategorySrv) ListCategory(ctx context.Context, req *types.ListCategoryServiceReq) serializer.Response {
+func (s *CategorySrv) ListCategory(ctx context.Context, req *types.ListCategoryServiceReq) (serializer.Response, error) {
 	code := e.SUCCESS
 	categoryDao := dao.NewCategoryDao(ctx)
 	categories, err := categoryDao.ListCategory()
@@ -37,11 +37,11 @@ func (s *CategorySrv) ListCategory(ctx context.Context, req *types.ListCategoryS
 			Status: code,
 			Msg:    e.GetMsg(code),
 			Error:  err.Error(),
-		}
+		}, err
 	}
 	return serializer.Response{
 		Status: code,
 		Msg:    e.GetMsg(code),
 		Data:   serializer.BuildCategories(categories),
-	}
+	}, nil
 }

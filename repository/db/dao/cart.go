@@ -54,10 +54,10 @@ func (dao *CartDao) CreateCart(pId, uId, bId uint) (cart *model.Cart, status int
 	}
 }
 
-// GetCartById 获取 Cart 通过 Id
+// GetCartById 获取Cart通过Id
 func (dao *CartDao) GetCartById(pId, uId, bId uint) (cart *model.Cart, err error) {
 	err = dao.DB.Model(&model.Cart{}).
-		Where("user_id=? AND product_id=? AND boss_id=?", uId, pId, bId).
+		Where("user_id = ? AND product_id = ? AND boss_id = ?", uId, pId, bId).
 		First(&cart).Error
 	return
 }
@@ -65,18 +65,20 @@ func (dao *CartDao) GetCartById(pId, uId, bId uint) (cart *model.Cart, err error
 // ListCartByUserId 获取 Cart 通过 user_id
 func (dao *CartDao) ListCartByUserId(uId uint) (cart []*model.Cart, err error) {
 	err = dao.DB.Model(&model.Cart{}).
-		Where("user_id=?", uId).Find(&cart).Error
+		Where("user_id = ?", uId).Find(&cart).Error
 	return
 }
 
 // UpdateCartNumById 通过id更新Cart信息
-func (dao *CartDao) UpdateCartNumById(cId, num uint) error {
+func (dao *CartDao) UpdateCartNumById(cId, uId, num uint) error {
 	return dao.DB.Model(&model.Cart{}).
-		Where("id=?", cId).Update("num", num).Error
+		Where("id = ? AND user_id = ?", cId, uId).
+		Update("num", num).Error
 }
 
 // DeleteCartById 通过 cart_id 删除 cart
-func (dao *CartDao) DeleteCartById(cId uint) error {
+func (dao *CartDao) DeleteCartById(cId, uId uint) error {
 	return dao.DB.Model(&model.Cart{}).
-		Where("id=?", cId).Delete(&model.Cart{}).Error
+		Where("id = ? AND uid = ?", cId, uId).
+		Delete(&model.Cart{}).Error
 }

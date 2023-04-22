@@ -11,8 +11,8 @@ import (
 	"mall/consts"
 	"mall/pkg/e"
 	util "mall/pkg/utils"
-	dao2 "mall/repository/db/dao"
-	model2 "mall/repository/db/model"
+	"mall/repository/db/dao"
+	"mall/repository/db/model"
 	"mall/serializer"
 	"mall/types"
 
@@ -34,7 +34,7 @@ func GetUserSrv() *UserSrv {
 }
 
 func (s *UserSrv) Register(ctx context.Context, req *types.UserServiceReq) serializer.Response {
-	var user *model2.User
+	var user *model.User
 	code := e.SUCCESS
 	if req.Key == "" || len(req.Key) != 16 {
 		code = e.ERROR
@@ -45,7 +45,7 @@ func (s *UserSrv) Register(ctx context.Context, req *types.UserServiceReq) seria
 		}
 	}
 	util.Encrypt.SetKey(req.Key)
-	userDao := dao2.NewUserDao(ctx)
+	userDao := dao.NewUserDao(ctx)
 	_, exist, err := userDao.ExistOrNotByUserName(req.UserName)
 	if err != nil {
 		code = e.ErrorDatabase
@@ -61,10 +61,10 @@ func (s *UserSrv) Register(ctx context.Context, req *types.UserServiceReq) seria
 			Msg:    e.GetMsg(code),
 		}
 	}
-	user = &model2.User{
+	user = &model.User{
 		NickName: req.NickName,
 		UserName: req.UserName,
-		Status:   model2.Active,
+		Status:   model.Active,
 		Money:    util.Encrypt.AesEncoding("10000"), // 初始金额
 	}
 	// 加密密码
@@ -99,9 +99,9 @@ func (s *UserSrv) Register(ctx context.Context, req *types.UserServiceReq) seria
 
 // Login 用户登陆函数
 func (s *UserSrv) Login(ctx context.Context, req *types.UserServiceReq) serializer.Response {
-	var user *model2.User
+	var user *model.User
 	code := e.SUCCESS
-	userDao := dao2.NewUserDao(ctx)
+	userDao := dao.NewUserDao(ctx)
 	user, exist, err := userDao.ExistOrNotByUserName(req.UserName)
 	if !exist { // 如果查询不到，返回相应的错误
 		logging.Info(err)
@@ -136,11 +136,11 @@ func (s *UserSrv) Login(ctx context.Context, req *types.UserServiceReq) serializ
 
 // Update 用户修改信息
 func (s *UserSrv) Update(ctx context.Context, uId uint, req *types.UserServiceReq) serializer.Response {
-	var user *model2.User
+	var user *model.User
 	var err error
 	code := e.SUCCESS
 	// 找到用户
-	userDao := dao2.NewUserDao(ctx)
+	userDao := dao.NewUserDao(ctx)
 	user, err = userDao.GetUserById(uId)
 	if err != nil {
 		logging.Info(err)
@@ -175,10 +175,10 @@ func (s *UserSrv) Update(ctx context.Context, uId uint, req *types.UserServiceRe
 
 func (s *UserSrv) Post(ctx context.Context, uId uint, file multipart.File, fileSize int64, req *types.UserServiceReq) serializer.Response {
 	code := e.SUCCESS
-	var user *model2.User
+	var user *model.User
 	var err error
 
-	userDao := dao2.NewUserDao(ctx)
+	userDao := dao.NewUserDao(ctx)
 	user, err = userDao.GetUserById(uId)
 	if err != nil {
 		logging.Info(err)
@@ -226,7 +226,7 @@ func (s *UserSrv) Post(ctx context.Context, uId uint, file multipart.File, fileS
 func (s *UserSrv) Send(ctx context.Context, id uint, req *types.SendEmailServiceReq) serializer.Response {
 	code := e.SUCCESS
 	var address string
-	var notice *model2.Notice
+	var notice *model.Notice
 
 	token, err := util.GenerateEmailToken(id, req.OperationType, req.Email, req.Password)
 	if err != nil {
@@ -238,7 +238,7 @@ func (s *UserSrv) Send(ctx context.Context, id uint, req *types.SendEmailService
 		}
 	}
 
-	noticeDao := dao2.NewNoticeDao(ctx)
+	noticeDao := dao.NewNoticeDao(ctx)
 	notice, err = noticeDao.GetNoticeById(req.OperationType)
 	if err != nil {
 		logging.Info(err)
@@ -306,7 +306,7 @@ func (s *UserSrv) Valid(ctx context.Context, token string, req *types.ValidEmail
 	}
 
 	// 获取该用户信息
-	userDao := dao2.NewUserDao(ctx)
+	userDao := dao.NewUserDao(ctx)
 	user, err := userDao.GetUserById(userID)
 	if err != nil {
 		code = e.ErrorDatabase

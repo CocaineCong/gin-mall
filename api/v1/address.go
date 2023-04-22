@@ -11,8 +11,8 @@ import (
 	"mall/types"
 )
 
-// CreateAddress 新增收货地址
-func CreateAddress() gin.HandlerFunc {
+// CreateAddressHandler 新增收货地址
+func CreateAddressHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		req := new(types.AddressServiceReq)
 
@@ -35,8 +35,8 @@ func CreateAddress() gin.HandlerFunc {
 	}
 }
 
-// GetAddress 展示某个收货地址
-func GetAddress() gin.HandlerFunc {
+// GetAddressHandler 展示某个收货地址
+func GetAddressHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		req := new(types.AddressServiceReq)
 
@@ -57,8 +57,8 @@ func GetAddress() gin.HandlerFunc {
 	}
 }
 
-// ListAddress 展示收货地址
-func ListAddress() gin.HandlerFunc {
+// ListAddressHandler 展示收货地址
+func ListAddressHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		req := new(types.AddressServiceReq)
 
@@ -79,16 +79,16 @@ func ListAddress() gin.HandlerFunc {
 	}
 }
 
-// UpdateAddress 修改收货地址
-func UpdateAddress() gin.HandlerFunc {
+// UpdateAddressHandler 修改收货地址
+func UpdateAddressHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		req := new(types.AddressServiceReq)
+		var req types.AddressServiceReq
 
 		if err := ctx.ShouldBind(&req); err == nil {
 			// 参数校验
 			userId := ctx.Keys["user_id"].(uint)
 			l := service.GetAddressSrv()
-			resp, err := l.Update(ctx.Request.Context(), req, userId, cast.ToUint(ctx.Param("id")))
+			resp, err := l.Update(ctx.Request.Context(), &req, userId, cast.ToUint(ctx.Param("id")))
 			if err != nil {
 				util.LogrusObj.Infoln(err)
 				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
@@ -102,8 +102,8 @@ func UpdateAddress() gin.HandlerFunc {
 	}
 }
 
-// DeleteAddress 删除收获地址
-func DeleteAddress() gin.HandlerFunc {
+// DeleteAddressHandler 删除收获地址
+func DeleteAddressHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		req := new(types.AddressServiceReq)
 
