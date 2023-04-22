@@ -36,7 +36,7 @@ func CreateProductHandler() gin.HandlerFunc {
 }
 
 // ListProducts 商品列表
-func ListProducts() gin.HandlerFunc {
+func ListProductsHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var req types.ProductServiceReq
 
@@ -58,7 +58,7 @@ func ListProducts() gin.HandlerFunc {
 }
 
 // ShowProduct 商品详情
-func ShowProduct() gin.HandlerFunc {
+func ShowProductHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var req types.ProductServiceReq
 
@@ -80,7 +80,7 @@ func ShowProduct() gin.HandlerFunc {
 }
 
 // 删除商品
-func DeleteProduct() gin.HandlerFunc {
+func DeleteProductHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var req types.ProductServiceReq
 
@@ -102,7 +102,7 @@ func DeleteProduct() gin.HandlerFunc {
 }
 
 // 更新商品
-func UpdateProduct() gin.HandlerFunc {
+func UpdateProductHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var req types.ProductServiceReq
 
@@ -124,7 +124,7 @@ func UpdateProduct() gin.HandlerFunc {
 }
 
 // 搜索商品
-func SearchProducts() gin.HandlerFunc {
+func SearchProductsHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var req types.ProductServiceReq
 
@@ -145,7 +145,7 @@ func SearchProducts() gin.HandlerFunc {
 	}
 }
 
-func ListProductImg() gin.HandlerFunc {
+func ListProductImgHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var req types.ProductServiceReq
 

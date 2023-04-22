@@ -11,7 +11,7 @@ import (
 	"mall/middleware"
 )
 
-// 路由配置
+// NewRouter 路由配置
 func NewRouter() *gin.Engine {
 	r := gin.Default()
 	store := cookie.NewStore([]byte("something-very-secret"))
@@ -26,14 +26,14 @@ func NewRouter() *gin.Engine {
 		})
 
 		// 用户操作
-		v1.POST("user/register", api.UserRegister)
-		v1.POST("user/login", api.UserLogin)
+		v1.POST("user/register", api.UserRegisterHandler())
+		v1.POST("user/login", api.UserLoginHandler())
 
 		// 商品操作
-		v1.GET("products", api.ListProducts)
-		v1.GET("product/:id", api.ShowProduct)
-		v1.POST("products", api.SearchProducts)
-		v1.GET("imgs/:id", api.ListProductImg)          // 商品图片
+		v1.GET("products", api.ListProductsHandler())
+		v1.GET("product/:id", api.ShowProductHandler())
+		v1.POST("products", api.SearchProductsHandler())
+		v1.GET("imgs/:id", api.ListProductImgHandler()) // 商品图片
 		v1.GET("categories", api.ListCategoryHandler()) // 商品分类
 		v1.GET("carousels", api.ListCarouselsHandler()) // 轮播图
 
@@ -42,15 +42,15 @@ func NewRouter() *gin.Engine {
 		{
 
 			// 用户操作
-			authed.PUT("user", api.UserUpdate)
-			authed.POST("user/sending-email", api.SendEmail)
-			authed.POST("user/valid-email", api.ValidEmail)
-			authed.POST("avatar", api.UploadAvatar) // 上传头像
+			authed.PUT("user", api.UserUpdateHandler())
+			authed.POST("user/sending-email", api.SendEmailHandler())
+			authed.POST("user/valid-email", api.ValidEmailHandler())
+			authed.POST("avatar", api.UploadAvatarHandler()) // 上传头像
 
 			// 商品操作
-			authed.POST("product", api.CreateProduct)
-			authed.PUT("product/:id", api.UpdateProduct)
-			authed.DELETE("product/:id", api.DeleteProduct)
+			authed.POST("product", api.CreateProductHandler())
+			authed.PUT("product/:id", api.UpdateProductHandler())
+			authed.DELETE("product/:id", api.DeleteProductHandler())
 			// 收藏夹
 			authed.GET("favorites", api.ListFavoritesHandler())
 			authed.POST("favorites", api.CreateFavoriteHandler())
@@ -76,15 +76,15 @@ func NewRouter() *gin.Engine {
 			authed.DELETE("addresses/:id", api.DeleteAddressHandler())
 
 			// 支付功能
-			authed.POST("paydown", api.OrderPay)
+			authed.POST("paydown", api.OrderPaymentHandler())
 
 			// 显示金额
 			authed.POST("money", api.ShowMoneyHandler())
 
 			// 秒杀专场
-			authed.POST("import_skill_goods", api.ImportSkillGoods)
-			authed.POST("init_skill_goods", api.InitSkillGoods)
-			authed.POST("skill_goods", api.SkillGoods)
+			authed.POST("import_skill_goods", api.ImportSkillProductHandler())
+			authed.POST("init_skill_goods", api.InitSkillProductHandler())
+			authed.POST("skill_goods", api.SkillProductHandler())
 		}
 	}
 	return r

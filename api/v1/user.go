@@ -10,7 +10,7 @@ import (
 	"mall/types"
 )
 
-func UserRegister() gin.HandlerFunc {
+func UserRegisterHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var req types.UserServiceReq
 
@@ -32,7 +32,7 @@ func UserRegister() gin.HandlerFunc {
 }
 
 // UserLogin 用户登陆接口
-func UserLogin() gin.HandlerFunc {
+func UserLoginHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var req types.UserServiceReq
 
@@ -53,7 +53,7 @@ func UserLogin() gin.HandlerFunc {
 	}
 }
 
-func UserUpdate() gin.HandlerFunc {
+func UserUpdateHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var req types.UserServiceReq
 
@@ -75,7 +75,7 @@ func UserUpdate() gin.HandlerFunc {
 	}
 }
 
-func UploadAvatar() gin.HandlerFunc {
+func UploadAvatarHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var req types.UserServiceReq
 
@@ -99,7 +99,7 @@ func UploadAvatar() gin.HandlerFunc {
 	}
 }
 
-func SendEmail() gin.HandlerFunc {
+func SendEmailHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var req types.SendEmailServiceReq
 
@@ -121,7 +121,7 @@ func SendEmail() gin.HandlerFunc {
 	}
 }
 
-func ValidEmail() gin.HandlerFunc {
+func ValidEmailHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var req types.ValidEmailServiceReq
 
