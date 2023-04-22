@@ -1,31 +1,56 @@
 package v1
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
+
 	util "mall/pkg/utils"
 	"mall/service"
+	"mall/types"
 )
 
-func UserRegister(c *gin.Context) {
-	var userRegisterService service.UserService //相当于创建了一个UserRegisterService对象，调用这个对象中的Register方法。
-	if err := c.ShouldBind(&userRegisterService); err == nil {
-		res := userRegisterService.Register(c.Request.Context())
-		c.JSON(200, res)
-	} else {
-		c.JSON(400, ErrorResponse(err))
-		util.LogrusObj.Infoln(err)
+func UserRegister() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		var req types.UserServiceReq
+
+		if err := ctx.ShouldBind(&req); err == nil {
+			// 参数校验
+			l := service.GetUserSrv()
+			resp, err := l.Register(ctx.Request.Context(), &req)
+			if err != nil {
+				util.LogrusObj.Infoln(err)
+				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+				return
+			}
+			ctx.JSON(http.StatusOK, resp)
+		} else {
+			util.LogrusObj.Infoln(err)
+			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+		}
 	}
 }
 
-//UserLogin 用户登陆接口
-func UserLogin(c *gin.Context) {
-	var userLoginService service.UserService
-	if err := c.ShouldBind(&userLoginService); err == nil {
-		res := userLoginService.Login(c.Request.Context())
-		c.JSON(200, res)
-	} else {
-		c.JSON(400, ErrorResponse(err))
-		util.LogrusObj.Infoln(err)
+// UserLogin 用户登陆接口
+func UserLogin() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		var req types.UserServiceReq
+
+		if err := ctx.ShouldBind(&req); err == nil {
+			// 参数校验
+			userId := ctx.Keys["user_id"].(uint)
+			l := service.GetUserSrv()
+			resp, err := l.Login(ctx.Request.Context(), &req)
+			if err != nil {
+				util.LogrusObj.Infoln(err)
+				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+				return
+			}
+			ctx.JSON(http.StatusOK, resp)
+		} else {
+			util.LogrusObj.Infoln(err)
+			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+		}
 	}
 }
 

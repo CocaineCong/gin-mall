@@ -11,7 +11,7 @@ type ProductServiceReq struct {
 	DiscountPrice string `form:"discount_price" json:"discount_price"`
 	OnSale        bool   `form:"on_sale" json:"on_sale"`
 	Num           int    `form:"num" json:"num"`
-	BasePage
+	*BasePage
 }
 
 type ListProductImgServiceReq struct {

@@ -31,13 +31,13 @@ func GetPaymentSrv() *PaymentSrv {
 	return PaymentSrvIns
 }
 
-func (s *PaymentSrv) PayDown(ctx context.Context, uId uint, req *types.PaymentServiceReq) serializer.Response {
+func (s *PaymentSrv) PayDown(ctx context.Context, uId uint, req *types.PaymentServiceReq) (serializer.Response, error) {
 	code := e.SUCCESS
 
 	err := dao.NewOrderDao(ctx).Transaction(func(tx *gorm.DB) error {
 		util.Encrypt.SetKey(req.Key)
 
-		payment, err := dao.NewOrderDaoByDB(tx).GetOrderById(req.OrderId)
+		payment, err := dao.NewOrderDaoByDB(tx).GetOrderById(req.OrderId, uId)
 		if err != nil {
 			logging.Info(err)
 			return err
@@ -140,11 +140,11 @@ func (s *PaymentSrv) PayDown(ctx context.Context, uId uint, req *types.PaymentSe
 			Status: code,
 			Msg:    e.GetMsg(code),
 			Error:  err.Error(),
-		}
+		}, err
 	}
 
 	return serializer.Response{
 		Status: code,
 		Msg:    e.GetMsg(code),
-	}
+	}, nil
 }

@@ -41,15 +41,16 @@ func (dao *OrderDao) ListOrderByCondition(condition map[string]interface{}, page
 }
 
 // GetOrderById 获取订单详情
-func (dao *OrderDao) GetOrderById(id uint) (order *model2.Order, err error) {
-	err = dao.DB.Model(&model2.Order{}).Where("id=?", id).
+func (dao *OrderDao) GetOrderById(id, uId uint) (order *model2.Order, err error) {
+	err = dao.DB.Model(&model2.Order{}).
+		Where("id = ? AND user_id = ?", id, uId).
 		First(&order).Error
 	return
 }
 
 // DeleteOrderById 获取订单详情
-func (dao *OrderDao) DeleteOrderById(id uint) error {
-	return dao.DB.Where("id=?", id).Delete(&model2.Order{}).Error
+func (dao *OrderDao) DeleteOrderById(id, uId uint) error {
+	return dao.DB.Where("id=? AND uId = ?", id, uId).Delete(&model2.Order{}).Error
 }
 
 // UpdateOrderById 更新订单详情

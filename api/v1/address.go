@@ -105,7 +105,7 @@ func UpdateAddressHandler() gin.HandlerFunc {
 // DeleteAddressHandler 删除收获地址
 func DeleteAddressHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		req := new(types.AddressServiceReq)
+		var req types.AddressServiceReq
 
 		if err := ctx.ShouldBind(&req); err == nil {
 			// 参数校验

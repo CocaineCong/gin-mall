@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"mime/multipart"
 	"strings"
 	"sync"
@@ -33,7 +34,7 @@ func GetUserSrv() *UserSrv {
 	return UserSrvIns
 }
 
-func (s *UserSrv) Register(ctx context.Context, req *types.UserServiceReq) serializer.Response {
+func (s *UserSrv) Register(ctx context.Context, req *types.UserServiceReq) (serializer.Response, error) {
 	var user *model.User
 	code := e.SUCCESS
 	if req.Key == "" || len(req.Key) != 16 {
@@ -42,7 +43,7 @@ func (s *UserSrv) Register(ctx context.Context, req *types.UserServiceReq) seria
 			Status: code,
 			Msg:    e.GetMsg(code),
 			Data:   "密钥长度不足",
-		}
+		}, errors.New("迷药cha")
 	}
 	util.Encrypt.SetKey(req.Key)
 	userDao := dao.NewUserDao(ctx)
@@ -52,14 +53,14 @@ func (s *UserSrv) Register(ctx context.Context, req *types.UserServiceReq) seria
 		return serializer.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
-		}
+		}, err
 	}
 	if exist {
 		code = e.ErrorExistUser
 		return serializer.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
-		}
+		}, errors.New("已经存在了")
 	}
 	user = &model.User{
 		NickName: req.NickName,
@@ -74,7 +75,7 @@ func (s *UserSrv) Register(ctx context.Context, req *types.UserServiceReq) seria
 		return serializer.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
-		}
+		}, err
 	}
 	if conf.UploadModel == consts.UploadModelOss {
 		user.Avatar = "http://q1.qlogo.cn/g?b=qq&nk=294350394&s=640"
@@ -89,16 +90,16 @@ func (s *UserSrv) Register(ctx context.Context, req *types.UserServiceReq) seria
 		return serializer.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
-		}
+		}, err
 	}
 	return serializer.Response{
 		Status: code,
 		Msg:    e.GetMsg(code),
-	}
+	}, nil
 }
 
 // Login 用户登陆函数
-func (s *UserSrv) Login(ctx context.Context, req *types.UserServiceReq) serializer.Response {
+func (s *UserSrv) Login(ctx context.Context, req *types.UserServiceReq) (serializer.Response, error) {
 	var user *model.User
 	code := e.SUCCESS
 	userDao := dao.NewUserDao(ctx)
@@ -109,14 +110,14 @@ func (s *UserSrv) Login(ctx context.Context, req *types.UserServiceReq) serializ
 		return serializer.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
-		}
+		}, errors.New("不存在")
 	}
 	if user.CheckPassword(req.Password) == false {
 		code = e.ErrorNotCompare
 		return serializer.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
-		}
+		}, errors.New("加密失败了")
 	}
 	token, err := util.GenerateToken(user.ID, req.UserName, 0)
 	if err != nil {
@@ -125,17 +126,17 @@ func (s *UserSrv) Login(ctx context.Context, req *types.UserServiceReq) serializ
 		return serializer.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
-		}
+		}, err
 	}
 	return serializer.Response{
 		Status: code,
 		Data:   serializer.TokenData{User: serializer.BuildUser(user), Token: token},
 		Msg:    e.GetMsg(code),
-	}
+	}, nil
 }
 
 // Update 用户修改信息
-func (s *UserSrv) Update(ctx context.Context, uId uint, req *types.UserServiceReq) serializer.Response {
+func (s *UserSrv) Update(ctx context.Context, uId uint, req *types.UserServiceReq) (serializer.Response, error) {
 	var user *model.User
 	var err error
 	code := e.SUCCESS
@@ -149,7 +150,7 @@ func (s *UserSrv) Update(ctx context.Context, uId uint, req *types.UserServiceRe
 			Status: code,
 			Msg:    e.GetMsg(code),
 			Error:  err.Error(),
-		}
+		}, err
 	}
 	if req.NickName != "" {
 		user.NickName = req.NickName
@@ -163,17 +164,17 @@ func (s *UserSrv) Update(ctx context.Context, uId uint, req *types.UserServiceRe
 			Status: code,
 			Msg:    e.GetMsg(code),
 			Error:  err.Error(),
-		}
+		}, err
 	}
 
 	return serializer.Response{
 		Status: code,
 		Data:   serializer.BuildUser(user),
 		Msg:    e.GetMsg(code),
-	}
+	}, nil
 }
 
-func (s *UserSrv) Post(ctx context.Context, uId uint, file multipart.File, fileSize int64, req *types.UserServiceReq) serializer.Response {
+func (s *UserSrv) Post(ctx context.Context, uId uint, file multipart.File, fileSize int64, req *types.UserServiceReq) (serializer.Response, error) {
 	code := e.SUCCESS
 	var user *model.User
 	var err error
@@ -187,7 +188,7 @@ func (s *UserSrv) Post(ctx context.Context, uId uint, file multipart.File, fileS
 			Status: code,
 			Msg:    e.GetMsg(code),
 			Error:  err.Error(),
-		}
+		}, err
 	}
 	var path string
 	if conf.UploadModel == consts.UploadModelLocal { // 兼容两种存储方式
@@ -201,7 +202,7 @@ func (s *UserSrv) Post(ctx context.Context, uId uint, file multipart.File, fileS
 			Status: code,
 			Data:   e.GetMsg(code),
 			Error:  path,
-		}
+		}, err
 	}
 
 	user.Avatar = path
@@ -213,17 +214,17 @@ func (s *UserSrv) Post(ctx context.Context, uId uint, file multipart.File, fileS
 			Status: code,
 			Msg:    e.GetMsg(code),
 			Error:  err.Error(),
-		}
+		}, err
 	}
 	return serializer.Response{
 		Status: code,
 		Data:   serializer.BuildUser(user),
 		Msg:    e.GetMsg(code),
-	}
+	}, nil
 }
 
 // Send 发送邮件
-func (s *UserSrv) Send(ctx context.Context, id uint, req *types.SendEmailServiceReq) serializer.Response {
+func (s *UserSrv) Send(ctx context.Context, id uint, req *types.SendEmailServiceReq) (serializer.Response, error) {
 	code := e.SUCCESS
 	var address string
 	var notice *model.Notice
@@ -235,7 +236,7 @@ func (s *UserSrv) Send(ctx context.Context, id uint, req *types.SendEmailService
 		return serializer.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
-		}
+		}, err
 	}
 
 	noticeDao := dao.NewNoticeDao(ctx)
@@ -247,7 +248,7 @@ func (s *UserSrv) Send(ctx context.Context, id uint, req *types.SendEmailService
 			Status: code,
 			Msg:    e.GetMsg(code),
 			Error:  err.Error(),
-		}
+		}, err
 	}
 	address = conf.ValidEmail + token
 	mailStr := notice.Text
@@ -265,16 +266,16 @@ func (s *UserSrv) Send(ctx context.Context, id uint, req *types.SendEmailService
 		return serializer.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
-		}
+		}, err
 	}
 	return serializer.Response{
 		Status: code,
 		Msg:    e.GetMsg(code),
-	}
+	}, nil
 }
 
 // Valid 验证内容
-func (s *UserSrv) Valid(ctx context.Context, token string, req *types.ValidEmailServiceReq) serializer.Response {
+func (s *UserSrv) Valid(ctx context.Context, token string, req *types.ValidEmailServiceReq) (serializer.Response, error) {
 	var userID uint
 	var email string
 	var password string
@@ -302,7 +303,7 @@ func (s *UserSrv) Valid(ctx context.Context, token string, req *types.ValidEmail
 		return serializer.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
-		}
+		}, errors.New("操作失败")
 	}
 
 	// 获取该用户信息
@@ -313,7 +314,7 @@ func (s *UserSrv) Valid(ctx context.Context, token string, req *types.ValidEmail
 		return serializer.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
-		}
+		}, err
 	}
 	if operationType == 1 {
 		// 1:绑定邮箱
@@ -329,7 +330,7 @@ func (s *UserSrv) Valid(ctx context.Context, token string, req *types.ValidEmail
 			return serializer.Response{
 				Status: code,
 				Msg:    e.GetMsg(code),
-			}
+			}, err
 		}
 	}
 	err = userDao.UpdateUserById(userID, user)
@@ -338,12 +339,12 @@ func (s *UserSrv) Valid(ctx context.Context, token string, req *types.ValidEmail
 		return serializer.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
-		}
+		}, err
 	}
 	// 成功则返回用户的信息
 	return serializer.Response{
 		Status: code,
 		Msg:    e.GetMsg(code),
 		Data:   serializer.BuildUser(user),
-	}
+	}, err
 }

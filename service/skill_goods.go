@@ -39,7 +39,7 @@ func GetSkillProductSrv() *SkillProductSrv {
 	return SkillProductSrvIns
 }
 
-func (s *SkillProductSrv) Import(ctx context.Context, file multipart.File) serializer.Response {
+func (s *SkillProductSrv) Import(ctx context.Context, file multipart.File) (serializer.Response, error) {
 	xlFile, err := xlsx.OpenReader(file)
 	if err != nil {
 		logging.Info(err)
@@ -72,16 +72,16 @@ func (s *SkillProductSrv) Import(ctx context.Context, file multipart.File) seria
 			Status: code,
 			Msg:    e.GetMsg(code),
 			Data:   "上传失败",
-		}
+		}, err
 	}
 	return serializer.Response{
 		Status: code,
 		Msg:    e.GetMsg(code),
-	}
+	}, nil
 }
 
 // 直接放到这里，初始化秒杀商品信息，将mysql的信息存入redis中
-func (s *SkillProductSrv) InitSkillGoods(ctx context.Context) error {
+func (s *SkillProductSrv) InitSkillGoods(ctx context.Context) (interface{}, error) {
 	skillGoods, _ := dao.NewSkillGoodsDao(ctx).ListSkillGoods()
 	r := cache.RedisClient
 	// 加载到redis
@@ -90,10 +90,10 @@ func (s *SkillProductSrv) InitSkillGoods(ctx context.Context) error {
 		r.HSet("SK"+strconv.Itoa(int(skillGoods[i].Id)), "num", skillGoods[i].Num)
 		r.HSet("SK"+strconv.Itoa(int(skillGoods[i].Id)), "money", skillGoods[i].Money)
 	}
-	return nil
+	return nil, nil
 }
 
-func (s *SkillProductSrv) SkillGoods(ctx context.Context, uId uint, req *types.SkillProductServiceReq) serializer.Response {
+func (s *SkillProductSrv) SkillProduct(ctx context.Context, uId uint, req *types.SkillProductServiceReq) (serializer.Response, error) {
 	mo, _ := cache.RedisClient.HGet("SK"+strconv.Itoa(int(req.SkillProductId)), "money").Float64()
 	sk := &model.SkillProduct2MQ{
 		ProductId:      req.ProductId,
@@ -106,9 +106,9 @@ func (s *SkillProductSrv) SkillGoods(ctx context.Context, uId uint, req *types.S
 	}
 	err := RedissonSecKillGoods(sk)
 	if err != nil {
-		return serializer.Response{}
+		return serializer.Response{}, err
 	}
-	return serializer.Response{}
+	return serializer.Response{}, nil
 }
 
 // 加锁

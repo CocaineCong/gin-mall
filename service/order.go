@@ -34,7 +34,7 @@ func GetOrderSrv() *OrderSrv {
 	return OrderSrvIns
 }
 
-func (s *OrderSrv) OrderCreate(ctx context.Context, id uint, req *types.OrderServiceReq) serializer.Response {
+func (s *OrderSrv) OrderCreate(ctx context.Context, id uint, req *types.OrderServiceReq) (serializer.Response, error) {
 	code := e.SUCCESS
 
 	order := &model.Order{
@@ -54,7 +54,7 @@ func (s *OrderSrv) OrderCreate(ctx context.Context, id uint, req *types.OrderSer
 			Status: code,
 			Msg:    e.GetMsg(code),
 			Error:  err.Error(),
-		}
+		}, err
 	}
 
 	order.AddressID = address.ID
@@ -74,7 +74,7 @@ func (s *OrderSrv) OrderCreate(ctx context.Context, id uint, req *types.OrderSer
 			Status: code,
 			Msg:    e.GetMsg(code),
 			Error:  err.Error(),
-		}
+		}, err
 	}
 
 	// 订单号存入Redis中，设置过期时间
@@ -86,10 +86,10 @@ func (s *OrderSrv) OrderCreate(ctx context.Context, id uint, req *types.OrderSer
 	return serializer.Response{
 		Status: code,
 		Msg:    e.GetMsg(code),
-	}
+	}, nil
 }
 
-func (s *OrderSrv) OrderList(ctx context.Context, uId uint, req *types.OrderServiceReq) serializer.Response {
+func (s *OrderSrv) OrderList(ctx context.Context, uId uint, req *types.OrderServiceReq) (serializer.Response, error) {
 	var orders []*model.Order
 	var total int64
 	code := e.SUCCESS
@@ -112,18 +112,17 @@ func (s *OrderSrv) OrderList(ctx context.Context, uId uint, req *types.OrderServ
 		return serializer.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
-		}
+		}, err
 	}
 
-	return serializer.BuildListResponse(serializer.BuildOrders(ctx, orders), uint(total))
+	return serializer.BuildListResponse(serializer.BuildOrders(ctx, orders), uint(total)), nil
 }
 
-func (s *OrderSrv) OrderShow(ctx context.Context, uId string, req *types.OrderServiceReq) serializer.Response {
+func (s *OrderSrv) OrderShow(ctx context.Context, uId uint, req *types.OrderServiceReq) (serializer.Response, error) {
 	code := e.SUCCESS
 
-	orderId, _ := strconv.Atoi(uId)
 	orderDao := dao.NewOrderDao(ctx)
-	order, _ := orderDao.GetOrderById(uint(orderId))
+	order, _ := orderDao.GetOrderById(uId, req.OrderId)
 
 	addressDao := dao.NewAddressDao(ctx)
 	address, err := addressDao.GetAddressByAid(order.AddressID)
@@ -133,7 +132,7 @@ func (s *OrderSrv) OrderShow(ctx context.Context, uId string, req *types.OrderSe
 		return serializer.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
-		}
+		}, err
 	}
 
 	productDao := dao.NewProductDao(ctx)
@@ -144,22 +143,21 @@ func (s *OrderSrv) OrderShow(ctx context.Context, uId string, req *types.OrderSe
 		return serializer.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
-		}
+		}, err
 	}
 
 	return serializer.Response{
 		Status: code,
 		Msg:    e.GetMsg(code),
 		Data:   serializer.BuildOrder(order, product, address),
-	}
+	}, nil
 }
 
-func (s *OrderSrv) Delete(ctx context.Context, oId string) serializer.Response {
+func (s *OrderSrv) OrderDelete(ctx context.Context, uId uint, req *types.OrderServiceReq) (serializer.Response, error) {
 	code := e.SUCCESS
 
 	orderDao := dao.NewOrderDao(ctx)
-	orderId, _ := strconv.Atoi(oId)
-	err := orderDao.DeleteOrderById(uint(orderId))
+	err := orderDao.DeleteOrderById(req.OrderId, uId)
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
@@ -167,11 +165,11 @@ func (s *OrderSrv) Delete(ctx context.Context, oId string) serializer.Response {
 			Status: code,
 			Msg:    e.GetMsg(code),
 			Error:  err.Error(),
-		}
+		}, err
 	}
 
 	return serializer.Response{
 		Status: code,
 		Msg:    e.GetMsg(code),
-	}
+	}, nil
 }
