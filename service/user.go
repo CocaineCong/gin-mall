@@ -102,12 +102,8 @@ func (s *UserSrv) UserLogin(ctx context.Context, req *types.UserServiceReq) (res
 		NickName: user.NickName,
 		Email:    user.Email,
 		Status:   user.Status,
-		Avatar:   conf.PhotoHost + conf.HttpPort + conf.AvatarPath + user.AvatarURL(),
+		Avatar:   user.AvatarURL(),
 		CreateAt: user.CreatedAt.Unix(),
-	}
-
-	if conf.UploadModel == consts.UploadModelOss {
-		userResp.Avatar = user.Avatar
 	}
 
 	userTokenResp := ctl.TokenData{
@@ -227,6 +223,7 @@ func (s *UserSrv) Valid(ctx context.Context, token string, req *types.ValidEmail
 		code = e.ErrorDatabase
 		return
 	}
+
 	switch operationType {
 	case consts.EmailOperationBinding:
 		user.Email = email
@@ -252,11 +249,8 @@ func (s *UserSrv) Valid(ctx context.Context, token string, req *types.ValidEmail
 		NickName: user.NickName,
 		Email:    user.Email,
 		Status:   user.Status,
-		Avatar:   conf.PhotoHost + conf.HttpPort + conf.AvatarPath + user.AvatarURL(),
+		Avatar:   user.AvatarURL(),
 		CreateAt: user.CreatedAt.Unix(),
-	}
-	if conf.UploadModel == consts.UploadModelOss {
-		userResp.Avatar = user.Avatar
 	}
 
 	// 成功则返回用户的信息
