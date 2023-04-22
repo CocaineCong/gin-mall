@@ -1,4 +1,4 @@
-package serializer
+package types
 
 import (
 	"mall/conf"

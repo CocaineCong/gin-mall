@@ -8,7 +8,6 @@ import (
 
 	"mall/pkg/e"
 	"mall/repository/db/dao"
-	"mall/serializer"
 	"mall/types"
 )
 
@@ -26,17 +25,17 @@ func GetCarouselSrv() *CarouselSrv {
 }
 
 // ListCarousel 列表
-func (s *CarouselSrv) ListCarousel(ctx context.Context, req *types.ListCarouselsServiceReq) (serializer.Response, error) {
+func (s *CarouselSrv) ListCarousel(ctx context.Context, req *types.ListCarouselsServiceReq) (types.Response, error) {
 	code := e.SUCCESS
 	carousels, err := dao.NewCarouselDao(ctx).ListCarousel()
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
-		return serializer.Response{
+		return types.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
 			Error:  err.Error(),
 		}, err
 	}
-	return serializer.BuildListResponse(serializer.BuildCarousels(carousels), uint(len(carousels))), nil
+	return types.BuildListResponse(types.BuildCarousels(carousels), uint(len(carousels))), nil
 }

@@ -8,17 +8,16 @@ import (
 	"sync"
 	"time"
 
+	logging "github.com/sirupsen/logrus"
+	"gopkg.in/mail.v2"
+
 	"mall/conf"
 	"mall/consts"
 	"mall/pkg/e"
 	util "mall/pkg/utils"
 	"mall/repository/db/dao"
 	"mall/repository/db/model"
-	"mall/serializer"
 	"mall/types"
-
-	logging "github.com/sirupsen/logrus"
-	"gopkg.in/mail.v2"
 )
 
 var UserSrvIns *UserSrv
@@ -34,12 +33,12 @@ func GetUserSrv() *UserSrv {
 	return UserSrvIns
 }
 
-func (s *UserSrv) Register(ctx context.Context, req *types.UserServiceReq) (serializer.Response, error) {
+func (s *UserSrv) Register(ctx context.Context, req *types.UserServiceReq) (types.Response, error) {
 	var user *model.User
 	code := e.SUCCESS
 	if req.Key == "" || len(req.Key) != 16 {
 		code = e.ERROR
-		return serializer.Response{
+		return types.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
 			Data:   "密钥长度不足",
@@ -50,14 +49,14 @@ func (s *UserSrv) Register(ctx context.Context, req *types.UserServiceReq) (seri
 	_, exist, err := userDao.ExistOrNotByUserName(req.UserName)
 	if err != nil {
 		code = e.ErrorDatabase
-		return serializer.Response{
+		return types.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
 		}, err
 	}
 	if exist {
 		code = e.ErrorExistUser
-		return serializer.Response{
+		return types.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
 		}, errors.New("已经存在了")
@@ -72,7 +71,7 @@ func (s *UserSrv) Register(ctx context.Context, req *types.UserServiceReq) (seri
 	if err = user.SetPassword(req.Password); err != nil {
 		logging.Info(err)
 		code = e.ErrorFailEncryption
-		return serializer.Response{
+		return types.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
 		}, err
@@ -87,19 +86,19 @@ func (s *UserSrv) Register(ctx context.Context, req *types.UserServiceReq) (seri
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
-		return serializer.Response{
+		return types.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
 		}, err
 	}
-	return serializer.Response{
+	return types.Response{
 		Status: code,
 		Msg:    e.GetMsg(code),
 	}, nil
 }
 
 // Login 用户登陆函数
-func (s *UserSrv) Login(ctx context.Context, req *types.UserServiceReq) (serializer.Response, error) {
+func (s *UserSrv) Login(ctx context.Context, req *types.UserServiceReq) (types.Response, error) {
 	var user *model.User
 	code := e.SUCCESS
 	userDao := dao.NewUserDao(ctx)
@@ -107,14 +106,14 @@ func (s *UserSrv) Login(ctx context.Context, req *types.UserServiceReq) (seriali
 	if !exist { // 如果查询不到，返回相应的错误
 		logging.Info(err)
 		code = e.ErrorUserNotFound
-		return serializer.Response{
+		return types.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
 		}, errors.New("不存在")
 	}
 	if user.CheckPassword(req.Password) == false {
 		code = e.ErrorNotCompare
-		return serializer.Response{
+		return types.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
 		}, errors.New("加密失败了")
@@ -123,20 +122,20 @@ func (s *UserSrv) Login(ctx context.Context, req *types.UserServiceReq) (seriali
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorAuthToken
-		return serializer.Response{
+		return types.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
 		}, err
 	}
-	return serializer.Response{
+	return types.Response{
 		Status: code,
-		Data:   serializer.TokenData{User: serializer.BuildUser(user), Token: token},
+		Data:   types.TokenData{User: types.BuildUser(user), Token: token},
 		Msg:    e.GetMsg(code),
 	}, nil
 }
 
 // Update 用户修改信息
-func (s *UserSrv) Update(ctx context.Context, uId uint, req *types.UserServiceReq) (serializer.Response, error) {
+func (s *UserSrv) Update(ctx context.Context, uId uint, req *types.UserServiceReq) (types.Response, error) {
 	var user *model.User
 	var err error
 	code := e.SUCCESS
@@ -146,7 +145,7 @@ func (s *UserSrv) Update(ctx context.Context, uId uint, req *types.UserServiceRe
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
-		return serializer.Response{
+		return types.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
 			Error:  err.Error(),
@@ -160,21 +159,21 @@ func (s *UserSrv) Update(ctx context.Context, uId uint, req *types.UserServiceRe
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
-		return serializer.Response{
+		return types.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
 			Error:  err.Error(),
 		}, err
 	}
 
-	return serializer.Response{
+	return types.Response{
 		Status: code,
-		Data:   serializer.BuildUser(user),
+		Data:   types.BuildUser(user),
 		Msg:    e.GetMsg(code),
 	}, nil
 }
 
-func (s *UserSrv) Post(ctx context.Context, uId uint, file multipart.File, fileSize int64, req *types.UserServiceReq) (serializer.Response, error) {
+func (s *UserSrv) Post(ctx context.Context, uId uint, file multipart.File, fileSize int64, req *types.UserServiceReq) (types.Response, error) {
 	code := e.SUCCESS
 	var user *model.User
 	var err error
@@ -184,7 +183,7 @@ func (s *UserSrv) Post(ctx context.Context, uId uint, file multipart.File, fileS
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
-		return serializer.Response{
+		return types.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
 			Error:  err.Error(),
@@ -198,7 +197,7 @@ func (s *UserSrv) Post(ctx context.Context, uId uint, file multipart.File, fileS
 	}
 	if err != nil {
 		code = e.ErrorUploadFile
-		return serializer.Response{
+		return types.Response{
 			Status: code,
 			Data:   e.GetMsg(code),
 			Error:  path,
@@ -210,21 +209,21 @@ func (s *UserSrv) Post(ctx context.Context, uId uint, file multipart.File, fileS
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
-		return serializer.Response{
+		return types.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
 			Error:  err.Error(),
 		}, err
 	}
-	return serializer.Response{
+	return types.Response{
 		Status: code,
-		Data:   serializer.BuildUser(user),
+		Data:   types.BuildUser(user),
 		Msg:    e.GetMsg(code),
 	}, nil
 }
 
 // Send 发送邮件
-func (s *UserSrv) Send(ctx context.Context, id uint, req *types.SendEmailServiceReq) (serializer.Response, error) {
+func (s *UserSrv) Send(ctx context.Context, id uint, req *types.SendEmailServiceReq) (types.Response, error) {
 	code := e.SUCCESS
 	var address string
 	var notice *model.Notice
@@ -233,7 +232,7 @@ func (s *UserSrv) Send(ctx context.Context, id uint, req *types.SendEmailService
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorAuthToken
-		return serializer.Response{
+		return types.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
 		}, err
@@ -244,7 +243,7 @@ func (s *UserSrv) Send(ctx context.Context, id uint, req *types.SendEmailService
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
-		return serializer.Response{
+		return types.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
 			Error:  err.Error(),
@@ -263,19 +262,19 @@ func (s *UserSrv) Send(ctx context.Context, id uint, req *types.SendEmailService
 	if err := d.DialAndSend(m); err != nil {
 		logging.Info(err)
 		code = e.ErrorSendEmail
-		return serializer.Response{
+		return types.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
 		}, err
 	}
-	return serializer.Response{
+	return types.Response{
 		Status: code,
 		Msg:    e.GetMsg(code),
 	}, nil
 }
 
 // Valid 验证内容
-func (s *UserSrv) Valid(ctx context.Context, token string, req *types.ValidEmailServiceReq) (serializer.Response, error) {
+func (s *UserSrv) Valid(ctx context.Context, token string, req *types.ValidEmailServiceReq) (types.Response, error) {
 	var userID uint
 	var email string
 	var password string
@@ -300,7 +299,7 @@ func (s *UserSrv) Valid(ctx context.Context, token string, req *types.ValidEmail
 		}
 	}
 	if code != e.SUCCESS {
-		return serializer.Response{
+		return types.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
 		}, errors.New("操作失败")
@@ -311,7 +310,7 @@ func (s *UserSrv) Valid(ctx context.Context, token string, req *types.ValidEmail
 	user, err := userDao.GetUserById(userID)
 	if err != nil {
 		code = e.ErrorDatabase
-		return serializer.Response{
+		return types.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
 		}, err
@@ -327,7 +326,7 @@ func (s *UserSrv) Valid(ctx context.Context, token string, req *types.ValidEmail
 		err = user.SetPassword(password)
 		if err != nil {
 			code = e.ErrorDatabase
-			return serializer.Response{
+			return types.Response{
 				Status: code,
 				Msg:    e.GetMsg(code),
 			}, err
@@ -336,15 +335,15 @@ func (s *UserSrv) Valid(ctx context.Context, token string, req *types.ValidEmail
 	err = userDao.UpdateUserById(userID, user)
 	if err != nil {
 		code = e.ErrorDatabase
-		return serializer.Response{
+		return types.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
 		}, err
 	}
 	// 成功则返回用户的信息
-	return serializer.Response{
+	return types.Response{
 		Status: code,
 		Msg:    e.GetMsg(code),
-		Data:   serializer.BuildUser(user),
+		Data:   types.BuildUser(user),
 	}, err
 }

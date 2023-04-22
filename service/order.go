@@ -15,7 +15,6 @@ import (
 	"mall/repository/cache"
 	"mall/repository/db/dao"
 	"mall/repository/db/model"
-	"mall/serializer"
 	"mall/types"
 )
 
@@ -34,7 +33,7 @@ func GetOrderSrv() *OrderSrv {
 	return OrderSrvIns
 }
 
-func (s *OrderSrv) OrderCreate(ctx context.Context, id uint, req *types.OrderServiceReq) (serializer.Response, error) {
+func (s *OrderSrv) OrderCreate(ctx context.Context, id uint, req *types.OrderServiceReq) (types.Response, error) {
 	code := e.SUCCESS
 
 	order := &model.Order{
@@ -50,7 +49,7 @@ func (s *OrderSrv) OrderCreate(ctx context.Context, id uint, req *types.OrderSer
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
-		return serializer.Response{
+		return types.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
 			Error:  err.Error(),
@@ -70,7 +69,7 @@ func (s *OrderSrv) OrderCreate(ctx context.Context, id uint, req *types.OrderSer
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
-		return serializer.Response{
+		return types.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
 			Error:  err.Error(),
@@ -83,13 +82,13 @@ func (s *OrderSrv) OrderCreate(ctx context.Context, id uint, req *types.OrderSer
 		Member: orderNum,
 	}
 	cache.RedisClient.ZAdd(OrderTimeKey, data)
-	return serializer.Response{
+	return types.Response{
 		Status: code,
 		Msg:    e.GetMsg(code),
 	}, nil
 }
 
-func (s *OrderSrv) OrderList(ctx context.Context, uId uint, req *types.OrderServiceReq) (serializer.Response, error) {
+func (s *OrderSrv) OrderList(ctx context.Context, uId uint, req *types.OrderServiceReq) (types.Response, error) {
 	var orders []*model.Order
 	var total int64
 	code := e.SUCCESS
@@ -109,16 +108,16 @@ func (s *OrderSrv) OrderList(ctx context.Context, uId uint, req *types.OrderServ
 	orders, total, err := orderDao.ListOrderByCondition(condition, req.BasePage)
 	if err != nil {
 		code = e.ErrorDatabase
-		return serializer.Response{
+		return types.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
 		}, err
 	}
 
-	return serializer.BuildListResponse(serializer.BuildOrders(ctx, orders), uint(total)), nil
+	return types.BuildListResponse(types.BuildOrders(ctx, orders), uint(total)), nil
 }
 
-func (s *OrderSrv) OrderShow(ctx context.Context, uId uint, req *types.OrderServiceReq) (serializer.Response, error) {
+func (s *OrderSrv) OrderShow(ctx context.Context, uId uint, req *types.OrderServiceReq) (types.Response, error) {
 	code := e.SUCCESS
 
 	orderDao := dao.NewOrderDao(ctx)
@@ -129,7 +128,7 @@ func (s *OrderSrv) OrderShow(ctx context.Context, uId uint, req *types.OrderServ
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
-		return serializer.Response{
+		return types.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
 		}, err
@@ -140,20 +139,20 @@ func (s *OrderSrv) OrderShow(ctx context.Context, uId uint, req *types.OrderServ
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
-		return serializer.Response{
+		return types.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
 		}, err
 	}
 
-	return serializer.Response{
+	return types.Response{
 		Status: code,
 		Msg:    e.GetMsg(code),
-		Data:   serializer.BuildOrder(order, product, address),
+		Data:   types.BuildOrder(order, product, address),
 	}, nil
 }
 
-func (s *OrderSrv) OrderDelete(ctx context.Context, uId uint, req *types.OrderServiceReq) (serializer.Response, error) {
+func (s *OrderSrv) OrderDelete(ctx context.Context, uId uint, req *types.OrderServiceReq) (types.Response, error) {
 	code := e.SUCCESS
 
 	orderDao := dao.NewOrderDao(ctx)
@@ -161,14 +160,14 @@ func (s *OrderSrv) OrderDelete(ctx context.Context, uId uint, req *types.OrderSe
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
-		return serializer.Response{
+		return types.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
 			Error:  err.Error(),
 		}, err
 	}
 
-	return serializer.Response{
+	return types.Response{
 		Status: code,
 		Msg:    e.GetMsg(code),
 	}, nil

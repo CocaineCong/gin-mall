@@ -8,7 +8,6 @@ import (
 
 	"mall/pkg/e"
 	"mall/repository/db/dao"
-	"mall/serializer"
 	"mall/types"
 )
 
@@ -26,22 +25,22 @@ func GetCategorySrv() *CategorySrv {
 }
 
 // ListCategory 列举分类
-func (s *CategorySrv) ListCategory(ctx context.Context, req *types.ListCategoryServiceReq) (serializer.Response, error) {
+func (s *CategorySrv) ListCategory(ctx context.Context, req *types.ListCategoryServiceReq) (types.Response, error) {
 	code := e.SUCCESS
 	categoryDao := dao.NewCategoryDao(ctx)
 	categories, err := categoryDao.ListCategory()
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
-		return serializer.Response{
+		return types.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
 			Error:  err.Error(),
 		}, err
 	}
-	return serializer.Response{
+	return types.Response{
 		Status: code,
 		Msg:    e.GetMsg(code),
-		Data:   serializer.BuildCategories(categories),
+		Data:   types.BuildCategories(categories),
 	}, nil
 }

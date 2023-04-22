@@ -14,7 +14,6 @@ import (
 	util "mall/pkg/utils"
 	"mall/repository/db/dao"
 	"mall/repository/db/model"
-	"mall/serializer"
 	"mall/types"
 )
 
@@ -32,7 +31,7 @@ func GetProductSrv() *ProductSrv {
 }
 
 // ProductShow 商品
-func (s *ProductSrv) ProductShow(ctx context.Context, req *types.ProductServiceReq) (serializer.Response, error) {
+func (s *ProductSrv) ProductShow(ctx context.Context, req *types.ProductServiceReq) (types.Response, error) {
 	code := e.SUCCESS
 
 	productDao := dao.NewProductDao(ctx)
@@ -40,22 +39,22 @@ func (s *ProductSrv) ProductShow(ctx context.Context, req *types.ProductServiceR
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
-		return serializer.Response{
+		return types.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
 			Error:  err.Error(),
 		}, err
 	}
 
-	return serializer.Response{
+	return types.Response{
 		Status: code,
-		Data:   serializer.BuildProduct(product),
+		Data:   types.BuildProduct(product),
 		Msg:    e.GetMsg(code),
 	}, nil
 }
 
 // 创建商品
-func (s *ProductSrv) ProductCreate(ctx context.Context, uId uint, files []*multipart.FileHeader, req *types.ProductServiceReq) (serializer.Response, error) {
+func (s *ProductSrv) ProductCreate(ctx context.Context, uId uint, files []*multipart.FileHeader, req *types.ProductServiceReq) (types.Response, error) {
 	var boss *model.User
 	var err error
 	code := e.SUCCESS
@@ -72,7 +71,7 @@ func (s *ProductSrv) ProductCreate(ctx context.Context, uId uint, files []*multi
 	}
 	if err != nil {
 		code = e.ErrorUploadFile
-		return serializer.Response{
+		return types.Response{
 			Status: code,
 			Data:   e.GetMsg(code),
 			Error:  path,
@@ -97,7 +96,7 @@ func (s *ProductSrv) ProductCreate(ctx context.Context, uId uint, files []*multi
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
-		return serializer.Response{
+		return types.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
 			Error:  err.Error(),
@@ -117,7 +116,7 @@ func (s *ProductSrv) ProductCreate(ctx context.Context, uId uint, files []*multi
 		}
 		if err != nil {
 			code = e.ErrorUploadFile
-			return serializer.Response{
+			return types.Response{
 				Status: code,
 				Data:   e.GetMsg(code),
 				Error:  path,
@@ -130,7 +129,7 @@ func (s *ProductSrv) ProductCreate(ctx context.Context, uId uint, files []*multi
 		err = productImgDao.CreateProductImg(productImg)
 		if err != nil {
 			code = e.ERROR
-			return serializer.Response{
+			return types.Response{
 				Status: code,
 				Msg:    e.GetMsg(code),
 				Error:  err.Error(),
@@ -141,14 +140,14 @@ func (s *ProductSrv) ProductCreate(ctx context.Context, uId uint, files []*multi
 
 	wg.Wait()
 
-	return serializer.Response{
+	return types.Response{
 		Status: code,
-		Data:   serializer.BuildProduct(product),
+		Data:   types.BuildProduct(product),
 		Msg:    e.GetMsg(code),
 	}, nil
 }
 
-func (s *ProductSrv) ProductList(ctx context.Context, req *types.ProductServiceReq) (serializer.Response, error) {
+func (s *ProductSrv) ProductList(ctx context.Context, req *types.ProductServiceReq) (types.Response, error) {
 	var products []*model.Product
 	var total int64
 	code := e.SUCCESS
@@ -164,7 +163,7 @@ func (s *ProductSrv) ProductList(ctx context.Context, req *types.ProductServiceR
 	total, err := productDao.CountProductByCondition(condition)
 	if err != nil {
 		code = e.ErrorDatabase
-		return serializer.Response{
+		return types.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
 		}, err
@@ -178,31 +177,31 @@ func (s *ProductSrv) ProductList(ctx context.Context, req *types.ProductServiceR
 	}()
 	wg.Wait()
 
-	return serializer.BuildListResponse(serializer.BuildProducts(products), uint(total)), nil
+	return types.BuildListResponse(types.BuildProducts(products), uint(total)), nil
 }
 
 // ProductDelete 删除商品
-func (s *ProductSrv) ProductDelete(ctx context.Context, req *types.ProductServiceReq) (serializer.Response, error) {
+func (s *ProductSrv) ProductDelete(ctx context.Context, req *types.ProductServiceReq) (types.Response, error) {
 	code := e.SUCCESS
 
 	err := dao.NewProductDao(ctx).DeleteProduct(req.ID)
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
-		return serializer.Response{
+		return types.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
 			Error:  err.Error(),
 		}, err
 	}
-	return serializer.Response{
+	return types.Response{
 		Status: code,
 		Msg:    e.GetMsg(code),
 	}, nil
 }
 
 // 更新商品
-func (s *ProductSrv) ProductUpdate(ctx context.Context, req *types.ProductServiceReq) (serializer.Response, error) {
+func (s *ProductSrv) ProductUpdate(ctx context.Context, req *types.ProductServiceReq) (types.Response, error) {
 	code := e.SUCCESS
 	productDao := dao.NewProductDao(ctx)
 
@@ -220,20 +219,20 @@ func (s *ProductSrv) ProductUpdate(ctx context.Context, req *types.ProductServic
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
-		return serializer.Response{
+		return types.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
 			Error:  err.Error(),
 		}, err
 	}
-	return serializer.Response{
+	return types.Response{
 		Status: code,
 		Msg:    e.GetMsg(code),
 	}, nil
 }
 
 // 搜索商品
-func (s *ProductSrv) ProductSearch(ctx context.Context, req *types.ProductServiceReq) (serializer.Response, error) {
+func (s *ProductSrv) ProductSearch(ctx context.Context, req *types.ProductServiceReq) (types.Response, error) {
 	code := e.SUCCESS
 	if req.PageSize == 0 {
 		req.PageSize = 15
@@ -244,18 +243,18 @@ func (s *ProductSrv) ProductSearch(ctx context.Context, req *types.ProductServic
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
-		return serializer.Response{
+		return types.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
 			Error:  err.Error(),
 		}, err
 	}
-	return serializer.BuildListResponse(serializer.BuildProducts(products), uint(len(products))), nil
+	return types.BuildListResponse(types.BuildProducts(products), uint(len(products))), nil
 }
 
 // ProductImgList 获取商品列表图片
-func (s *ProductSrv) ProductImgList(ctx context.Context, req *types.ProductServiceReq) (serializer.Response, error) {
+func (s *ProductSrv) ProductImgList(ctx context.Context, req *types.ProductServiceReq) (types.Response, error) {
 	productImgDao := dao.NewProductImgDao(ctx)
 	productImgs, _ := productImgDao.ListProductImgByProductId(req.ID)
-	return serializer.BuildListResponse(serializer.BuildProductImgs(productImgs), uint(len(productImgs))), nil
+	return types.BuildListResponse(types.BuildProductImgs(productImgs), uint(len(productImgs))), nil
 }

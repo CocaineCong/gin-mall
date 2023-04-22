@@ -10,7 +10,6 @@ import (
 	"mall/pkg/e"
 	"mall/repository/db/dao"
 	"mall/repository/db/model"
-	"mall/serializer"
 	"mall/types"
 )
 
@@ -40,7 +39,7 @@ func (s *AddressSrv) Create(ctx context.Context, req *types.AddressServiceReq, u
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
-		return serializer.Response{
+		return types.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
 			Error:  err.Error(),
@@ -52,15 +51,15 @@ func (s *AddressSrv) Create(ctx context.Context, req *types.AddressServiceReq, u
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
-		return serializer.Response{
+		return types.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
 			Error:  err.Error(),
 		}, err
 	}
-	return serializer.Response{
+	return types.Response{
 		Status: code,
-		Data:   serializer.BuildAddresses(addresses),
+		Data:   types.BuildAddresses(addresses),
 		Msg:    e.GetMsg(code),
 	}, nil
 }
@@ -73,15 +72,15 @@ func (s *AddressSrv) Show(ctx context.Context, aId string) (resp interface{}, er
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
-		return serializer.Response{
+		return types.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
 			Error:  err.Error(),
 		}, err
 	}
-	return serializer.Response{
+	return types.Response{
 		Status: code,
-		Data:   serializer.BuildAddress(address),
+		Data:   types.BuildAddress(address),
 		Msg:    e.GetMsg(code),
 	}, nil
 }
@@ -93,39 +92,39 @@ func (s *AddressSrv) List(ctx context.Context, uId uint) (resp interface{}, err 
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
-		return serializer.Response{
+		return types.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
 			Error:  err.Error(),
 		}, err
 	}
-	return serializer.Response{
+	return types.Response{
 		Status: code,
-		Data:   serializer.BuildAddresses(address),
+		Data:   types.BuildAddresses(address),
 		Msg:    e.GetMsg(code),
 	}, nil
 }
 
-func (s *AddressSrv) Delete(ctx context.Context, aId, uId uint) (serializer.Response, error) {
+func (s *AddressSrv) Delete(ctx context.Context, aId, uId uint) (types.Response, error) {
 	addressDao := dao.NewAddressDao(ctx)
 	code := e.SUCCESS
 	err := addressDao.DeleteAddressById(aId, uId)
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
-		return serializer.Response{
+		return types.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
 			Error:  err.Error(),
 		}, err
 	}
-	return serializer.Response{
+	return types.Response{
 		Status: code,
 		Msg:    e.GetMsg(code),
 	}, nil
 }
 
-func (s *AddressSrv) Update(ctx context.Context, req *types.AddressServiceReq, uid, aid uint) (serializer.Response, error) {
+func (s *AddressSrv) Update(ctx context.Context, req *types.AddressServiceReq, uid, aid uint) (types.Response, error) {
 	code := e.SUCCESS
 
 	addressDao := dao.NewAddressDao(ctx)
@@ -142,15 +141,15 @@ func (s *AddressSrv) Update(ctx context.Context, req *types.AddressServiceReq, u
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
-		return serializer.Response{
+		return types.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
 			Error:  err.Error(),
 		}, err
 	}
-	return serializer.Response{
+	return types.Response{
 		Status: code,
-		Data:   serializer.BuildAddresses(addresses),
+		Data:   types.BuildAddresses(addresses),
 		Msg:    e.GetMsg(code),
 	}, nil
 }

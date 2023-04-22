@@ -8,7 +8,6 @@ import (
 
 	"mall/pkg/e"
 	"mall/repository/db/dao"
-	"mall/serializer"
 	"mall/types"
 )
 
@@ -26,22 +25,22 @@ func GetMoneySrv() *MoneySrv {
 }
 
 // MoneyShow 展示用户的金额
-func (s *MoneySrv) MoneyShow(ctx context.Context, uId uint, req *types.ShowMoneyServiceReq) (serializer.Response, error) {
+func (s *MoneySrv) MoneyShow(ctx context.Context, uId uint, req *types.ShowMoneyServiceReq) (types.Response, error) {
 	code := e.SUCCESS
 	userDao := dao.NewUserDao(ctx)
 	user, err := userDao.GetUserById(uId)
 	if err != nil {
 		logging.Info(err)
 		code = e.ErrorDatabase
-		return serializer.Response{
+		return types.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
 			Error:  err.Error(),
 		}, err
 	}
-	return serializer.Response{
+	return types.Response{
 		Status: code,
-		Data:   serializer.BuildMoney(user, req.Key),
+		Data:   types.BuildMoney(user, req.Key),
 		Msg:    e.GetMsg(code),
 	}, nil
 }

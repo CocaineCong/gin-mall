@@ -14,7 +14,6 @@ import (
 	util "mall/pkg/utils"
 	"mall/repository/db/dao"
 	"mall/repository/db/model"
-	"mall/serializer"
 	"mall/types"
 )
 
@@ -31,7 +30,7 @@ func GetPaymentSrv() *PaymentSrv {
 	return PaymentSrvIns
 }
 
-func (s *PaymentSrv) PayDown(ctx context.Context, uId uint, req *types.PaymentServiceReq) (serializer.Response, error) {
+func (s *PaymentSrv) PayDown(ctx context.Context, uId uint, req *types.PaymentServiceReq) (types.Response, error) {
 	code := e.SUCCESS
 
 	err := dao.NewOrderDao(ctx).Transaction(func(tx *gorm.DB) error {
@@ -136,14 +135,14 @@ func (s *PaymentSrv) PayDown(ctx context.Context, uId uint, req *types.PaymentSe
 	})
 
 	if err != nil {
-		return serializer.Response{
+		return types.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
 			Error:  err.Error(),
 		}, err
 	}
 
-	return serializer.Response{
+	return types.Response{
 		Status: code,
 		Msg:    e.GetMsg(code),
 	}, nil

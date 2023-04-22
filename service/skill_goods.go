@@ -22,7 +22,6 @@ import (
 	"mall/repository/db/dao"
 	"mall/repository/db/model"
 	"mall/repository/mq"
-	"mall/serializer"
 	"mall/types"
 )
 
@@ -39,7 +38,7 @@ func GetSkillProductSrv() *SkillProductSrv {
 	return SkillProductSrvIns
 }
 
-func (s *SkillProductSrv) Import(ctx context.Context, file multipart.File) (serializer.Response, error) {
+func (s *SkillProductSrv) Import(ctx context.Context, file multipart.File) (types.Response, error) {
 	xlFile, err := xlsx.OpenReader(file)
 	if err != nil {
 		logging.Info(err)
@@ -68,13 +67,13 @@ func (s *SkillProductSrv) Import(ctx context.Context, file multipart.File) (seri
 	err = dao.NewSkillGoodsDao(ctx).CreateByList(skillGoods)
 	if err != nil {
 		code = e.ERROR
-		return serializer.Response{
+		return types.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
 			Data:   "上传失败",
 		}, err
 	}
-	return serializer.Response{
+	return types.Response{
 		Status: code,
 		Msg:    e.GetMsg(code),
 	}, nil
@@ -93,7 +92,7 @@ func (s *SkillProductSrv) InitSkillGoods(ctx context.Context) (interface{}, erro
 	return nil, nil
 }
 
-func (s *SkillProductSrv) SkillProduct(ctx context.Context, uId uint, req *types.SkillProductServiceReq) (serializer.Response, error) {
+func (s *SkillProductSrv) SkillProduct(ctx context.Context, uId uint, req *types.SkillProductServiceReq) (types.Response, error) {
 	mo, _ := cache.RedisClient.HGet("SK"+strconv.Itoa(int(req.SkillProductId)), "money").Float64()
 	sk := &model.SkillProduct2MQ{
 		ProductId:      req.ProductId,
@@ -106,9 +105,9 @@ func (s *SkillProductSrv) SkillProduct(ctx context.Context, uId uint, req *types
 	}
 	err := RedissonSecKillGoods(sk)
 	if err != nil {
-		return serializer.Response{}, err
+		return types.Response{}, err
 	}
-	return serializer.Response{}, nil
+	return types.Response{}, nil
 }
 
 // 加锁
