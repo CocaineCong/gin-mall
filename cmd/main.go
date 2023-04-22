@@ -7,9 +7,7 @@ import (
 )
 
 func main() {
-	// Ek1+Ep1==Ek2+Ep2
-	conf.Init()
-	loading.Loading()
+	loading.Loading() // 加载配置
 	r := routes.NewRouter()
 	_ = r.Run(conf.HttpPort)
 }
