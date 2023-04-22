@@ -1,14 +1,5 @@
 package types
 
-import (
-	"context"
-
-	"mall/conf"
-	"mall/consts"
-	dao2 "mall/repository/db/dao"
-	model2 "mall/repository/db/model"
-)
-
 type CartServiceReq struct {
 	Id        uint `form:"id" json:"id"`
 	BossID    uint `form:"boss_id" json:"boss_id"`
@@ -34,43 +25,44 @@ type CartResp struct {
 	Desc          string `json:"desc"`
 }
 
-func BuildCart(cart *model2.Cart, product *model2.Product, boss *model2.User) *CartResp {
-	c := &CartResp{
-		ID:            cart.ID,
-		UserID:        cart.UserID,
-		ProductID:     cart.ProductID,
-		CreateAt:      cart.CreatedAt.Unix(),
-		Num:           cart.Num,
-		MaxNum:        cart.MaxNum,
-		Check:         cart.Check,
-		Name:          product.Name,
-		ImgPath:       conf.PhotoHost + conf.HttpPort + conf.ProductPhotoPath + product.ImgPath,
-		DiscountPrice: product.DiscountPrice,
-		BossId:        boss.ID,
-		BossName:      boss.UserName,
-		Desc:          product.Info,
-	}
-	if conf.UploadModel == consts.UploadModelOss {
-		c.ImgPath = product.ImgPath
-	}
-
-	return c
-}
-
-func BuildCarts(items []*model2.Cart) (carts []*CartResp) {
-	for _, item1 := range items {
-		product, err := dao2.NewProductDao(context.Background()).
-			GetProductById(item1.ProductID)
-		if err != nil {
-			continue
-		}
-		boss, err := dao2.NewUserDao(context.Background()).
-			GetUserById(item1.BossID)
-		if err != nil {
-			continue
-		}
-		cart := BuildCart(item1, product, boss)
-		carts = append(carts, cart)
-	}
-	return carts
-}
+//
+// func BuildCart(cart *model2.Cart, product *model2.Product, boss *model2.User) *CartResp {
+// 	c := &CartResp{
+// 		ID:            cart.ID,
+// 		UserID:        cart.UserID,
+// 		ProductID:     cart.ProductID,
+// 		CreateAt:      cart.CreatedAt.Unix(),
+// 		Num:           cart.Num,
+// 		MaxNum:        cart.MaxNum,
+// 		Check:         cart.Check,
+// 		Name:          product.Name,
+// 		ImgPath:       conf.PhotoHost + conf.HttpPort + conf.ProductPhotoPath + product.ImgPath,
+// 		DiscountPrice: product.DiscountPrice,
+// 		BossId:        boss.ID,
+// 		BossName:      boss.UserName,
+// 		Desc:          product.Info,
+// 	}
+// 	if conf.UploadModel == consts.UploadModelOss {
+// 		c.ImgPath = product.ImgPath
+// 	}
+//
+// 	return c
+// }
+//
+// func BuildCarts(items []*model2.Cart) (carts []*CartResp) {
+// 	for _, item1 := range items {
+// 		product, err := dao2.NewProductDao(context.Background()).
+// 			GetProductById(item1.ProductID)
+// 		if err != nil {
+// 			continue
+// 		}
+// 		boss, err := dao2.NewUserDao(context.Background()).
+// 			GetUserById(item1.BossID)
+// 		if err != nil {
+// 			continue
+// 		}
+// 		cart := BuildCart(item1, product, boss)
+// 		carts = append(carts, cart)
+// 	}
+// 	return carts
+// }

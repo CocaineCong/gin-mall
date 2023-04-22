@@ -3,18 +3,17 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
 	"mime/multipart"
-	"strings"
 	"sync"
 	"time"
-
-	logging "github.com/sirupsen/logrus"
-	"gopkg.in/mail.v2"
 
 	"mall/conf"
 	"mall/consts"
 	"mall/pkg/e"
 	util "mall/pkg/utils"
+	"mall/pkg/utils/ctl"
+	"mall/pkg/utils/email"
 	"mall/repository/db/dao"
 	"mall/repository/db/model"
 	"mall/types"
@@ -33,33 +32,21 @@ func GetUserSrv() *UserSrv {
 	return UserSrvIns
 }
 
-func (s *UserSrv) Register(ctx context.Context, req *types.UserServiceReq) (types.Response, error) {
+// UserRegister 用户注册
+func (s *UserSrv) UserRegister(ctx context.Context, req *types.UserRegisterReq) (resp interface{}, err error) {
 	var user *model.User
-	code := e.SUCCESS
 	if req.Key == "" || len(req.Key) != 16 {
-		code = e.ERROR
-		return types.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Data:   "密钥长度不足",
-		}, errors.New("迷药cha")
+		return nil, errors.New("密钥长度不足")
 	}
 	util.Encrypt.SetKey(req.Key)
 	userDao := dao.NewUserDao(ctx)
 	_, exist, err := userDao.ExistOrNotByUserName(req.UserName)
 	if err != nil {
-		code = e.ErrorDatabase
-		return types.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-		}, err
+		util.LogrusObj.Error(err)
+		return
 	}
 	if exist {
-		code = e.ErrorExistUser
-		return types.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-		}, errors.New("已经存在了")
+		return nil, errors.New("用户已经存在了")
 	}
 	user = &model.User{
 		NickName: req.NickName,
@@ -69,126 +56,103 @@ func (s *UserSrv) Register(ctx context.Context, req *types.UserServiceReq) (type
 	}
 	// 加密密码
 	if err = user.SetPassword(req.Password); err != nil {
-		logging.Info(err)
-		code = e.ErrorFailEncryption
-		return types.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-		}, err
+		util.LogrusObj.Error(err)
+		return
 	}
+
 	if conf.UploadModel == consts.UploadModelOss {
 		user.Avatar = "http://q1.qlogo.cn/g?b=qq&nk=294350394&s=640"
 	} else {
 		user.Avatar = "avatar.JPG"
 	}
+
 	// 创建用户
 	err = userDao.CreateUser(user)
 	if err != nil {
-		logging.Info(err)
-		code = e.ErrorDatabase
-		return types.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-		}, err
+		util.LogrusObj.Error(err)
+		return
 	}
-	return types.Response{
-		Status: code,
-		Msg:    e.GetMsg(code),
-	}, nil
+
+	return ctl.RespSuccess(), nil
 }
 
-// Login 用户登陆函数
-func (s *UserSrv) Login(ctx context.Context, req *types.UserServiceReq) (types.Response, error) {
+// UserLogin 用户登陆函数
+func (s *UserSrv) UserLogin(ctx context.Context, req *types.UserServiceReq) (resp interface{}, err error) {
 	var user *model.User
-	code := e.SUCCESS
 	userDao := dao.NewUserDao(ctx)
 	user, exist, err := userDao.ExistOrNotByUserName(req.UserName)
 	if !exist { // 如果查询不到，返回相应的错误
-		logging.Info(err)
-		code = e.ErrorUserNotFound
-		return types.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-		}, errors.New("不存在")
+		util.LogrusObj.Error(err)
+		return nil, errors.New("用户不存在")
 	}
+
 	if user.CheckPassword(req.Password) == false {
-		code = e.ErrorNotCompare
-		return types.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-		}, errors.New("加密失败了")
+		return nil, errors.New("账号/密码不正确")
 	}
+
 	token, err := util.GenerateToken(user.ID, req.UserName, 0)
 	if err != nil {
-		logging.Info(err)
-		code = e.ErrorAuthToken
-		return types.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-		}, err
+		util.LogrusObj.Error(err)
+		return nil, err
 	}
-	return types.Response{
-		Status: code,
-		Data:   types.TokenData{User: types.BuildUser(user), Token: token},
-		Msg:    e.GetMsg(code),
-	}, nil
+
+	userResp := &types.UserInfoResp{
+		ID:       user.ID,
+		UserName: user.UserName,
+		NickName: user.NickName,
+		Email:    user.Email,
+		Status:   user.Status,
+		Avatar:   conf.PhotoHost + conf.HttpPort + conf.AvatarPath + user.AvatarURL(),
+		CreateAt: user.CreatedAt.Unix(),
+	}
+
+	if conf.UploadModel == consts.UploadModelOss {
+		userResp.Avatar = user.Avatar
+	}
+
+	userTokenResp := ctl.TokenData{
+		User:         userResp,
+		AccessToken:  token,
+		RefreshToken: token, // TODO 加上 refresh token
+	}
+
+	return ctl.RespSuccessWithData(userTokenResp), nil
 }
 
-// Update 用户修改信息
-func (s *UserSrv) Update(ctx context.Context, uId uint, req *types.UserServiceReq) (types.Response, error) {
+// UserInfoUpdate 用户修改信息
+func (s *UserSrv) UserInfoUpdate(ctx context.Context, uId uint, req *types.UserInfoUpdateReq) (resp interface{}, err error) {
 	var user *model.User
-	var err error
-	code := e.SUCCESS
 	// 找到用户
 	userDao := dao.NewUserDao(ctx)
 	user, err = userDao.GetUserById(uId)
 	if err != nil {
-		logging.Info(err)
-		code = e.ErrorDatabase
-		return types.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Error:  err.Error(),
-		}, err
+		util.LogrusObj.Error(err)
+		return nil, err
 	}
+
 	if req.NickName != "" {
 		user.NickName = req.NickName
 	}
 
 	err = userDao.UpdateUserById(uId, user)
 	if err != nil {
-		logging.Info(err)
-		code = e.ErrorDatabase
-		return types.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Error:  err.Error(),
-		}, err
+		util.LogrusObj.Error(err)
+		return nil, err
 	}
 
-	return types.Response{
-		Status: code,
-		Data:   types.BuildUser(user),
-		Msg:    e.GetMsg(code),
-	}, nil
+	return ctl.RespSuccess(), nil
 }
 
-func (s *UserSrv) Post(ctx context.Context, uId uint, file multipart.File, fileSize int64, req *types.UserServiceReq) (types.Response, error) {
-	code := e.SUCCESS
-	var user *model.User
-	var err error
+// UserAvatarUpload 更新头像
+func (s *UserSrv) UserAvatarUpload(ctx context.Context, uId uint, file multipart.File, fileSize int64, req *types.UserServiceReq) (resp interface{}, err error) {
 
 	userDao := dao.NewUserDao(ctx)
-	user, err = userDao.GetUserById(uId)
+	user, err := userDao.GetUserById(uId)
 	if err != nil {
-		logging.Info(err)
-		code = e.ErrorDatabase
-		return types.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Error:  err.Error(),
-		}, err
+		util.LogrusObj.Error(err)
+		return nil, err
 	}
+
 	var path string
 	if conf.UploadModel == consts.UploadModelLocal { // 兼容两种存储方式
 		path, err = util.UploadAvatarToLocalStatic(file, uId, user.UserName)
@@ -196,86 +160,40 @@ func (s *UserSrv) Post(ctx context.Context, uId uint, file multipart.File, fileS
 		path, err = util.UploadToQiNiu(file, fileSize)
 	}
 	if err != nil {
-		code = e.ErrorUploadFile
-		return types.Response{
-			Status: code,
-			Data:   e.GetMsg(code),
-			Error:  path,
-		}, err
+		util.LogrusObj.Error(err)
+		return nil, err
 	}
 
 	user.Avatar = path
 	err = userDao.UpdateUserById(uId, user)
 	if err != nil {
-		logging.Info(err)
-		code = e.ErrorDatabase
-		return types.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Error:  err.Error(),
-		}, err
+		util.LogrusObj.Error(err)
+		return nil, err
 	}
-	return types.Response{
-		Status: code,
-		Data:   types.BuildUser(user),
-		Msg:    e.GetMsg(code),
-	}, nil
+
+	return ctl.RespSuccess(), nil
 }
 
-// Send 发送邮件
-func (s *UserSrv) Send(ctx context.Context, id uint, req *types.SendEmailServiceReq) (types.Response, error) {
-	code := e.SUCCESS
+// SendEmail 发送邮件
+func (s *UserSrv) SendEmail(ctx context.Context, id uint, req *types.SendEmailServiceReq) (resp interface{}, err error) {
 	var address string
-	var notice *model.Notice
-
 	token, err := util.GenerateEmailToken(id, req.OperationType, req.Email, req.Password)
 	if err != nil {
-		logging.Info(err)
-		code = e.ErrorAuthToken
-		return types.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-		}, err
-	}
-
-	noticeDao := dao.NewNoticeDao(ctx)
-	notice, err = noticeDao.GetNoticeById(req.OperationType)
-	if err != nil {
-		logging.Info(err)
-		code = e.ErrorDatabase
-		return types.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Error:  err.Error(),
-		}, err
+		util.LogrusObj.Error(err)
+		return nil, err
 	}
 	address = conf.ValidEmail + token
-	mailStr := notice.Text
-	mailText := strings.Replace(mailStr, "Email", address, -1)
-	m := mail.NewMessage()
-	m.SetHeader("From", conf.SmtpEmail)
-	m.SetHeader("To", req.Email)
-	m.SetHeader("Subject", "FanOne")
-	m.SetBody("text/html", mailText)
-	d := mail.NewDialer(conf.SmtpHost, 465, conf.SmtpEmail, conf.SmtpPass)
-	d.StartTLSPolicy = mail.MandatoryStartTLS
-	if err := d.DialAndSend(m); err != nil {
-		logging.Info(err)
-		code = e.ErrorSendEmail
-		return types.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-		}, err
+	mailText := fmt.Sprintf(consts.EmailOperationMap[req.OperationType], address)
+	if err = email.SendEmail(mailText, req.Email); err != nil {
+		util.LogrusObj.Error(err)
+		return
 	}
-	return types.Response{
-		Status: code,
-		Msg:    e.GetMsg(code),
-	}, nil
+	return ctl.RespSuccess(), nil
 }
 
 // Valid 验证内容
-func (s *UserSrv) Valid(ctx context.Context, token string, req *types.ValidEmailServiceReq) (types.Response, error) {
-	var userID uint
+func (s *UserSrv) Valid(ctx context.Context, token string, req *types.ValidEmailServiceReq) (resp interface{}, err error) {
+	var userId uint
 	var email string
 	var password string
 	var operationType uint
@@ -287,63 +205,60 @@ func (s *UserSrv) Valid(ctx context.Context, token string, req *types.ValidEmail
 	} else {
 		claims, err := util.ParseEmailToken(token)
 		if err != nil {
-			logging.Info(err)
+			util.LogrusObj.Error(err)
 			code = e.ErrorAuthCheckTokenFail
 		} else if time.Now().Unix() > claims.ExpiresAt {
 			code = e.ErrorAuthCheckTokenTimeout
 		} else {
-			userID = claims.UserID
+			userId = claims.UserID
 			email = claims.Email
 			password = claims.Password
 			operationType = claims.OperationType
 		}
 	}
 	if code != e.SUCCESS {
-		return types.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-		}, errors.New("操作失败")
+		return ctl.RespSuccess(code), nil
 	}
 
 	// 获取该用户信息
 	userDao := dao.NewUserDao(ctx)
-	user, err := userDao.GetUserById(userID)
+	user, err := userDao.GetUserById(userId)
 	if err != nil {
 		code = e.ErrorDatabase
-		return types.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-		}, err
+		return
 	}
-	if operationType == 1 {
-		// 1:绑定邮箱
+	switch operationType {
+	case consts.EmailOperationBinding:
 		user.Email = email
-	} else if operationType == 2 {
-		// 2：解绑邮箱
+	case consts.EmailOperationNoBinding:
 		user.Email = ""
-	} else if operationType == 3 {
-		// 3：修改密码
+	case consts.EmailOperationUpdatePassword:
 		err = user.SetPassword(password)
 		if err != nil {
-			code = e.ErrorDatabase
-			return types.Response{
-				Status: code,
-				Msg:    e.GetMsg(code),
-			}, err
+			return
 		}
+	default:
+		return nil, errors.New("操作不符合")
 	}
-	err = userDao.UpdateUserById(userID, user)
+
+	err = userDao.UpdateUserById(userId, user)
 	if err != nil {
-		code = e.ErrorDatabase
-		return types.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-		}, err
+		return nil, err
 	}
+
+	userResp := &types.UserInfoResp{
+		ID:       user.ID,
+		UserName: user.UserName,
+		NickName: user.NickName,
+		Email:    user.Email,
+		Status:   user.Status,
+		Avatar:   conf.PhotoHost + conf.HttpPort + conf.AvatarPath + user.AvatarURL(),
+		CreateAt: user.CreatedAt.Unix(),
+	}
+	if conf.UploadModel == consts.UploadModelOss {
+		userResp.Avatar = user.Avatar
+	}
+
 	// 成功则返回用户的信息
-	return types.Response{
-		Status: code,
-		Msg:    e.GetMsg(code),
-		Data:   types.BuildUser(user),
-	}, err
+	return ctl.RespSuccessWithData(userResp), err
 }

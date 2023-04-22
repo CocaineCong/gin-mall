@@ -45,10 +45,12 @@
 - 优化鉴权模块，加上 refreshToken，将 token 改成 accessToken 
 - 优化日志输出，统一用日志对象 
 - 考虑 cmd 和 loading 这两个文件夹是否合并
+- 加入 Jaeger 进行链路追踪
+- 加入 Prometheus 监控中间件
 
 
 # 项目的主要依赖：
-Golang V1.16
+Golang V1.18
 - gin
 - gorm
 - mysql
