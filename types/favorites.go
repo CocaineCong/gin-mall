@@ -15,18 +15,21 @@ type FavoritesServiceReq struct {
 	PageSize   int  `form:"pageSize"`
 }
 
-type Favorite struct {
+type FavoriteListResp struct {
 	UserID        uint   `json:"user_id"`
 	ProductID     uint   `json:"product_id"`
 	CreatedAt     int64  `json:"create_at"`
 	Name          string `json:"name"`
 	CategoryID    uint   `json:"category_id"`
+	CategoryName  string `json:"category_name"`
 	Title         string `json:"title"`
 	Info          string `json:"info"`
 	ImgPath       string `json:"img_path"`
 	Price         string `json:"price"`
 	DiscountPrice string `json:"discount_price"`
 	BossID        uint   `json:"boss_id"`
+	BossName      string `json:"boss_name"`
+	BossAvatar    string `json:"boss_avatar"`
 	Num           int    `json:"num"`
 	OnSale        bool   `json:"on_sale"`
 }

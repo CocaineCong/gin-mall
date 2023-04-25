@@ -5,8 +5,8 @@ import (
 	"errors"
 	"sync"
 
-	"mall/pkg/e"
 	util "mall/pkg/utils"
+	"mall/pkg/utils/ctl"
 	"mall/repository/db/dao"
 	"mall/repository/db/model"
 	"mall/types"
@@ -26,66 +26,47 @@ func GetFavoriteSrv() *FavoriteSrv {
 }
 
 // FavoriteList 商品收藏夹
-func (s *FavoriteSrv) FavoriteList(ctx context.Context, uId uint, req *types.FavoritesServiceReq) (types.Response, error) {
-	favoritesDao := dao.NewFavoritesDao(ctx)
-	code := e.SUCCESS
+func (s *FavoriteSrv) FavoriteList(ctx context.Context, uId uint, req *types.FavoritesServiceReq) (resp interface{}, err error) {
 	if req.PageSize == 0 {
 		req.PageSize = 15
 	}
-	favorites, total, err := favoritesDao.ListFavoriteByUserId(uId, req.PageSize, req.PageNum)
+	favorites, total, err := dao.NewFavoritesDao(ctx).ListFavoriteByUserId(uId, req.PageSize, req.PageNum)
 	if err != nil {
 		util.LogrusObj.Error(err)
-		code = e.ErrorDatabase
-		return types.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Error:  err.Error(),
-		}, err
+		return
 	}
-	return types.BuildListResponse(types.BuildFavorites(ctx, favorites), uint(total)), nil
+	return ctl.RespList(favorites, total), nil
 }
 
 // FavoriteCreate 创建收藏夹
-func (s *FavoriteSrv) FavoriteCreate(ctx context.Context, uId uint, req *types.FavoritesServiceReq) (types.Response, error) {
-	code := e.SUCCESS
+func (s *FavoriteSrv) FavoriteCreate(ctx context.Context, uId uint, req *types.FavoritesServiceReq) (resp interface{}, err error) {
 	favoriteDao := dao.NewFavoritesDao(ctx)
 	exist, _ := favoriteDao.FavoriteExistOrNot(req.ProductId, uId)
 	if exist {
-		code = e.ErrorExistFavorite
-		return types.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-		}, errors.New("已经存在了")
+		err = errors.New("已经存在了")
+		util.LogrusObj.Error(err)
+		return
 	}
 
 	userDao := dao.NewUserDao(ctx)
 	user, err := userDao.GetUserById(uId)
 	if err != nil {
-		code = e.ErrorDatabase
-		return types.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-		}, err
+		util.LogrusObj.Error(err)
+		return
 	}
 
 	bossDao := dao.NewUserDaoByDB(userDao.DB)
 	boss, err := bossDao.GetUserById(req.BossId)
 	if err != nil {
-		code = e.ErrorDatabase
-		return types.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-		}, err
+		util.LogrusObj.Error(err)
+		return
 	}
 
 	productDao := dao.NewProductDao(ctx)
 	product, err := productDao.GetProductById(req.ProductId)
 	if err != nil {
-		code = e.ErrorDatabase
-		return types.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-		}, err
+		util.LogrusObj.Error(err)
+		return
 	}
 
 	favorite := &model.Favorite{
@@ -99,37 +80,21 @@ func (s *FavoriteSrv) FavoriteCreate(ctx context.Context, uId uint, req *types.F
 	favoriteDao = dao.NewFavoritesDaoByDB(favoriteDao.DB)
 	err = favoriteDao.CreateFavorite(favorite)
 	if err != nil {
-		code = e.ErrorDatabase
-		return types.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-		}, err
+		util.LogrusObj.Error(err)
+		return
 	}
 
-	return types.Response{
-		Status: code,
-		Msg:    e.GetMsg(code),
-	}, nil
+	return ctl.RespSuccess(), nil
 }
 
 // FavoriteDelete 删除收藏夹
-func (s *FavoriteSrv) FavoriteDelete(ctx context.Context, req *types.FavoritesServiceReq) (types.Response, error) {
-	code := e.SUCCESS
-
+func (s *FavoriteSrv) FavoriteDelete(ctx context.Context, req *types.FavoritesServiceReq) (resp interface{}, err error) {
 	favoriteDao := dao.NewFavoritesDao(ctx)
-	err := favoriteDao.DeleteFavoriteById(req.FavoriteId)
+	err = favoriteDao.DeleteFavoriteById(req.FavoriteId)
 	if err != nil {
 		util.LogrusObj.Error(err)
-		code = e.ErrorDatabase
-		return types.Response{
-			Status: code,
-			Data:   e.GetMsg(code),
-			Error:  err.Error(),
-		}, err
+		return
 	}
 
-	return types.Response{
-		Status: code,
-		Data:   e.GetMsg(code),
-	}, nil
+	return ctl.RespSuccess(), nil
 }
