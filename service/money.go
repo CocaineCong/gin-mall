@@ -4,8 +4,8 @@ import (
 	"context"
 	"sync"
 
-	"mall/pkg/e"
 	util "mall/pkg/utils"
+	"mall/pkg/utils/ctl"
 	"mall/repository/db/dao"
 	"mall/types"
 )
@@ -24,22 +24,17 @@ func GetMoneySrv() *MoneySrv {
 }
 
 // MoneyShow 展示用户的金额
-func (s *MoneySrv) MoneyShow(ctx context.Context, uId uint, req *types.ShowMoneyServiceReq) (types.Response, error) {
-	code := e.SUCCESS
-	userDao := dao.NewUserDao(ctx)
-	user, err := userDao.GetUserById(uId)
+func (s *MoneySrv) MoneyShow(ctx context.Context, uId uint, req *types.ShowMoneyServiceReq) (resp interface{}, err error) {
+	user, err := dao.NewUserDao(ctx).GetUserById(uId)
 	if err != nil {
 		util.LogrusObj.Error(err)
-		code = e.ErrorDatabase
-		return types.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Error:  err.Error(),
-		}, err
+		return
 	}
-	return types.Response{
-		Status: code,
-		Data:   types.BuildMoney(user, req.Key),
-		Msg:    e.GetMsg(code),
-	}, nil
+	util.Encrypt.SetKey(req.Key)
+	mResp := &types.MoneyResp{
+		UserID:    user.ID,
+		UserName:  user.UserName,
+		UserMoney: util.Encrypt.AesDecoding(user.Money),
+	}
+	return ctl.RespSuccessWithData(mResp), nil
 }
