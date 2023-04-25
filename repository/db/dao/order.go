@@ -5,7 +5,7 @@ import (
 
 	"gorm.io/gorm"
 
-	model2 "mall/repository/db/model"
+	"mall/repository/db/model"
 	"mall/types"
 )
 
@@ -22,38 +22,90 @@ func NewOrderDaoByDB(db *gorm.DB) *OrderDao {
 }
 
 // CreateOrder 创建订单
-func (dao *OrderDao) CreateOrder(order *model2.Order) error {
+func (dao *OrderDao) CreateOrder(order *model.Order) error {
 	return dao.DB.Create(&order).Error
 }
 
 // ListOrderByCondition 获取订单List
-func (dao *OrderDao) ListOrderByCondition(condition map[string]interface{}, page *types.BasePage) (orders []*model2.Order, total int64, err error) {
-	err = dao.DB.Model(&model2.Order{}).Where(condition).
-		Count(&total).Error
-	if err != nil {
-		return nil, 0, err
+func (dao *OrderDao) ListOrderByCondition(uId uint, req *types.OrderServiceReq) (r []*types.OrderListResp, count int64, err error) {
+	// TODO 商城算是一个TOC的应用，TOC的应该是不允许join操作的，看看后续怎么改走缓存，比如走缓存，找找免费的CDN之类的
+	d := dao.DB.Model(&model.Order{}).
+		Where("user_id = ?", uId)
+	if req.Type != 0 {
+		d.Where("o.type = ?", req.Type)
 	}
+	d.Count(&count) // 总数
 
-	err = dao.DB.Model(&model2.Order{}).Where(condition).
-		Offset((page.PageNum - 1) * page.PageSize).
-		Limit(page.PageSize).Order("created_at desc").Find(&orders).Error
+	db := dao.DB.Model(&model.Order{}).
+		Joins("AS o LEFT JOIN product AS p ON p.id = o.product_id").
+		Joins("LEFT JOIN address AS a ON a.id = o.address_id").
+		Where("o.user_id = ?", uId)
+	if req.Type != 0 {
+		db.Where("o.type = ?", req.Type)
+	}
+	db.Offset((req.PageNum - 1) * req.PageSize).
+		Limit(req.PageSize).Order("created_at DESC").
+		Select("o.id AS id," +
+			"o.order_num AS order_num," +
+			"o.created_at AS created_at," +
+			"o.updated_at AS updated_at," +
+			"o.user_id AS user_id," +
+			"o.product_id AS product_id," +
+			"o.boss_id AS boss_id," +
+			"o.num AS num," +
+			"o.type AS type," +
+			"p.name AS name," +
+			"p.discount_price AS discount_price," +
+			"p.img_path AS img_path," +
+			"a.name AS address_name," +
+			"a.phone AS address_phone," +
+			"a.address AS address").
+		Find(&r)
+
 	return
 }
 
-// GetOrderById 获取订单详情
-func (dao *OrderDao) GetOrderById(id, uId uint) (order *model2.Order, err error) {
-	err = dao.DB.Model(&model2.Order{}).
+func (dao *OrderDao) GetOrderById(id, uId uint) (r *model.Order, err error) {
+	err = dao.DB.Model(&model.Order{}).
 		Where("id = ? AND user_id = ?", id, uId).
-		First(&order).Error
+		First(&r).Error
+
+	return
+}
+
+// ShowOrderById 获取订单详情
+func (dao *OrderDao) ShowOrderById(id, uId uint) (r *types.OrderListResp, err error) {
+	err = dao.DB.Model(&model.Order{}).
+		Joins("AS o LEFT JOIN product AS p ON p.id = o.product_id").
+		Joins("LEFT JOIN address AS a ON a.id = o.address_id").
+		Where("o,id = ? AND o.user_id = ?", id, uId).
+		Order("created_at DESC").
+		Select("o.id AS id," +
+			"o.order_num AS order_num," +
+			"o.created_at AS created_at," +
+			"o.updated_at AS updated_at," +
+			"o.user_id AS user_id," +
+			"o.product_id AS product_id," +
+			"o.boss_id AS boss_id," +
+			"o.num AS num," +
+			"o.type AS type," +
+			"p.name AS name," +
+			"p.discount_price AS discount_price," +
+			"p.img_path AS img_path," +
+			"a.name AS address_name," +
+			"a.phone AS address_phone," +
+			"a.address AS address").
+		First(&r).Error
+
 	return
 }
 
 // DeleteOrderById 获取订单详情
 func (dao *OrderDao) DeleteOrderById(id, uId uint) error {
-	return dao.DB.Where("id=? AND uId = ?", id, uId).Delete(&model2.Order{}).Error
+	return dao.DB.Where("id=? AND uId = ?", id, uId).Delete(&model.Order{}).Error
 }
 
 // UpdateOrderById 更新订单详情
-func (dao *OrderDao) UpdateOrderById(id uint, order *model2.Order) error {
+func (dao *OrderDao) UpdateOrderById(id uint, order *model.Order) error {
 	return dao.DB.Where("id=?", id).Updates(order).Error
 }

@@ -9,8 +9,8 @@ import (
 
 	"gorm.io/gorm"
 
-	"mall/pkg/e"
 	util "mall/pkg/utils"
+	"mall/pkg/utils/ctl"
 	"mall/repository/db/dao"
 	"mall/repository/db/model"
 	"mall/types"
@@ -29,10 +29,8 @@ func GetPaymentSrv() *PaymentSrv {
 	return PaymentSrvIns
 }
 
-func (s *PaymentSrv) PayDown(ctx context.Context, uId uint, req *types.PaymentServiceReq) (types.Response, error) {
-	code := e.SUCCESS
-
-	err := dao.NewOrderDao(ctx).Transaction(func(tx *gorm.DB) error {
+func (s *PaymentSrv) PayDown(ctx context.Context, uId uint, req *types.PaymentServiceReq) (resp interface{}, err error) {
+	err = dao.NewOrderDao(ctx).Transaction(func(tx *gorm.DB) error {
 		util.Encrypt.SetKey(req.Key)
 
 		payment, err := dao.NewOrderDaoByDB(tx).GetOrderById(req.OrderId, uId)
@@ -48,7 +46,6 @@ func (s *PaymentSrv) PayDown(ctx context.Context, uId uint, req *types.PaymentSe
 		user, err := userDao.GetUserById(uId)
 		if err != nil {
 			util.LogrusObj.Error(err)
-			code = e.ErrorDatabase
 			return err
 		}
 
@@ -57,7 +54,6 @@ func (s *PaymentSrv) PayDown(ctx context.Context, uId uint, req *types.PaymentSe
 		moneyFloat, _ := strconv.ParseFloat(moneyStr, 64)
 		if moneyFloat-money < 0.0 { // 金额不足进行回滚
 			util.LogrusObj.Error(err)
-			code = e.ErrorDatabase
 			return errors.New("金币不足")
 		}
 
@@ -67,7 +63,6 @@ func (s *PaymentSrv) PayDown(ctx context.Context, uId uint, req *types.PaymentSe
 		err = userDao.UpdateUserById(uId, user)
 		if err != nil { // 更新用户金额失败，回滚
 			util.LogrusObj.Error(err)
-			code = e.ErrorDatabase
 			return err
 		}
 		boss := new(model.User)
@@ -80,7 +75,6 @@ func (s *PaymentSrv) PayDown(ctx context.Context, uId uint, req *types.PaymentSe
 		err = userDao.UpdateUserById(uint(req.BossID), boss)
 		if err != nil { // 更新boss金额失败，回滚
 			util.LogrusObj.Error(err)
-			code = e.ErrorDatabase
 			return err
 		}
 
@@ -94,7 +88,6 @@ func (s *PaymentSrv) PayDown(ctx context.Context, uId uint, req *types.PaymentSe
 		err = productDao.UpdateProduct(uint(req.ProductID), product)
 		if err != nil { // 更新商品数量减少失败，回滚
 			util.LogrusObj.Error(err)
-			code = e.ErrorDatabase
 			return err
 		}
 
@@ -103,7 +96,6 @@ func (s *PaymentSrv) PayDown(ctx context.Context, uId uint, req *types.PaymentSe
 		err = dao.NewOrderDaoByDB(tx).UpdateOrderById(req.OrderId, payment)
 		if err != nil { // 更新订单失败，回滚
 			util.LogrusObj.Error(err)
-			code = e.ErrorDatabase
 			return err
 		}
 
@@ -125,7 +117,6 @@ func (s *PaymentSrv) PayDown(ctx context.Context, uId uint, req *types.PaymentSe
 		err = productDao.CreateProduct(&productUser)
 		if err != nil { // 买完商品后创建成了自己的商品失败。订单失败，回滚
 			util.LogrusObj.Error(err)
-			code = e.ErrorDatabase
 			return err
 		}
 
@@ -134,15 +125,9 @@ func (s *PaymentSrv) PayDown(ctx context.Context, uId uint, req *types.PaymentSe
 	})
 
 	if err != nil {
-		return types.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Error:  err.Error(),
-		}, err
+		util.LogrusObj.Error(err)
+		return
 	}
 
-	return types.Response{
-		Status: code,
-		Msg:    e.GetMsg(code),
-	}, nil
+	return ctl.RespSuccess(), nil
 }

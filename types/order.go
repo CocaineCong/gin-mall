@@ -22,7 +22,12 @@ type OrderServiceReq struct {
 	*BasePage
 }
 
-type Order struct {
+type OrderListReq struct {
+	Type int `form:"type" json:"type"`
+	*BasePage
+}
+
+type OrderListResp struct {
 	ID            uint   `json:"id"`
 	OrderNum      uint64 `json:"order_num"`
 	CreatedAt     int64  `json:"created_at"`

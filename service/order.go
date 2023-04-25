@@ -10,8 +10,8 @@ import (
 
 	"github.com/go-redis/redis"
 
-	"mall/pkg/e"
 	util "mall/pkg/utils"
+	"mall/pkg/utils/ctl"
 	"mall/repository/cache"
 	"mall/repository/db/dao"
 	"mall/repository/db/model"
@@ -33,9 +33,7 @@ func GetOrderSrv() *OrderSrv {
 	return OrderSrvIns
 }
 
-func (s *OrderSrv) OrderCreate(ctx context.Context, id uint, req *types.OrderServiceReq) (types.Response, error) {
-	code := e.SUCCESS
-
+func (s *OrderSrv) OrderCreate(ctx context.Context, id uint, req *types.OrderServiceReq) (resp interface{}, err error) {
 	order := &model.Order{
 		UserID:    id,
 		ProductID: req.ProductID,
@@ -48,12 +46,7 @@ func (s *OrderSrv) OrderCreate(ctx context.Context, id uint, req *types.OrderSer
 	address, err := addressDao.GetAddressByAid(req.AddressID)
 	if err != nil {
 		util.LogrusObj.Error(err)
-		code = e.ErrorDatabase
-		return types.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Error:  err.Error(),
-		}, err
+		return
 	}
 
 	order.AddressID = address.ID
@@ -68,12 +61,7 @@ func (s *OrderSrv) OrderCreate(ctx context.Context, id uint, req *types.OrderSer
 	err = orderDao.CreateOrder(order)
 	if err != nil {
 		util.LogrusObj.Error(err)
-		code = e.ErrorDatabase
-		return types.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Error:  err.Error(),
-		}, err
+		return
 	}
 
 	// 订单号存入Redis中，设置过期时间
@@ -82,93 +70,41 @@ func (s *OrderSrv) OrderCreate(ctx context.Context, id uint, req *types.OrderSer
 		Member: orderNum,
 	}
 	cache.RedisClient.ZAdd(OrderTimeKey, data)
-	return types.Response{
-		Status: code,
-		Msg:    e.GetMsg(code),
-	}, nil
+	return ctl.RespSuccess(), nil
 }
 
-func (s *OrderSrv) OrderList(ctx context.Context, uId uint, req *types.OrderServiceReq) (types.Response, error) {
-	var orders []*model.Order
-	var total int64
-	code := e.SUCCESS
+func (s *OrderSrv) OrderList(ctx context.Context, uId uint, req *types.OrderServiceReq) (resp interface{}, err error) {
+
 	if req.PageSize == 0 {
-		req.PageSize = 5
+		req.PageSize = 15
 	}
 
-	orderDao := dao.NewOrderDao(ctx)
-	condition := make(map[string]interface{})
-	condition["user_id"] = uId
-
-	if req.Type == 0 {
-		condition["type"] = 0
-	} else {
-		condition["type"] = req.Type
-	}
-	orders, total, err := orderDao.ListOrderByCondition(condition, req.BasePage)
+	orders, total, err := dao.NewOrderDao(ctx).ListOrderByCondition(uId, req)
 	if err != nil {
-		code = e.ErrorDatabase
-		return types.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-		}, err
+		util.LogrusObj.Error(err)
+		return
 	}
 
-	return types.BuildListResponse(types.BuildOrders(ctx, orders), uint(total)), nil
+	return ctl.RespList(orders, total), nil
 }
 
-func (s *OrderSrv) OrderShow(ctx context.Context, uId uint, req *types.OrderServiceReq) (types.Response, error) {
-	code := e.SUCCESS
-
+func (s *OrderSrv) OrderShow(ctx context.Context, uId uint, req *types.OrderServiceReq) (resp interface{}, err error) {
 	orderDao := dao.NewOrderDao(ctx)
-	order, _ := orderDao.GetOrderById(uId, req.OrderId)
-
-	addressDao := dao.NewAddressDao(ctx)
-	address, err := addressDao.GetAddressByAid(order.AddressID)
+	order, err := orderDao.ShowOrderById(uId, req.OrderId)
 	if err != nil {
 		util.LogrusObj.Error(err)
-		code = e.ErrorDatabase
-		return types.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-		}, err
+		return
 	}
 
-	productDao := dao.NewProductDao(ctx)
-	product, err := productDao.GetProductById(order.ProductID)
-	if err != nil {
-		util.LogrusObj.Error(err)
-		code = e.ErrorDatabase
-		return types.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-		}, err
-	}
-
-	return types.Response{
-		Status: code,
-		Msg:    e.GetMsg(code),
-		Data:   types.BuildOrder(order, product, address),
-	}, nil
+	return ctl.RespSuccessWithData(order), nil
 }
 
-func (s *OrderSrv) OrderDelete(ctx context.Context, uId uint, req *types.OrderServiceReq) (types.Response, error) {
-	code := e.SUCCESS
-
-	orderDao := dao.NewOrderDao(ctx)
-	err := orderDao.DeleteOrderById(req.OrderId, uId)
+func (s *OrderSrv) OrderDelete(ctx context.Context, uId uint, req *types.OrderServiceReq) (resp interface{}, err error) {
+	err = dao.NewOrderDao(ctx).DeleteOrderById(req.OrderId, uId)
 	if err != nil {
 		util.LogrusObj.Error(err)
-		code = e.ErrorDatabase
-		return types.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Error:  err.Error(),
-		}, err
+		return
 	}
 
-	return types.Response{
-		Status: code,
-		Msg:    e.GetMsg(code),
-	}, nil
+	return
 }

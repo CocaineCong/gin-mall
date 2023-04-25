@@ -28,6 +28,13 @@ func (dao *ProductDao) GetProductById(id uint) (product *model.Product, err erro
 	return
 }
 
+// ShowProductById 通过 id 获取product
+func (dao *ProductDao) ShowProductById(id uint) (product *model.Product, err error) {
+	err = dao.DB.Model(&model.Product{}).Where("id=?", id).
+		First(&product).Error
+	return
+}
+
 // ListProductByCondition 获取商品列表
 func (dao *ProductDao) ListProductByCondition(condition map[string]interface{}, page *types.BasePage) (products []*model.Product, err error) {
 	err = dao.DB.Where(condition).
