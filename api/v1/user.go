@@ -4,7 +4,8 @@ import (
 	"mall/consts"
 	util "mall/pkg/utils"
 	"mall/service"
-
+	"mall/pkg/e"
+	"github.com/pkg/errors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -45,6 +46,12 @@ func UserUpdate(c *gin.Context) {
 
 func UploadAvatar(c *gin.Context) {
 	file, fileHeader, _ := c.Request.FormFile("file")
+	if fileHeader == nil {
+		err := errors.New(e.GetMsg(e.ErrorUploadFile))
+	 	c.JSON(consts.IlleageRequest, ErrorResponse(err))
+	 	util.LogrusObj.Infoln(err)
+	 	return;
+	}
 	fileSize := fileHeader.Size
 	uploadAvatarService := service.UserService{}
 	chaim, _ := util.ParseToken(c.GetHeader("Authorization"))
