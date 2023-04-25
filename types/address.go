@@ -7,11 +7,11 @@ type AddressServiceReq struct {
 }
 
 type AddressResp struct {
-	ID       uint   `json:"id"`
-	UserID   uint   `json:"user_id"`
-	Name     string `json:"name"`
-	Phone    string `json:"phone"`
-	Address  string `json:"address"`
-	Seen     bool   `json:"seen"`
-	CreateAt int64  `json:"create_at"`
+	ID        uint   `json:"id"`
+	UserID    uint   `json:"user_id"`
+	Name      string `json:"name"`
+	Phone     string `json:"phone"`
+	Address   string `json:"address"`
+	Seen      bool   `json:"seen"`
+	CreatedAt int64  `json:"created_at"`
 }

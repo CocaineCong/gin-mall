@@ -15,7 +15,7 @@ type Response struct {
 // DataList 带有总数的Data结构
 type DataList struct {
 	Item  interface{} `json:"item"`
-	Total uint        `json:"total"`
+	Total int64       `json:"total"`
 }
 
 // TokenData 带有token的Data结构
@@ -32,7 +32,7 @@ type TrackedErrorResponse struct {
 }
 
 // RespList 带有总数的列表构建器
-func RespList(items interface{}, total uint) Response {
+func RespList(items interface{}, total int64) Response {
 	return Response{
 		Status: 200,
 		Data: DataList{

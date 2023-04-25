@@ -6,8 +6,6 @@ import (
 	"strconv"
 	"sync"
 
-	logging "github.com/sirupsen/logrus"
-
 	"mall/conf"
 	"mall/consts"
 	"mall/pkg/e"
@@ -31,19 +29,13 @@ func GetProductSrv() *ProductSrv {
 }
 
 // ProductShow 商品
-func (s *ProductSrv) ProductShow(ctx context.Context, req *types.ProductServiceReq) (types.Response, error) {
-	code := e.SUCCESS
+func (s *ProductSrv) ProductShow(ctx context.Context, req *types.ProductServiceReq) (resp interface{}, err error) {
 
 	productDao := dao.NewProductDao(ctx)
 	product, err := productDao.GetProductById(req.ID)
 	if err != nil {
-		logging.Info(err)
-		code = e.ErrorDatabase
-		return types.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Error:  err.Error(),
-		}, err
+		util.LogrusObj.Error(err)
+		return
 	}
 
 	return types.Response{
@@ -94,7 +86,7 @@ func (s *ProductSrv) ProductCreate(ctx context.Context, uId uint, files []*multi
 	productDao := dao.NewProductDao(ctx)
 	err = productDao.CreateProduct(product)
 	if err != nil {
-		logging.Info(err)
+		util.LogrusObj.Error(err)
 		code = e.ErrorDatabase
 		return types.Response{
 			Status: code,
@@ -186,7 +178,7 @@ func (s *ProductSrv) ProductDelete(ctx context.Context, req *types.ProductServic
 
 	err := dao.NewProductDao(ctx).DeleteProduct(req.ID)
 	if err != nil {
-		logging.Info(err)
+		util.LogrusObj.Error(err)
 		code = e.ErrorDatabase
 		return types.Response{
 			Status: code,
@@ -217,7 +209,7 @@ func (s *ProductSrv) ProductUpdate(ctx context.Context, req *types.ProductServic
 	}
 	err := productDao.UpdateProduct(req.ID, product)
 	if err != nil {
-		logging.Info(err)
+		util.LogrusObj.Error(err)
 		code = e.ErrorDatabase
 		return types.Response{
 			Status: code,
@@ -241,7 +233,7 @@ func (s *ProductSrv) ProductSearch(ctx context.Context, req *types.ProductServic
 	productDao := dao.NewProductDao(ctx)
 	products, err := productDao.SearchProduct(req.Info, req.BasePage)
 	if err != nil {
-		logging.Info(err)
+		util.LogrusObj.Error(err)
 		code = e.ErrorDatabase
 		return types.Response{
 			Status: code,

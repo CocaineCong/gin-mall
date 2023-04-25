@@ -5,9 +5,8 @@ import (
 	"strconv"
 	"sync"
 
-	logging "github.com/sirupsen/logrus"
-
-	"mall/pkg/e"
+	util "mall/pkg/utils"
+	"mall/pkg/utils/ctl"
 	"mall/repository/db/dao"
 	"mall/repository/db/model"
 	"mall/types"
@@ -27,7 +26,6 @@ func GetAddressSrv() *AddressSrv {
 }
 
 func (s *AddressSrv) Create(ctx context.Context, req *types.AddressServiceReq, uId uint) (resp interface{}, err error) {
-	code := e.SUCCESS
 	addressDao := dao.NewAddressDao(ctx)
 	address := &model.Address{
 		UserID:  uId,
@@ -37,96 +35,42 @@ func (s *AddressSrv) Create(ctx context.Context, req *types.AddressServiceReq, u
 	}
 	err = addressDao.CreateAddress(address)
 	if err != nil {
-		logging.Info(err)
-		code = e.ErrorDatabase
-		return types.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Error:  err.Error(),
-		}, err
+		util.LogrusObj.Error(err)
+		return
 	}
-	addressDao = dao.NewAddressDaoByDB(addressDao.DB)
-	var addresses []*model.Address
-	addresses, err = addressDao.ListAddressByUid(uId)
-	if err != nil {
-		logging.Info(err)
-		code = e.ErrorDatabase
-		return types.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Error:  err.Error(),
-		}, err
-	}
-	return types.Response{
-		Status: code,
-		Data:   types.BuildAddresses(addresses),
-		Msg:    e.GetMsg(code),
-	}, nil
+	return ctl.RespSuccess(), nil
 }
 
 func (s *AddressSrv) Show(ctx context.Context, aId string) (resp interface{}, err error) {
-	code := e.SUCCESS
 	addressDao := dao.NewAddressDao(ctx)
 	addressId, _ := strconv.Atoi(aId)
 	address, err := addressDao.GetAddressByAid(uint(addressId))
 	if err != nil {
-		logging.Info(err)
-		code = e.ErrorDatabase
-		return types.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Error:  err.Error(),
-		}, err
+		util.LogrusObj.Error(err)
+		return
 	}
-	return types.Response{
-		Status: code,
-		Data:   types.BuildAddress(address),
-		Msg:    e.GetMsg(code),
-	}, nil
+	return ctl.RespSuccessWithData(address), nil
 }
 
 func (s *AddressSrv) List(ctx context.Context, uId uint) (resp interface{}, err error) {
-	code := e.SUCCESS
-	addressDao := dao.NewAddressDao(ctx)
-	address, err := addressDao.ListAddressByUid(uId)
+	addresses, err := dao.NewAddressDao(ctx).ListAddressByUid(uId)
 	if err != nil {
-		logging.Info(err)
-		code = e.ErrorDatabase
-		return types.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Error:  err.Error(),
-		}, err
+		util.LogrusObj.Error(err)
+		return
 	}
-	return types.Response{
-		Status: code,
-		Data:   types.BuildAddresses(address),
-		Msg:    e.GetMsg(code),
-	}, nil
+	return ctl.RespList(addresses, int64(len(addresses))), nil
 }
 
-func (s *AddressSrv) Delete(ctx context.Context, aId, uId uint) (types.Response, error) {
-	addressDao := dao.NewAddressDao(ctx)
-	code := e.SUCCESS
-	err := addressDao.DeleteAddressById(aId, uId)
+func (s *AddressSrv) Delete(ctx context.Context, aId, uId uint) (resp interface{}, err error) {
+	err = dao.NewAddressDao(ctx).DeleteAddressById(aId, uId)
 	if err != nil {
-		logging.Info(err)
-		code = e.ErrorDatabase
-		return types.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Error:  err.Error(),
-		}, err
+		util.LogrusObj.Error(err)
+		return
 	}
-	return types.Response{
-		Status: code,
-		Msg:    e.GetMsg(code),
-	}, nil
+	return ctl.RespSuccess(), nil
 }
 
-func (s *AddressSrv) Update(ctx context.Context, req *types.AddressServiceReq, uid, aid uint) (types.Response, error) {
-	code := e.SUCCESS
-
+func (s *AddressSrv) Update(ctx context.Context, req *types.AddressServiceReq, uid, aid uint) (resp interface{}, err error) {
 	addressDao := dao.NewAddressDao(ctx)
 	address := &model.Address{
 		UserID:  uid,
@@ -134,22 +78,12 @@ func (s *AddressSrv) Update(ctx context.Context, req *types.AddressServiceReq, u
 		Phone:   req.Phone,
 		Address: req.Address,
 	}
-	err := addressDao.UpdateAddressById(aid, address)
-	addressDao = dao.NewAddressDaoByDB(addressDao.DB)
-	var addresses []*model.Address
+	err = addressDao.UpdateAddressById(aid, address)
+	var addresses []*types.AddressResp
 	addresses, err = addressDao.ListAddressByUid(uid)
 	if err != nil {
-		logging.Info(err)
-		code = e.ErrorDatabase
-		return types.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Error:  err.Error(),
-		}, err
+		util.LogrusObj.Error(err)
+		return
 	}
-	return types.Response{
-		Status: code,
-		Data:   types.BuildAddresses(addresses),
-		Msg:    e.GetMsg(code),
-	}, nil
+	return ctl.RespSuccessWithData(addresses), nil
 }
