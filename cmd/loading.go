@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"mall/conf"
 	util "mall/pkg/utils"
 	"mall/repository/cache"
@@ -17,6 +19,7 @@ func Loading() {
 	mq.InitRabbitMQ() // 如果需要接入RabbitMQ可以打开这个注释
 	es.InitEs()       // 如果需要接入ELK可以打开这个注释
 	util.InitLog()
+	fmt.Println("加载配置完成...")
 	go scriptStarting()
 }
 
