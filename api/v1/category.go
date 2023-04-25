@@ -12,7 +12,7 @@ import (
 
 func ListCategoryHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		var req types.ListCategoryServiceReq
+		var req types.ListCategoryReq
 
 		if err := ctx.ShouldBind(&req); err == nil {
 			// 参数校验

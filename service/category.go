@@ -4,8 +4,8 @@ import (
 	"context"
 	"sync"
 
-	"mall/pkg/e"
 	util "mall/pkg/utils"
+	"mall/pkg/utils/ctl"
 	"mall/repository/db/dao"
 	"mall/types"
 )
@@ -24,22 +24,11 @@ func GetCategorySrv() *CategorySrv {
 }
 
 // ListCategory 列举分类
-func (s *CategorySrv) ListCategory(ctx context.Context, req *types.ListCategoryServiceReq) (types.Response, error) {
-	code := e.SUCCESS
-	categoryDao := dao.NewCategoryDao(ctx)
-	categories, err := categoryDao.ListCategory()
+func (s *CategorySrv) ListCategory(ctx context.Context, req *types.ListCategoryReq) (resp interface{}, err error) {
+	categories, err := dao.NewCategoryDao(ctx).ListCategory()
 	if err != nil {
 		util.LogrusObj.Error(err)
-		code = e.ErrorDatabase
-		return types.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Error:  err.Error(),
-		}, err
+		return
 	}
-	return types.Response{
-		Status: code,
-		Msg:    e.GetMsg(code),
-		Data:   types.BuildCategories(categories),
-	}, nil
+	return ctl.RespSuccessWithData(categories), nil
 }
