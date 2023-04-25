@@ -4,9 +4,8 @@ import (
 	"context"
 	"sync"
 
-	logging "github.com/sirupsen/logrus"
-
-	"mall/pkg/e"
+	util "mall/pkg/utils"
+	"mall/pkg/utils/ctl"
 	"mall/repository/db/dao"
 	"mall/types"
 )
@@ -25,17 +24,11 @@ func GetCarouselSrv() *CarouselSrv {
 }
 
 // ListCarousel 列表
-func (s *CarouselSrv) ListCarousel(ctx context.Context, req *types.ListCarouselsServiceReq) (types.Response, error) {
-	code := e.SUCCESS
+func (s *CarouselSrv) ListCarousel(ctx context.Context, req *types.ListCarouselsServiceReq) (resp interface{}, err error) {
 	carousels, err := dao.NewCarouselDao(ctx).ListCarousel()
 	if err != nil {
-		logging.Info(err)
-		code = e.ErrorDatabase
-		return types.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Error:  err.Error(),
-		}, err
+		util.LogrusObj.Error(err)
+		return
 	}
-	return types.BuildListResponse(types.BuildCarousels(carousels), uint(len(carousels))), nil
+	return ctl.RespSuccessWithData(carousels), nil
 }

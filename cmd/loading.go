@@ -1,4 +1,4 @@
-package loading
+package main
 
 import (
 	"mall/conf"

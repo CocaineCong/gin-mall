@@ -16,8 +16,8 @@ import (
 	xlsx "github.com/360EntSecGroup-Skylar/excelize"
 	"github.com/streadway/amqp"
 
-	"mall/pkg/e"
 	util "mall/pkg/utils"
+	"mall/pkg/utils/ctl"
 	"mall/repository/cache"
 	"mall/repository/db/dao"
 	"mall/repository/db/model"
@@ -38,12 +38,12 @@ func GetSkillProductSrv() *SkillProductSrv {
 	return SkillProductSrvIns
 }
 
-func (s *SkillProductSrv) Import(ctx context.Context, file multipart.File) (types.Response, error) {
+func (s *SkillProductSrv) Import(ctx context.Context, file multipart.File) (resp interface{}, err error) {
 	xlFile, err := xlsx.OpenReader(file)
 	if err != nil {
 		util.LogrusObj.Error(err)
+		return
 	}
-	code := e.SUCCESS
 	rows := xlFile.GetRows("Sheet1")
 	length := len(rows[1:])
 	skillGoods := make([]*model.SkillProduct, length, length)
@@ -66,17 +66,11 @@ func (s *SkillProductSrv) Import(ctx context.Context, file multipart.File) (type
 	}
 	err = dao.NewSkillGoodsDao(ctx).CreateByList(skillGoods)
 	if err != nil {
-		code = e.ERROR
-		return types.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Data:   "上传失败",
-		}, err
+		util.LogrusObj.Error(err)
+		return
 	}
-	return types.Response{
-		Status: code,
-		Msg:    e.GetMsg(code),
-	}, nil
+
+	return ctl.RespSuccess(), nil
 }
 
 // 直接放到这里，初始化秒杀商品信息，将mysql的信息存入redis中
@@ -92,7 +86,7 @@ func (s *SkillProductSrv) InitSkillGoods(ctx context.Context) (interface{}, erro
 	return nil, nil
 }
 
-func (s *SkillProductSrv) SkillProduct(ctx context.Context, uId uint, req *types.SkillProductServiceReq) (types.Response, error) {
+func (s *SkillProductSrv) SkillProduct(ctx context.Context, uId uint, req *types.SkillProductServiceReq) (resp interface{}, err error) {
 	mo, _ := cache.RedisClient.HGet("SK"+strconv.Itoa(int(req.SkillProductId)), "money").Float64()
 	sk := &model.SkillProduct2MQ{
 		ProductId:      req.ProductId,
@@ -103,11 +97,12 @@ func (s *SkillProductSrv) SkillProduct(ctx context.Context, uId uint, req *types
 		Money:          mo,
 		SkillProductId: req.SkillProductId,
 	}
-	err := RedissonSecKillGoods(sk)
+	err = RedissonSecKillGoods(sk)
 	if err != nil {
-		return types.Response{}, err
+		util.LogrusObj.Error(err)
+		return
 	}
-	return types.Response{}, nil
+	return ctl.RespSuccess(), nil
 }
 
 // 加锁
