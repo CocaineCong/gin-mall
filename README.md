@@ -12,16 +12,19 @@
 **V2版本，结构较比V1版本有很大的改动**
 **全部转化成 controller、dao、service 模式，更加符合企业开发**
 
+考虑到部分同学的基础，所以V2版本的技术栈只有mysql，redis，docker。
+
+而 ELK，MQ，Jaeger，Prometheus 这部分都集成在V3版本，并且V3版本的项目结构进行部分重构。
+
+
 由于整合上传oss和上传到本地，需要在 conf 中进行配置 `UploadModel` 字段，上传到 oss 则配置 oss，上传本地则配置 local
 
 # 开源合作
 欢迎大家把自己的想法 pr 到这个项目中。
 
 **说明：**
-1. 大家可以根据自己的需要进行分支的合并，记得合并的时候，看好是合并到 v2.0 还是合去 v2.1
-2. CR 通过之后，就会到合并到 v2.x 分支，同样的 main 分支下的 v2.0 版本也会对应合并。
-
-之前的 t0分支 就取消了，直接合上去到 v2.x 分支就好了～
+1. 大家可以根据自己的需要进行分支的合并，不要直接合main分支⚠️，尽量合去最新的版本。现在最新版本是v3版本。
+2. CR 通过之后，就会到合并到 main 分支。
 
 # 项目的主要功能介绍
 
@@ -39,14 +42,21 @@
 
 # 项目需要完善的地方
 
-- 考虑加入kafka或是rabbitmq，新增一个秒杀专场 
-- 优化 service 返回的参数，加上返回值 error，因为go的函数返回都是要有error的，这才是go的代码风格（我也不懂go为啥要这样设置，很多优秀的开源项目都是这样写函数的返回值） 
-- 抽离 service 的结构体到 types，引入 sync.Once 模块，重构 service 层 
-- 优化鉴权模块，加上 refreshToken，将 token 改成 accessToken 
-- 优化日志输出，统一用日志对象 
-- 考虑 cmd 和 loading 这两个文件夹是否合并
-- 加入 Jaeger 进行链路追踪
-- 加入 Prometheus 监控中间件
+## P0
+
+-[ ] 考虑加入kafka或是rabbitmq，新增一个秒杀专场
+-[x] 优化 service 返回的参数，加上返回值 error，因为go的函数返回都是要有error的，这才是go的代码风格（我也不懂go为啥要这样设置，很多优秀的开源项目都是这样写函数的返回值） 
+-[x] 抽离 service 的结构体到 types，引入 sync.Once 模块，重构 service 层 
+-[ ] 优化鉴权模块，加上 refreshToken，将 token 改成 accessToken 
+-[x] 优化日志输出，统一用日志对象 
+-[x] 考虑 cmd 和 loading 这两个文件夹是否合并
+-[ ] 加入 Jaeger 进行链路追踪
+-[ ] 加入 Prometheus 监控中间件
+-[ ] 优化ToC应用的 SQL JOIN 语句
+-[ ] MySQL到ES的数据同步，将搜索改成查找ES
+
+## P10086
+-[ ] 引入推荐算法，比如Twitter开源那个 (评价是:在瞎搞)
 
 
 # 项目的主要依赖：
