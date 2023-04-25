@@ -6,6 +6,7 @@ import (
 	"gorm.io/gorm"
 
 	"mall/repository/db/model"
+	"mall/types"
 )
 
 type ProductImgDao struct {
@@ -27,8 +28,9 @@ func (dao *ProductImgDao) CreateProductImg(productImg *model.ProductImg) (err er
 }
 
 // ListProductImgByProductId 根据商品id获取商品图片
-func (dao *ProductImgDao) ListProductImgByProductId(pId uint) (products []*model.ProductImg, err error) {
+func (dao *ProductImgDao) ListProductImgByProductId(pId uint) (products []*types.ProductImgResp, err error) {
 	err = dao.DB.Model(&model.ProductImg{}).
-		Where("product_id=?", pId).Find(&products).Error
+		Where("product_id=?", pId).
+		Find(&products).Error
 	return
 }

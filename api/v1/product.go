@@ -42,6 +42,9 @@ func ListProductsHandler() gin.HandlerFunc {
 
 		if err := ctx.ShouldBind(&req); err == nil {
 			// 参数校验
+			if req.PageSize == 0 {
+				req.PageSize = 15
+			}
 			l := service.GetProductSrv()
 			resp, err := l.ProductList(ctx.Request.Context(), &req)
 			if err != nil {
@@ -130,6 +133,9 @@ func SearchProductsHandler() gin.HandlerFunc {
 
 		if err := ctx.ShouldBind(&req); err == nil {
 			// 参数校验
+			if req.PageSize == 0 {
+				req.PageSize = 15
+			}
 			l := service.GetProductSrv()
 			resp, err := l.ProductSearch(ctx.Request.Context(), &req)
 			if err != nil {
