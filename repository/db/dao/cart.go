@@ -7,6 +7,7 @@ import (
 
 	"mall/pkg/e"
 	"mall/repository/db/model"
+	"mall/types"
 )
 
 type CartDao struct {
@@ -60,12 +61,29 @@ func (dao *CartDao) GetCartById(pId, uId, bId uint) (cart *model.Cart, err error
 		Where("user_id = ? AND product_id = ? AND boss_id = ?", uId, pId, bId).
 		First(&cart).Error
 	return
+
 }
 
 // ListCartByUserId 获取 Cart 通过 user_id
-func (dao *CartDao) ListCartByUserId(uId uint) (cart []*model.Cart, err error) {
+func (dao *CartDao) ListCartByUserId(uId uint) (cart []*types.CartResp, err error) {
 	err = dao.DB.Model(&model.Cart{}).
-		Where("user_id = ?", uId).Find(&cart).Error
+		Joins("AS c LEFT JOIN user AS u ON c.boss_id=u.id").
+		Joins("LEFT JOIN product AS p ON c.product_id = p.id").
+		Where("c.user_id = ?", uId).
+		Select("c.id AS id," +
+			"c.user_id AS user_id," +
+			"c.product_id AS product_id," +
+			"c.created AS created_at," +
+			"c.num AS num," +
+			"c.max_num AS max_num," +
+			"c.check AS check," +
+			"p.img_path AS img_path," +
+			"u.id AS boss_id," +
+			"u.boss_name AS boss_name," +
+			"p.info AS desc," +
+			"p.discount_price AS discount_price").
+		Find(&cart).Error
+
 	return
 }
 

@@ -8,12 +8,18 @@ type CartServiceReq struct {
 	UserId    uint `form:"user_id" json:"user_id"`
 }
 
+type UpdateCartServiceReq struct {
+	Id     uint `form:"id" json:"id"`
+	Num    uint `form:"num" json:"num"`
+	UserId uint `form:"user_id" json:"user_id"`
+}
+
 // 购物车
 type CartResp struct {
 	ID            uint   `json:"id"`
 	UserID        uint   `json:"user_id"`
 	ProductID     uint   `json:"product_id"`
-	CreateAt      int64  `json:"create_at"`
+	CreatedAt     int64  `json:"created_at"`
 	Num           uint   `json:"num"`
 	MaxNum        uint   `json:"max_num"`
 	Check         bool   `json:"check"`

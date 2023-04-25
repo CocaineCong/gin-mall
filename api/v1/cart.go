@@ -58,7 +58,7 @@ func ListCartHandler() gin.HandlerFunc {
 // UpdateCartHandler 修改购物车信息
 func UpdateCartHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		var req types.CartServiceReq
+		var req types.UpdateCartServiceReq
 
 		if err := ctx.ShouldBind(&req); err == nil {
 			// 参数校验
