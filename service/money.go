@@ -4,9 +4,8 @@ import (
 	"context"
 	"sync"
 
-	logging "github.com/sirupsen/logrus"
-
 	"mall/pkg/e"
+	util "mall/pkg/utils"
 	"mall/repository/db/dao"
 	"mall/types"
 )
@@ -30,7 +29,7 @@ func (s *MoneySrv) MoneyShow(ctx context.Context, uId uint, req *types.ShowMoney
 	userDao := dao.NewUserDao(ctx)
 	user, err := userDao.GetUserById(uId)
 	if err != nil {
-		logging.Info(err)
+		util.LogrusObj.Error(err)
 		code = e.ErrorDatabase
 		return types.Response{
 			Status: code,

@@ -9,9 +9,9 @@ import (
 	"time"
 
 	"github.com/go-redis/redis"
-	logging "github.com/sirupsen/logrus"
 
 	"mall/pkg/e"
+	util "mall/pkg/utils"
 	"mall/repository/cache"
 	"mall/repository/db/dao"
 	"mall/repository/db/model"
@@ -47,7 +47,7 @@ func (s *OrderSrv) OrderCreate(ctx context.Context, id uint, req *types.OrderSer
 	addressDao := dao.NewAddressDao(ctx)
 	address, err := addressDao.GetAddressByAid(req.AddressID)
 	if err != nil {
-		logging.Info(err)
+		util.LogrusObj.Error(err)
 		code = e.ErrorDatabase
 		return types.Response{
 			Status: code,
@@ -67,7 +67,7 @@ func (s *OrderSrv) OrderCreate(ctx context.Context, id uint, req *types.OrderSer
 	orderDao := dao.NewOrderDao(ctx)
 	err = orderDao.CreateOrder(order)
 	if err != nil {
-		logging.Info(err)
+		util.LogrusObj.Error(err)
 		code = e.ErrorDatabase
 		return types.Response{
 			Status: code,
@@ -126,7 +126,7 @@ func (s *OrderSrv) OrderShow(ctx context.Context, uId uint, req *types.OrderServ
 	addressDao := dao.NewAddressDao(ctx)
 	address, err := addressDao.GetAddressByAid(order.AddressID)
 	if err != nil {
-		logging.Info(err)
+		util.LogrusObj.Error(err)
 		code = e.ErrorDatabase
 		return types.Response{
 			Status: code,
@@ -137,7 +137,7 @@ func (s *OrderSrv) OrderShow(ctx context.Context, uId uint, req *types.OrderServ
 	productDao := dao.NewProductDao(ctx)
 	product, err := productDao.GetProductById(order.ProductID)
 	if err != nil {
-		logging.Info(err)
+		util.LogrusObj.Error(err)
 		code = e.ErrorDatabase
 		return types.Response{
 			Status: code,
@@ -158,7 +158,7 @@ func (s *OrderSrv) OrderDelete(ctx context.Context, uId uint, req *types.OrderSe
 	orderDao := dao.NewOrderDao(ctx)
 	err := orderDao.DeleteOrderById(req.OrderId, uId)
 	if err != nil {
-		logging.Info(err)
+		util.LogrusObj.Error(err)
 		code = e.ErrorDatabase
 		return types.Response{
 			Status: code,

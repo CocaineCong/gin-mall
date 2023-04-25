@@ -14,10 +14,10 @@ import (
 	"time"
 
 	xlsx "github.com/360EntSecGroup-Skylar/excelize"
-	logging "github.com/sirupsen/logrus"
 	"github.com/streadway/amqp"
 
 	"mall/pkg/e"
+	util "mall/pkg/utils"
 	"mall/repository/cache"
 	"mall/repository/db/dao"
 	"mall/repository/db/model"
@@ -41,7 +41,7 @@ func GetSkillProductSrv() *SkillProductSrv {
 func (s *SkillProductSrv) Import(ctx context.Context, file multipart.File) (types.Response, error) {
 	xlFile, err := xlsx.OpenReader(file)
 	if err != nil {
-		logging.Info(err)
+		util.LogrusObj.Error(err)
 	}
 	code := e.SUCCESS
 	rows := xlFile.GetRows("Sheet1")

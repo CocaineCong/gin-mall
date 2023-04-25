@@ -26,10 +26,8 @@ func GetCartSrv() *CartSrv {
 }
 
 // CartCreate 创建购物车
-func (s *CartSrv) CartCreate(ctx context.Context, uId uint, req *types.CartServiceReq) (types.Response, error) {
+func (s *CartSrv) CartCreate(ctx context.Context, uId uint, req *types.CartServiceReq) (resp interface{}, err error) {
 	var product *model.Product
-	code := e.SUCCESS
-
 	// 判断有无这个商品
 	productDao := dao.NewProductDao(ctx)
 	product, err := productDao.GetProductById(req.ProductId)

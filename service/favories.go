@@ -5,9 +5,8 @@ import (
 	"errors"
 	"sync"
 
-	logging "github.com/sirupsen/logrus"
-
 	"mall/pkg/e"
+	util "mall/pkg/utils"
 	"mall/repository/db/dao"
 	"mall/repository/db/model"
 	"mall/types"
@@ -35,7 +34,7 @@ func (s *FavoriteSrv) FavoriteList(ctx context.Context, uId uint, req *types.Fav
 	}
 	favorites, total, err := favoritesDao.ListFavoriteByUserId(uId, req.PageSize, req.PageNum)
 	if err != nil {
-		logging.Info(err)
+		util.LogrusObj.Error(err)
 		code = e.ErrorDatabase
 		return types.Response{
 			Status: code,
@@ -120,7 +119,7 @@ func (s *FavoriteSrv) FavoriteDelete(ctx context.Context, req *types.FavoritesSe
 	favoriteDao := dao.NewFavoritesDao(ctx)
 	err := favoriteDao.DeleteFavoriteById(req.FavoriteId)
 	if err != nil {
-		logging.Info(err)
+		util.LogrusObj.Error(err)
 		code = e.ErrorDatabase
 		return types.Response{
 			Status: code,

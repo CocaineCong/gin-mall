@@ -4,9 +4,8 @@ import (
 	"context"
 	"sync"
 
-	logging "github.com/sirupsen/logrus"
-
 	"mall/pkg/e"
+	util "mall/pkg/utils"
 	"mall/repository/db/dao"
 	"mall/types"
 )
@@ -30,7 +29,7 @@ func (s *CategorySrv) ListCategory(ctx context.Context, req *types.ListCategoryS
 	categoryDao := dao.NewCategoryDao(ctx)
 	categories, err := categoryDao.ListCategory()
 	if err != nil {
-		logging.Info(err)
+		util.LogrusObj.Error(err)
 		code = e.ErrorDatabase
 		return types.Response{
 			Status: code,
