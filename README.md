@@ -44,9 +44,9 @@
 
 ## P0
 
--[ ] 考虑加入kafka或是rabbitmq，新增一个秒杀专场\
--[x] 优化 service 返回的参数，加上返回值 error，因为go的函数返回都是要有error的，这才是go的代码风格（我也不懂go为啥要这样设置，很多优秀的开源项目都是这样写函数的返回值） \
--[x] 抽离 service 的结构体到 types，引入 sync.Once 模块，重构 service 层 \
+-[ ] 考虑加入kafka或是rabbitmq，新增一个秒杀专场 
+-[x] 优化 service 返回的参数，加上返回值 error，因为go的函数返回都是要有error的，这才是go的代码风格（我也不懂go为啥要这样设置，很多优秀的开源项目都是这样写函数的返回值） 
+-[x] 抽离 service 的结构体到 types，引入 sync.Once 模块，重构 service 层 
 -[ ] 优化鉴权模块，加上 refreshToken，将 token 改成 accessToken \
 -[ ] 抽离登陆，引入SSO\
 -[x] 优化日志输出，统一用日志对象 \
