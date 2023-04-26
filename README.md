@@ -186,10 +186,12 @@ EsIndex = mylog
 **本项目采用Go Mod管理依赖**
 
 **下载依赖**
-```go
+
+```shell
 go mod tidy
 ```
+
 **下载依赖**
-```go
+```shell
 go run main.go
 ```
