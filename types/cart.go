@@ -14,6 +14,10 @@ type UpdateCartServiceReq struct {
 	UserId uint `form:"user_id" json:"user_id"`
 }
 
+type CartListReq struct {
+	BasePage
+}
+
 // 购物车
 type CartResp struct {
 	ID            uint   `json:"id"`

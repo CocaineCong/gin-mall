@@ -74,11 +74,6 @@ func (s *OrderSrv) OrderCreate(ctx context.Context, id uint, req *types.OrderSer
 }
 
 func (s *OrderSrv) OrderList(ctx context.Context, uId uint, req *types.OrderServiceReq) (resp interface{}, err error) {
-
-	if req.PageSize == 0 {
-		req.PageSize = 15
-	}
-
 	orders, total, err := dao.NewOrderDao(ctx).ListOrderByCondition(uId, req)
 	if err != nil {
 		util.LogrusObj.Error(err)

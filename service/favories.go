@@ -27,9 +27,6 @@ func GetFavoriteSrv() *FavoriteSrv {
 
 // FavoriteList 商品收藏夹
 func (s *FavoriteSrv) FavoriteList(ctx context.Context, uId uint, req *types.FavoritesServiceReq) (resp interface{}, err error) {
-	if req.PageSize == 0 {
-		req.PageSize = 15
-	}
 	favorites, total, err := dao.NewFavoritesDao(ctx).ListFavoriteByUserId(uId, req.PageSize, req.PageNum)
 	if err != nil {
 		util.LogrusObj.Error(err)

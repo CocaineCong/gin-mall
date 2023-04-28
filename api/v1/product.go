@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"mall/consts"
 	util "mall/pkg/utils"
 	"mall/service"
 	"mall/types"
@@ -134,7 +135,7 @@ func SearchProductsHandler() gin.HandlerFunc {
 		if err := ctx.ShouldBind(&req); err == nil {
 			// 参数校验
 			if req.PageSize == 0 {
-				req.PageSize = 15
+				req.PageSize = consts.BasePageSize
 			}
 			l := service.GetProductSrv()
 			resp, err := l.ProductSearch(ctx.Request.Context(), &req)

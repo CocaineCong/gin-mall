@@ -45,7 +45,7 @@ func (s *CartSrv) CartCreate(ctx context.Context, uId uint, req *types.CartServi
 }
 
 // CartList 购物车
-func (s *CartSrv) CartList(ctx context.Context, uId uint) (resp interface{}, err error) {
+func (s *CartSrv) CartList(ctx context.Context, uId uint, req *types.CartListReq) (resp interface{}, err error) {
 	cartDao := dao.NewCartDao(ctx)
 	carts, err := cartDao.ListCartByUserId(uId)
 	if err != nil {

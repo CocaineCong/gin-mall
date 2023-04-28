@@ -3,6 +3,7 @@ package v1
 import (
 	"net/http"
 
+	"mall/consts"
 	util "mall/pkg/utils"
 	"mall/service"
 	"mall/types"
@@ -40,6 +41,9 @@ func ListFavoritesHandler() gin.HandlerFunc {
 
 		if err := ctx.ShouldBind(&req); err == nil {
 			// 参数校验
+			if req.PageSize == 0 {
+				req.PageSize = consts.BasePageSize
+			}
 			l := service.GetFavoriteSrv()
 			userId := ctx.Keys["user_id"].(uint)
 			resp, err := l.FavoriteList(ctx.Request.Context(), userId, &req)
