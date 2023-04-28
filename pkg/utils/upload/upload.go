@@ -2,6 +2,7 @@ package upload
 
 import (
 	"context"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"mime/multipart"
@@ -9,6 +10,7 @@ import (
 	"strconv"
 
 	"mall/conf"
+	util "mall/pkg/utils/log"
 
 	"github.com/qiniu/go-sdk/v7/auth/qbox"
 	"github.com/qiniu/go-sdk/v7/storage"
@@ -21,16 +23,18 @@ func UploadProductToLocalStatic(file multipart.File, bossId uint, productName st
 	if !DirExistOrNot(basePath) {
 		CreateDir(basePath)
 	}
-	productPath := basePath + productName + ".jpg"
+	productPath := fmt.Sprintf("%s%s.jpg", basePath, productName)
 	content, err := ioutil.ReadAll(file)
 	if err != nil {
+		util.LogrusObj.Error(err)
 		return "", err
 	}
 	err = ioutil.WriteFile(productPath, content, 0666)
 	if err != nil {
+		util.LogrusObj.Error(err)
 		return "", err
 	}
-	return "boss" + bId + "/" + productName + ".jpg", err
+	return fmt.Sprintf("boss%s/%s.jpg", bId, productName), err
 }
 
 // UploadAvatarToLocalStatic 上传头像
@@ -40,16 +44,18 @@ func UploadAvatarToLocalStatic(file multipart.File, userId uint, userName string
 	if !DirExistOrNot(basePath) {
 		CreateDir(basePath)
 	}
-	avatarPath := basePath + userName + ".jpg"
+	avatarPath := fmt.Sprintf("%s%s.jpg", basePath, userName)
 	content, err := ioutil.ReadAll(file)
 	if err != nil {
+		util.LogrusObj.Error(err)
 		return "", err
 	}
 	err = ioutil.WriteFile(avatarPath, content, 0666)
 	if err != nil {
+		util.LogrusObj.Error(err)
 		return "", err
 	}
-	return "user" + bId + "/" + userName + ".jpg", err
+	return fmt.Sprintf("user%s/%s.jpg", bId, userName), err
 }
 
 // DirExistOrNot 判断文件是否存在
