@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"mall/consts"
-	util "mall/pkg/utils"
+	util "mall/pkg/utils/log"
 	"mall/service"
 	"mall/types"
 

@@ -4,8 +4,9 @@ import (
 	"context"
 	"sync"
 
-	util "mall/pkg/utils"
 	"mall/pkg/utils/ctl"
+	util "mall/pkg/utils/encryption"
+	"mall/pkg/utils/log"
 	"mall/repository/db/dao"
 	"mall/types"
 )
@@ -27,7 +28,7 @@ func GetMoneySrv() *MoneySrv {
 func (s *MoneySrv) MoneyShow(ctx context.Context, uId uint, req *types.ShowMoneyServiceReq) (resp interface{}, err error) {
 	user, err := dao.NewUserDao(ctx).GetUserById(uId)
 	if err != nil {
-		util.LogrusObj.Error(err)
+		log.LogrusObj.Error(err)
 		return
 	}
 	util.Encrypt.SetKey(req.Key)

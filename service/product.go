@@ -8,8 +8,9 @@ import (
 
 	"mall/conf"
 	"mall/consts"
-	util "mall/pkg/utils"
 	"mall/pkg/utils/ctl"
+	"mall/pkg/utils/log"
+	util "mall/pkg/utils/upload"
 	"mall/repository/db/dao"
 	"mall/repository/db/model"
 	"mall/types"
@@ -32,7 +33,7 @@ func GetProductSrv() *ProductSrv {
 func (s *ProductSrv) ProductShow(ctx context.Context, req *types.ProductServiceReq) (resp interface{}, err error) {
 	product, err := dao.NewProductDao(ctx).ShowProductById(req.ID)
 	if err != nil {
-		util.LogrusObj.Error(err)
+		log.LogrusObj.Error(err)
 		return
 	}
 
@@ -53,7 +54,7 @@ func (s *ProductSrv) ProductCreate(ctx context.Context, uId uint, files []*multi
 		path, err = util.UploadToQiNiu(tmp, files[0].Size)
 	}
 	if err != nil {
-		util.LogrusObj.Error(err)
+		log.LogrusObj.Error(err)
 		return
 	}
 	product := &model.Product{
@@ -73,7 +74,7 @@ func (s *ProductSrv) ProductCreate(ctx context.Context, uId uint, files []*multi
 	productDao := dao.NewProductDao(ctx)
 	err = productDao.CreateProduct(product)
 	if err != nil {
-		util.LogrusObj.Error(err)
+		log.LogrusObj.Error(err)
 		return
 	}
 
@@ -88,7 +89,7 @@ func (s *ProductSrv) ProductCreate(ctx context.Context, uId uint, files []*multi
 			path, err = util.UploadToQiNiu(tmp, file.Size)
 		}
 		if err != nil {
-			util.LogrusObj.Error(err)
+			log.LogrusObj.Error(err)
 			return
 		}
 		productImg := &model.ProductImg{
@@ -97,7 +98,7 @@ func (s *ProductSrv) ProductCreate(ctx context.Context, uId uint, files []*multi
 		}
 		err = dao.NewProductImgDaoByDB(productDao.DB).CreateProductImg(productImg)
 		if err != nil {
-			util.LogrusObj.Error(err)
+			log.LogrusObj.Error(err)
 			return
 		}
 		wg.Done()
@@ -126,7 +127,7 @@ func (s *ProductSrv) ProductList(ctx context.Context, req *types.ProductServiceR
 	wg.Wait()
 	total, err = productDao.CountProductByCondition(condition)
 	if err != nil {
-		util.LogrusObj.Error(err)
+		log.LogrusObj.Error(err)
 		return
 	}
 	return ctl.RespList(products, total), nil
@@ -136,7 +137,7 @@ func (s *ProductSrv) ProductList(ctx context.Context, req *types.ProductServiceR
 func (s *ProductSrv) ProductDelete(ctx context.Context, req *types.ProductServiceReq) (resp interface{}, err error) {
 	err = dao.NewProductDao(ctx).DeleteProduct(req.ID)
 	if err != nil {
-		util.LogrusObj.Error(err)
+		log.LogrusObj.Error(err)
 		return
 	}
 	return ctl.RespSuccess(), nil
@@ -156,7 +157,7 @@ func (s *ProductSrv) ProductUpdate(ctx context.Context, req *types.ProductServic
 	}
 	err = dao.NewProductDao(ctx).UpdateProduct(req.ID, product)
 	if err != nil {
-		util.LogrusObj.Error(err)
+		log.LogrusObj.Error(err)
 		return
 	}
 
@@ -168,7 +169,7 @@ func (s *ProductSrv) ProductSearch(ctx context.Context, req *types.ProductServic
 	productDao := dao.NewProductDao(ctx)
 	products, count, err := productDao.SearchProduct(req.Info, req.BasePage)
 	if err != nil {
-		util.LogrusObj.Error(err)
+		log.LogrusObj.Error(err)
 		return
 	}
 	return ctl.RespList(products, count), nil

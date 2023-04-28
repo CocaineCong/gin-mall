@@ -5,8 +5,8 @@ import (
 	"strconv"
 	"sync"
 
-	util "mall/pkg/utils"
 	"mall/pkg/utils/ctl"
+	util "mall/pkg/utils/log"
 	"mall/repository/db/dao"
 	"mall/repository/db/model"
 	"mall/types"
@@ -25,7 +25,7 @@ func GetAddressSrv() *AddressSrv {
 	return AddressSrvIns
 }
 
-func (s *AddressSrv) Create(ctx context.Context, req *types.AddressServiceReq, uId uint) (resp interface{}, err error) {
+func (s *AddressSrv) AddressCreate(ctx context.Context, req *types.AddressCreateReq, uId uint) (resp interface{}, err error) {
 	addressDao := dao.NewAddressDao(ctx)
 	address := &model.Address{
 		UserID:  uId,

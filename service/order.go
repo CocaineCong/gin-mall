@@ -10,8 +10,8 @@ import (
 
 	"github.com/go-redis/redis"
 
-	util "mall/pkg/utils"
 	"mall/pkg/utils/ctl"
+	util "mall/pkg/utils/log"
 	"mall/repository/cache"
 	"mall/repository/db/dao"
 	"mall/repository/db/model"

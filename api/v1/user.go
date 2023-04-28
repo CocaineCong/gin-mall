@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	util "mall/pkg/utils"
+	util "mall/pkg/utils/log"
 	"mall/service"
 	"mall/types"
 )

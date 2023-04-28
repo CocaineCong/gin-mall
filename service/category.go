@@ -4,8 +4,8 @@ import (
 	"context"
 	"sync"
 
-	util "mall/pkg/utils"
 	"mall/pkg/utils/ctl"
+	util "mall/pkg/utils/log"
 	"mall/repository/db/dao"
 	"mall/types"
 )

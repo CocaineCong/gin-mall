@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"mall/consts"
-	util "mall/pkg/utils"
+	util "mall/pkg/utils/log"
 	"mall/service"
 	"mall/types"
 )

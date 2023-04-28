@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"mall/pkg/e"
-	util "mall/pkg/utils"
+	util "mall/pkg/utils/jwt"
 )
 
 // JWT token验证中间件

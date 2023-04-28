@@ -11,9 +11,12 @@ import (
 	"mall/conf"
 	"mall/consts"
 	"mall/pkg/e"
-	util "mall/pkg/utils"
 	"mall/pkg/utils/ctl"
 	"mall/pkg/utils/email"
+	"mall/pkg/utils/encryption"
+	"mall/pkg/utils/jwt"
+	"mall/pkg/utils/log"
+	util "mall/pkg/utils/upload"
 	"mall/repository/db/dao"
 	"mall/repository/db/model"
 	"mall/types"
@@ -38,11 +41,11 @@ func (s *UserSrv) UserRegister(ctx context.Context, req *types.UserRegisterReq) 
 	if req.Key == "" || len(req.Key) != 16 {
 		return nil, errors.New("密钥长度不足")
 	}
-	util.Encrypt.SetKey(req.Key)
+	encryption.Encrypt.SetKey(req.Key)
 	userDao := dao.NewUserDao(ctx)
 	_, exist, err := userDao.ExistOrNotByUserName(req.UserName)
 	if err != nil {
-		util.LogrusObj.Error(err)
+		log.LogrusObj.Error(err)
 		return
 	}
 	if exist {
@@ -52,11 +55,11 @@ func (s *UserSrv) UserRegister(ctx context.Context, req *types.UserRegisterReq) 
 		NickName: req.NickName,
 		UserName: req.UserName,
 		Status:   model.Active,
-		Money:    util.Encrypt.AesEncoding("10000"), // 初始金额
+		Money:    encryption.Encrypt.AesEncoding("10000"), // 初始金额
 	}
 	// 加密密码
 	if err = user.SetPassword(req.Password); err != nil {
-		util.LogrusObj.Error(err)
+		log.LogrusObj.Error(err)
 		return
 	}
 
@@ -69,7 +72,7 @@ func (s *UserSrv) UserRegister(ctx context.Context, req *types.UserRegisterReq) 
 	// 创建用户
 	err = userDao.CreateUser(user)
 	if err != nil {
-		util.LogrusObj.Error(err)
+		log.LogrusObj.Error(err)
 		return
 	}
 
@@ -82,7 +85,7 @@ func (s *UserSrv) UserLogin(ctx context.Context, req *types.UserServiceReq) (res
 	userDao := dao.NewUserDao(ctx)
 	user, exist, err := userDao.ExistOrNotByUserName(req.UserName)
 	if !exist { // 如果查询不到，返回相应的错误
-		util.LogrusObj.Error(err)
+		log.LogrusObj.Error(err)
 		return nil, errors.New("用户不存在")
 	}
 
@@ -90,9 +93,9 @@ func (s *UserSrv) UserLogin(ctx context.Context, req *types.UserServiceReq) (res
 		return nil, errors.New("账号/密码不正确")
 	}
 
-	token, err := util.GenerateToken(user.ID, req.UserName, 0)
+	token, err := jwt.GenerateToken(user.ID, req.UserName, 0)
 	if err != nil {
-		util.LogrusObj.Error(err)
+		log.LogrusObj.Error(err)
 		return nil, err
 	}
 
@@ -122,7 +125,7 @@ func (s *UserSrv) UserInfoUpdate(ctx context.Context, uId uint, req *types.UserI
 	userDao := dao.NewUserDao(ctx)
 	user, err = userDao.GetUserById(uId)
 	if err != nil {
-		util.LogrusObj.Error(err)
+		log.LogrusObj.Error(err)
 		return nil, err
 	}
 
@@ -132,7 +135,7 @@ func (s *UserSrv) UserInfoUpdate(ctx context.Context, uId uint, req *types.UserI
 
 	err = userDao.UpdateUserById(uId, user)
 	if err != nil {
-		util.LogrusObj.Error(err)
+		log.LogrusObj.Error(err)
 		return nil, err
 	}
 
@@ -145,7 +148,7 @@ func (s *UserSrv) UserAvatarUpload(ctx context.Context, uId uint, file multipart
 	userDao := dao.NewUserDao(ctx)
 	user, err := userDao.GetUserById(uId)
 	if err != nil {
-		util.LogrusObj.Error(err)
+		log.LogrusObj.Error(err)
 		return nil, err
 	}
 
@@ -156,14 +159,14 @@ func (s *UserSrv) UserAvatarUpload(ctx context.Context, uId uint, file multipart
 		path, err = util.UploadToQiNiu(file, fileSize)
 	}
 	if err != nil {
-		util.LogrusObj.Error(err)
+		log.LogrusObj.Error(err)
 		return nil, err
 	}
 
 	user.Avatar = path
 	err = userDao.UpdateUserById(uId, user)
 	if err != nil {
-		util.LogrusObj.Error(err)
+		log.LogrusObj.Error(err)
 		return nil, err
 	}
 
@@ -173,15 +176,15 @@ func (s *UserSrv) UserAvatarUpload(ctx context.Context, uId uint, file multipart
 // SendEmail 发送邮件
 func (s *UserSrv) SendEmail(ctx context.Context, id uint, req *types.SendEmailServiceReq) (resp interface{}, err error) {
 	var address string
-	token, err := util.GenerateEmailToken(id, req.OperationType, req.Email, req.Password)
+	token, err := jwt.GenerateEmailToken(id, req.OperationType, req.Email, req.Password)
 	if err != nil {
-		util.LogrusObj.Error(err)
+		log.LogrusObj.Error(err)
 		return nil, err
 	}
 	address = conf.ValidEmail + token
 	mailText := fmt.Sprintf(consts.EmailOperationMap[req.OperationType], address)
 	if err = email.SendEmail(mailText, req.Email); err != nil {
-		util.LogrusObj.Error(err)
+		log.LogrusObj.Error(err)
 		return
 	}
 	return ctl.RespSuccess(), nil
@@ -199,9 +202,9 @@ func (s *UserSrv) Valid(ctx context.Context, token string, req *types.ValidEmail
 	if token == "" {
 		code = e.InvalidParams
 	} else {
-		claims, err := util.ParseEmailToken(token)
+		claims, err := jwt.ParseEmailToken(token)
 		if err != nil {
-			util.LogrusObj.Error(err)
+			log.LogrusObj.Error(err)
 			code = e.ErrorAuthCheckTokenFail
 		} else if time.Now().Unix() > claims.ExpiresAt {
 			code = e.ErrorAuthCheckTokenTimeout

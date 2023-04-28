@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"mall/conf"
-	util "mall/pkg/utils"
+	util "mall/pkg/utils/log"
 	"mall/repository/cache"
 	"mall/repository/db/dao"
 	"mall/repository/es"

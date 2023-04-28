@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cast"
 
-	util "mall/pkg/utils"
+	util "mall/pkg/utils/log"
 	"mall/service"
 	"mall/types"
 )
@@ -14,13 +14,13 @@ import (
 // CreateAddressHandler 新增收货地址
 func CreateAddressHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		req := new(types.AddressServiceReq)
+		var req types.AddressCreateReq
 
 		if err := ctx.ShouldBind(&req); err == nil {
 			// 参数校验
 			l := service.GetAddressSrv()
 			userId := ctx.Keys["user_id"].(uint)
-			resp, err := l.Create(ctx.Request.Context(), req, userId)
+			resp, err := l.AddressCreate(ctx.Request.Context(), req, userId)
 			if err != nil {
 				util.LogrusObj.Infoln(err)
 				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
