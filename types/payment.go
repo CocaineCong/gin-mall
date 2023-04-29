@@ -1,6 +1,6 @@
 package types
 
-type PaymentServiceReq struct {
+type PaymentDownReq struct {
 	OrderId   uint    `form:"order_id" json:"order_id"`
 	Money     float64 `form:"money" json:"money"`
 	OrderNo   string  `form:"orderNo" json:"orderNo"`

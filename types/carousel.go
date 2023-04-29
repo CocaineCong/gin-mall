@@ -1,12 +1,9 @@
 package types
 
-type ListCarouselsServiceReq struct {
+type ListCarouselReq struct {
 }
 
-type ListCarouselsServiceResp struct {
-}
-
-type Carousel struct {
+type ListCarouselResp struct {
 	ID        uint   `json:"id"`
 	ImgPath   string `json:"img_path"`
 	ProductID uint   `json:"product_id"`

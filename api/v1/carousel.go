@@ -12,7 +12,7 @@ import (
 
 func ListCarouselsHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		var req types.ListCarouselsServiceReq
+		var req types.ListCarouselReq
 
 		if err := ctx.ShouldBind(&req); err == nil {
 			// 参数校验

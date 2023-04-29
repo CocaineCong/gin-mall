@@ -21,7 +21,7 @@ func NewAddressDaoByDB(db *gorm.DB) *AddressDao {
 	return &AddressDao{db}
 }
 
-// GetAddressByAid 根据 Address Id 获取 Address
+// GetAddressByAid 根据 AddressId 获取 Address
 func (dao *AddressDao) GetAddressByAid(aId uint) (address *types.AddressResp, err error) {
 	err = dao.DB.Model(&model.Address{}).
 		Where("id = ?", aId).First(&address).
@@ -39,19 +39,16 @@ func (dao *AddressDao) ListAddressByUid(uid uint) (addressList []*types.AddressR
 
 // CreateAddress 创建地址
 func (dao *AddressDao) CreateAddress(address *model.Address) (err error) {
-	err = dao.DB.Model(&model.Address{}).Create(&address).Error
-	return
+	return dao.DB.Model(&model.Address{}).Create(&address).Error
 }
 
 // DeleteAddressById 根据 id 删除地址
 func (dao *AddressDao) DeleteAddressById(aId, uId uint) (err error) {
-	err = dao.DB.Where("id=? AND user_id = ?", aId, uId).Delete(&model.Address{}).Error
-	return
+	return dao.DB.Where("id=? AND user_id = ?", aId, uId).Delete(&model.Address{}).Error
 }
 
 // UpdateAddressById 通过 id 修改地址信息
 func (dao *AddressDao) UpdateAddressById(aId uint, address *model.Address) (err error) {
-	err = dao.DB.Model(&model.Address{}).
+	return dao.DB.Model(&model.Address{}).
 		Where("id=?", aId).Updates(address).Error
-	return
 }

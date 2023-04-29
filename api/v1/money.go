@@ -12,7 +12,7 @@ import (
 
 func ShowMoneyHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		var req types.ShowMoneyServiceReq
+		var req types.MoneyShowReq
 
 		if err := ctx.ShouldBind(&req); err == nil {
 			// 参数校验

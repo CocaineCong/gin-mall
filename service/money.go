@@ -25,14 +25,14 @@ func GetMoneySrv() *MoneySrv {
 }
 
 // MoneyShow 展示用户的金额
-func (s *MoneySrv) MoneyShow(ctx context.Context, uId uint, req *types.ShowMoneyServiceReq) (resp interface{}, err error) {
+func (s *MoneySrv) MoneyShow(ctx context.Context, uId uint, req *types.MoneyShowReq) (resp interface{}, err error) {
 	user, err := dao.NewUserDao(ctx).GetUserById(uId)
 	if err != nil {
 		log.LogrusObj.Error(err)
 		return
 	}
 	util.Encrypt.SetKey(req.Key)
-	mResp := &types.MoneyResp{
+	mResp := &types.MoneyShowResp{
 		UserID:    user.ID,
 		UserName:  user.UserName,
 		UserMoney: util.Encrypt.AesDecoding(user.Money),

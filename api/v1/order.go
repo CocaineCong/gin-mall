@@ -13,7 +13,7 @@ import (
 
 func CreateOrderHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		var req types.OrderServiceReq
+		var req types.OrderCreateReq
 
 		if err := ctx.ShouldBind(&req); err == nil {
 			// 参数校验
@@ -35,7 +35,7 @@ func CreateOrderHandler() gin.HandlerFunc {
 
 func ListOrdersHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		var req types.OrderServiceReq
+		var req types.OrderListReq
 
 		if err := ctx.ShouldBind(&req); err == nil {
 			// 参数校验
@@ -62,7 +62,7 @@ func ListOrdersHandler() gin.HandlerFunc {
 // 订单详情
 func ShowOrderHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		var req types.OrderServiceReq
+		var req types.OrderShowReq
 
 		if err := ctx.ShouldBind(&req); err == nil {
 			// 参数校验
@@ -84,7 +84,7 @@ func ShowOrderHandler() gin.HandlerFunc {
 
 func DeleteOrderHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		var req types.OrderServiceReq
+		var req types.OrderDeleteReq
 
 		if err := ctx.ShouldBind(&req); err == nil {
 			// 参数校验

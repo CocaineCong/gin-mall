@@ -30,7 +30,7 @@ func GetPaymentSrv() *PaymentSrv {
 	return PaymentSrvIns
 }
 
-func (s *PaymentSrv) PayDown(ctx context.Context, uId uint, req *types.PaymentServiceReq) (resp interface{}, err error) {
+func (s *PaymentSrv) PayDown(ctx context.Context, uId uint, req *types.PaymentDownReq) (resp interface{}, err error) {
 	err = dao.NewOrderDao(ctx).Transaction(func(tx *gorm.DB) error {
 		util.Encrypt.SetKey(req.Key)
 
@@ -68,6 +68,10 @@ func (s *PaymentSrv) PayDown(ctx context.Context, uId uint, req *types.PaymentSe
 		}
 		boss := new(model.User)
 		boss, err = userDao.GetUserById(uint(req.BossID))
+		if err != nil {
+			log.LogrusObj.Error(err)
+			return err
+		}
 		moneyStr = util.Encrypt.AesDecoding(boss.Money)
 		moneyFloat, _ = strconv.ParseFloat(moneyStr, 64)
 		finMoney = fmt.Sprintf("%f", moneyFloat+money)
@@ -83,6 +87,7 @@ func (s *PaymentSrv) PayDown(ctx context.Context, uId uint, req *types.PaymentSe
 		productDao := dao.NewProductDaoByDB(tx)
 		product, err = productDao.GetProductById(uint(req.ProductID))
 		if err != nil {
+			log.LogrusObj.Error(err)
 			return err
 		}
 		product.Num -= num

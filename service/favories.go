@@ -36,7 +36,7 @@ func (s *FavoriteSrv) FavoriteList(ctx context.Context, uId uint, req *types.Fav
 }
 
 // FavoriteCreate 创建收藏夹
-func (s *FavoriteSrv) FavoriteCreate(ctx context.Context, uId uint, req *types.FavoritesServiceReq) (resp interface{}, err error) {
+func (s *FavoriteSrv) FavoriteCreate(ctx context.Context, uId uint, req *types.FavoriteCreateReq) (resp interface{}, err error) {
 	favoriteDao := dao.NewFavoritesDao(ctx)
 	exist, _ := favoriteDao.FavoriteExistOrNot(req.ProductId, uId)
 	if exist {
@@ -59,8 +59,7 @@ func (s *FavoriteSrv) FavoriteCreate(ctx context.Context, uId uint, req *types.F
 		return
 	}
 
-	productDao := dao.NewProductDao(ctx)
-	product, err := productDao.GetProductById(req.ProductId)
+	product, err := dao.NewProductDao(ctx).GetProductById(req.ProductId)
 	if err != nil {
 		util.LogrusObj.Error(err)
 		return
@@ -85,9 +84,9 @@ func (s *FavoriteSrv) FavoriteCreate(ctx context.Context, uId uint, req *types.F
 }
 
 // FavoriteDelete 删除收藏夹
-func (s *FavoriteSrv) FavoriteDelete(ctx context.Context, req *types.FavoritesServiceReq) (resp interface{}, err error) {
+func (s *FavoriteSrv) FavoriteDelete(ctx context.Context, req *types.FavoriteDeleteReq) (resp interface{}, err error) {
 	favoriteDao := dao.NewFavoritesDao(ctx)
-	err = favoriteDao.DeleteFavoriteById(req.FavoriteId)
+	err = favoriteDao.DeleteFavoriteById(req.Id)
 	if err != nil {
 		util.LogrusObj.Error(err)
 		return

@@ -23,8 +23,8 @@ func GetCategorySrv() *CategorySrv {
 	return CategorySrvIns
 }
 
-// ListCategory 列举分类
-func (s *CategorySrv) ListCategory(ctx context.Context, req *types.ListCategoryReq) (resp interface{}, err error) {
+// CategoryList 列举分类
+func (s *CategorySrv) CategoryList(ctx context.Context, req *types.ListCategoryReq) (resp interface{}, err error) {
 	categories, err := dao.NewCategoryDao(ctx).ListCategory()
 	if err != nil {
 		util.LogrusObj.Error(err)

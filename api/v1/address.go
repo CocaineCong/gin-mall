@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cast"
 
+	"mall/consts"
 	util "mall/pkg/utils/log"
 	"mall/service"
 	"mall/types"
@@ -20,7 +21,7 @@ func CreateAddressHandler() gin.HandlerFunc {
 			// 参数校验
 			l := service.GetAddressSrv()
 			userId := ctx.Keys["user_id"].(uint)
-			resp, err := l.AddressCreate(ctx.Request.Context(), req, userId)
+			resp, err := l.AddressCreate(ctx.Request.Context(), &req, userId)
 			if err != nil {
 				util.LogrusObj.Infoln(err)
 				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
@@ -38,12 +39,12 @@ func CreateAddressHandler() gin.HandlerFunc {
 // GetAddressHandler 展示某个收货地址
 func GetAddressHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		req := new(types.AddressServiceReq)
+		var req types.AddressGetReq
 
 		if err := ctx.ShouldBind(&req); err == nil {
 			// 参数校验
 			l := service.GetAddressSrv()
-			resp, err := l.Show(ctx.Request.Context(), ctx.Param("id"))
+			resp, err := l.AddressGet(ctx.Request.Context(), &req)
 			if err != nil {
 				util.LogrusObj.Infoln(err)
 				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
@@ -60,12 +61,15 @@ func GetAddressHandler() gin.HandlerFunc {
 // ListAddressHandler 展示收货地址
 func ListAddressHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		req := new(types.AddressServiceReq)
+		var req types.AddressListReq
 
 		if err := ctx.ShouldBind(&req); err == nil {
 			// 参数校验
+			if req.PageSize == 0 {
+				req.PageSize = consts.BasePageSize
+			}
 			l := service.GetAddressSrv()
-			resp, err := l.List(ctx.Request.Context(), cast.ToUint(ctx.Param("id")))
+			resp, err := l.AddressList(ctx.Request.Context(), &req)
 			if err != nil {
 				util.LogrusObj.Infoln(err)
 				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
@@ -88,7 +92,7 @@ func UpdateAddressHandler() gin.HandlerFunc {
 			// 参数校验
 			userId := ctx.Keys["user_id"].(uint)
 			l := service.GetAddressSrv()
-			resp, err := l.Update(ctx.Request.Context(), &req, userId, cast.ToUint(ctx.Param("id")))
+			resp, err := l.AddressUpdate(ctx.Request.Context(), &req, userId, cast.ToUint(ctx.Param("id")))
 			if err != nil {
 				util.LogrusObj.Infoln(err)
 				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
@@ -105,13 +109,13 @@ func UpdateAddressHandler() gin.HandlerFunc {
 // DeleteAddressHandler 删除收获地址
 func DeleteAddressHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		var req types.AddressServiceReq
+		var req types.AddressDeleteReq
 
 		if err := ctx.ShouldBind(&req); err == nil {
 			// 参数校验
 			userId := ctx.Keys["user_id"].(uint)
 			l := service.GetAddressSrv()
-			resp, err := l.Delete(ctx.Request.Context(), cast.ToUint(ctx.Param("id")), userId)
+			resp, err := l.AddressDelete(ctx.Request.Context(), &req, userId)
 			if err != nil {
 				util.LogrusObj.Infoln(err)
 				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))

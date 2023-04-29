@@ -27,7 +27,7 @@ func (dao *OrderDao) CreateOrder(order *model.Order) error {
 }
 
 // ListOrderByCondition 获取订单List
-func (dao *OrderDao) ListOrderByCondition(uId uint, req *types.OrderServiceReq) (r []*types.OrderListResp, count int64, err error) {
+func (dao *OrderDao) ListOrderByCondition(uId uint, req *types.OrderListReq) (r []*types.OrderListResp, count int64, err error) {
 	// TODO 商城算是一个TOC的应用，TOC的应该是不允许join操作的，看看后续怎么改走缓存，比如走缓存，找找免费的CDN之类的
 	d := dao.DB.Model(&model.Order{}).
 		Where("user_id = ?", uId)

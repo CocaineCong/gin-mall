@@ -41,10 +41,8 @@ func (s *ProductSrv) ProductShow(ctx context.Context, req *types.ProductServiceR
 }
 
 // 创建商品
-func (s *ProductSrv) ProductCreate(ctx context.Context, uId uint, files []*multipart.FileHeader, req *types.ProductServiceReq) (resp interface{}, err error) {
-	var boss *model.User
-	userDao := dao.NewUserDao(ctx)
-	boss, _ = userDao.GetUserById(uId)
+func (s *ProductSrv) ProductCreate(ctx context.Context, uId uint, files []*multipart.FileHeader, req *types.ProductCreateReq) (resp interface{}, err error) {
+	boss, _ := dao.NewUserDao(ctx).GetUserById(uId)
 	// 以第一张作为封面图
 	tmp, _ := files[0].Open()
 	var path string
@@ -109,7 +107,7 @@ func (s *ProductSrv) ProductCreate(ctx context.Context, uId uint, files []*multi
 	return ctl.RespSuccess(), nil
 }
 
-func (s *ProductSrv) ProductList(ctx context.Context, req *types.ProductServiceReq) (resp interface{}, err error) {
+func (s *ProductSrv) ProductList(ctx context.Context, req *types.ProductListReq) (resp interface{}, err error) {
 	var products []*types.ProductResp
 	var total int64
 	condition := make(map[string]interface{})
@@ -134,8 +132,9 @@ func (s *ProductSrv) ProductList(ctx context.Context, req *types.ProductServiceR
 }
 
 // ProductDelete 删除商品
-func (s *ProductSrv) ProductDelete(ctx context.Context, req *types.ProductServiceReq) (resp interface{}, err error) {
-	err = dao.NewProductDao(ctx).DeleteProduct(req.ID)
+func (s *ProductSrv) ProductDelete(ctx context.Context, req *types.ProductDeleteReq) (resp interface{}, err error) {
+	u, _ := ctl.GetUserInfo(ctx)
+	err = dao.NewProductDao(ctx).DeleteProduct(req.ID, u.Id)
 	if err != nil {
 		log.LogrusObj.Error(err)
 		return
@@ -165,6 +164,7 @@ func (s *ProductSrv) ProductUpdate(ctx context.Context, req *types.ProductServic
 }
 
 // 搜索商品
+// TODO 后续用脚本同步数据MySQL到ES，用ES进行搜索
 func (s *ProductSrv) ProductSearch(ctx context.Context, req *types.ProductServiceReq) (resp interface{}, err error) {
 	productDao := dao.NewProductDao(ctx)
 	products, count, err := productDao.SearchProduct(req.Info, req.BasePage)

@@ -63,7 +63,7 @@ func ListFavoritesHandler() gin.HandlerFunc {
 // DeleteFavoriteHandler 删除收藏夹
 func DeleteFavoriteHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		var req types.FavoritesServiceReq
+		var req types.FavoriteDeleteReq
 
 		if err := ctx.ShouldBind(&req); err == nil {
 			// 参数校验

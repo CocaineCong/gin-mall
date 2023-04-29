@@ -24,7 +24,7 @@ func GetCarouselSrv() *CarouselSrv {
 }
 
 // ListCarousel 列表
-func (s *CarouselSrv) ListCarousel(ctx context.Context, req *types.ListCarouselsServiceReq) (resp interface{}, err error) {
+func (s *CarouselSrv) ListCarousel(ctx context.Context, req *types.ListCarouselReq) (resp interface{}, err error) {
 	carousels, err := dao.NewCarouselDao(ctx).ListCarousel()
 	if err != nil {
 		util.LogrusObj.Error(err)

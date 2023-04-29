@@ -12,7 +12,7 @@ import (
 
 func OrderPaymentHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		var req types.PaymentServiceReq
+		var req types.PaymentDownReq
 
 		if err := ctx.ShouldBind(&req); err == nil {
 			// 参数校验

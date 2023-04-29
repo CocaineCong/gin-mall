@@ -14,7 +14,7 @@ import (
 // CreateProductHandler 创建商品
 func CreateProductHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		var req types.ProductServiceReq
+		var req types.ProductCreateReq
 
 		if err := ctx.ShouldBind(&req); err == nil {
 			// 参数校验
@@ -39,7 +39,7 @@ func CreateProductHandler() gin.HandlerFunc {
 // ListProducts 商品列表
 func ListProductsHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		var req types.ProductServiceReq
+		var req types.ProductListReq
 
 		if err := ctx.ShouldBind(&req); err == nil {
 			// 参数校验
@@ -86,7 +86,7 @@ func ShowProductHandler() gin.HandlerFunc {
 // 删除商品
 func DeleteProductHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		var req types.ProductServiceReq
+		var req types.ProductDeleteReq
 
 		if err := ctx.ShouldBind(&req); err == nil {
 			// 参数校验

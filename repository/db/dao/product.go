@@ -55,8 +55,11 @@ func (dao *ProductDao) CountProductByCondition(condition map[string]interface{})
 }
 
 // DeleteProduct 删除商品
-func (dao *ProductDao) DeleteProduct(pId uint) error {
-	return dao.DB.Model(&model.Product{}).Delete(&model.Product{}).Error
+func (dao *ProductDao) DeleteProduct(pId, uId uint) error {
+	return dao.DB.Model(&model.Product{}).
+		Where("id = ? AND boss_id = ?", pId, uId).
+		Delete(&model.Product{}).
+		Error
 }
 
 // UpdateProduct 更新商品
