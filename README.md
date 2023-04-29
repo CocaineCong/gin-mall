@@ -53,7 +53,7 @@
 -[ ] 加入 Jaeger 进行链路追踪\
 -[ ] 加入 Prometheus 监控中间件\
 -[ ] 优化ToC应用的 SQL JOIN 语句\
--[ ] MySQL到ES的数据同步，将搜索改成查找ES\
+-[ ] MySQL到ES的数据同步，将搜索改成查找ES（注意一下，这里最好引入kafka，mysql推到kafka，kafka再推到es，确保一下ack）
 
 
 # 项目的主要依赖：
