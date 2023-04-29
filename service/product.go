@@ -163,8 +163,7 @@ func (s *ProductSrv) ProductUpdate(ctx context.Context, req *types.ProductUpdate
 	return ctl.RespSuccess(), nil
 }
 
-// 搜索商品
-// TODO 后续用脚本同步数据MySQL到ES，用ES进行搜索
+// 搜索商品 TODO 后续用脚本同步数据MySQL到ES，用ES进行搜索
 func (s *ProductSrv) ProductSearch(ctx context.Context, req *types.ProductServiceReq) (resp interface{}, err error) {
 	productDao := dao.NewProductDao(ctx)
 	products, count, err := productDao.SearchProduct(req.Info, req.BasePage)

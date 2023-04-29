@@ -6,16 +6,28 @@ import (
 	"mall/conf"
 )
 
-// TODO 封装成一个对象
+type EmailSender struct {
+	SmtpHost      string `json:"smtp_host"`
+	SmtpEmailFrom string `json:"smtp_email_from"`
+	SmtpPass      string `json:"smtp_pass"`
+}
 
-// SendEmail 发送邮件
-func SendEmail(data, email string) error {
+func NewEmailSender() *EmailSender {
+	return &EmailSender{
+		SmtpHost:      conf.SmtpHost,
+		SmtpEmailFrom: conf.SmtpEmail,
+		SmtpPass:      conf.SmtpPass,
+	}
+}
+
+// Send 发送邮件
+func (s *EmailSender) Send(data, emailTo, subject string) error {
 	m := mail.NewMessage()
-	m.SetHeader("From", conf.SmtpEmail)
-	m.SetHeader("To", email)
-	m.SetHeader("Subject", "FanOne")
+	m.SetHeader("From", s.SmtpEmailFrom)
+	m.SetHeader("To", emailTo)
+	m.SetHeader("Subject", subject)
 	m.SetBody("text/html", data)
-	d := mail.NewDialer(conf.SmtpHost, 465, conf.SmtpEmail, conf.SmtpPass)
+	d := mail.NewDialer(s.SmtpHost, 465, s.SmtpEmailFrom, s.SmtpPass)
 	d.StartTLSPolicy = mail.MandatoryStartTLS
 	if err := d.DialAndSend(m); err != nil {
 		return err
