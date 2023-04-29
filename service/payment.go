@@ -66,8 +66,7 @@ func (s *PaymentSrv) PayDown(ctx context.Context, uId uint, req *types.PaymentDo
 			log.LogrusObj.Error(err)
 			return err
 		}
-		boss := new(model.User)
-		boss, err = userDao.GetUserById(uint(req.BossID))
+		boss, err := userDao.GetUserById(uint(req.BossID))
 		if err != nil {
 			log.LogrusObj.Error(err)
 			return err
@@ -83,9 +82,8 @@ func (s *PaymentSrv) PayDown(ctx context.Context, uId uint, req *types.PaymentDo
 			return err
 		}
 
-		product := new(model.Product)
 		productDao := dao.NewProductDaoByDB(tx)
-		product, err = productDao.GetProductById(uint(req.ProductID))
+		product, err := productDao.GetProductById(uint(req.ProductID))
 		if err != nil {
 			log.LogrusObj.Error(err)
 			return err

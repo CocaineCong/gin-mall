@@ -89,7 +89,7 @@ func (s *UserSrv) UserLogin(ctx context.Context, req *types.UserServiceReq) (res
 		return nil, errors.New("用户不存在")
 	}
 
-	if user.CheckPassword(req.Password) == false {
+	if !user.CheckPassword(req.Password) {
 		return nil, errors.New("账号/密码不正确")
 	}
 
@@ -181,9 +181,10 @@ func (s *UserSrv) SendEmail(ctx context.Context, id uint, req *types.SendEmailSe
 		log.LogrusObj.Error(err)
 		return nil, err
 	}
+	sender := email.NewEmailSender()
 	address = conf.ValidEmail + token
 	mailText := fmt.Sprintf(consts.EmailOperationMap[req.OperationType], address)
-	if err = email.SendEmail(mailText, req.Email); err != nil {
+	if err = sender.Send(mailText, req.Email, "FanOneMall"); err != nil {
 		log.LogrusObj.Error(err)
 		return
 	}
@@ -216,14 +217,16 @@ func (s *UserSrv) Valid(ctx context.Context, token string, req *types.ValidEmail
 		}
 	}
 	if code != e.SUCCESS {
-		return ctl.RespSuccess(code), nil
+		err = errors.New(e.GetMsg(code))
+		log.LogrusObj.Error(err)
+		return
 	}
 
 	// 获取该用户信息
 	userDao := dao.NewUserDao(ctx)
 	user, err := userDao.GetUserById(userId)
 	if err != nil {
-		code = e.ErrorDatabase
+		log.LogrusObj.Error(err)
 		return
 	}
 
@@ -235,6 +238,7 @@ func (s *UserSrv) Valid(ctx context.Context, token string, req *types.ValidEmail
 	case consts.EmailOperationUpdatePassword:
 		err = user.SetPassword(password)
 		if err != nil {
+			err = errors.New("密码加密错误")
 			return
 		}
 	default:
@@ -243,7 +247,8 @@ func (s *UserSrv) Valid(ctx context.Context, token string, req *types.ValidEmail
 
 	err = userDao.UpdateUserById(userId, user)
 	if err != nil {
-		return nil, err
+		log.LogrusObj.Error(err)
+		return
 	}
 
 	userResp := &types.UserInfoResp{
