@@ -38,11 +38,11 @@ func NewRouter() *gin.Engine {
 		v1.GET("carousels", api.ListCarouselsHandler()) // 轮播图
 
 		authed := v1.Group("/") // 需要登陆保护
-		authed.Use(middleware.JWT())
+		authed.Use(middleware.AuthMiddleware())
 		{
 
 			// 用户操作
-			authed.PUT("user", api.UserUpdateHandler())
+			authed.POST("user_update", api.UserUpdateHandler())
 			authed.POST("user/sending-email", api.SendEmailHandler())
 			authed.POST("user/valid-email", api.ValidEmailHandler())
 			authed.POST("avatar", api.UploadAvatarHandler()) // 上传头像

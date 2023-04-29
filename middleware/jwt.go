@@ -6,26 +6,32 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"mall/pkg/e"
+	"mall/pkg/utils/ctl"
 	util "mall/pkg/utils/jwt"
 )
 
-// JWT token验证中间件
-func JWT() gin.HandlerFunc {
+// AuthMiddleware token验证中间件
+func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var code int
 		var data interface{}
-		code = 200
-		token := c.GetHeader("Authorization")
+		code = e.SUCCESS
+		token := c.GetHeader("access_token")
 		if token == "" {
-			code = 404
-		} else {
-			claims, err := util.ParseToken(token)
-			if err != nil {
-				code = e.ErrorAuthCheckTokenFail
-			} else if time.Now().Unix() > claims.ExpiresAt {
-				code = e.ErrorAuthCheckTokenTimeout
-			}
-			c.Set("user_id", claims.ID)
+			code = e.InvalidParams
+			c.JSON(200, gin.H{
+				"status": code,
+				"msg":    e.GetMsg(code),
+				"data":   data,
+			})
+			c.Abort()
+			return
+		}
+		claims, err := util.ParseToken(token)
+		if err != nil {
+			code = e.ErrorAuthCheckTokenFail
+		} else if time.Now().Unix() > claims.ExpiresAt {
+			code = e.ErrorAuthCheckTokenTimeout
 		}
 		if code != e.SUCCESS {
 			c.JSON(200, gin.H{
@@ -36,6 +42,9 @@ func JWT() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
+		// c.Set("user_id", claims.ID)
+		c.Request = c.Request.WithContext(ctl.NewContext(c.Request.Context(), &ctl.UserInfo{Id: claims.ID}))
+		ctl.InitUserInfo(c.Request.Context())
 		c.Next()
 	}
 }

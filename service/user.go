@@ -119,11 +119,11 @@ func (s *UserSrv) UserLogin(ctx context.Context, req *types.UserServiceReq) (res
 }
 
 // UserInfoUpdate 用户修改信息
-func (s *UserSrv) UserInfoUpdate(ctx context.Context, uId uint, req *types.UserInfoUpdateReq) (resp interface{}, err error) {
-	var user *model.User
+func (s *UserSrv) UserInfoUpdate(ctx context.Context, req *types.UserInfoUpdateReq) (resp interface{}, err error) {
 	// 找到用户
+	u, _ := ctl.GetUserInfo(ctx)
 	userDao := dao.NewUserDao(ctx)
-	user, err = userDao.GetUserById(uId)
+	user, err := userDao.GetUserById(u.Id)
 	if err != nil {
 		log.LogrusObj.Error(err)
 		return nil, err
@@ -133,7 +133,7 @@ func (s *UserSrv) UserInfoUpdate(ctx context.Context, uId uint, req *types.UserI
 		user.NickName = req.NickName
 	}
 
-	err = userDao.UpdateUserById(uId, user)
+	err = userDao.UpdateUserById(u.Id, user)
 	if err != nil {
 		log.LogrusObj.Error(err)
 		return nil, err
