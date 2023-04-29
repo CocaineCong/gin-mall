@@ -14,7 +14,7 @@ import (
 // 创建收藏
 func CreateFavoriteHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		var req types.FavoritesServiceReq
+		var req types.FavoriteCreateReq
 
 		if err := ctx.ShouldBind(&req); err == nil {
 			// 参数校验

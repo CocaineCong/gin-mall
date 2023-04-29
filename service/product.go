@@ -30,7 +30,7 @@ func GetProductSrv() *ProductSrv {
 }
 
 // ProductShow 商品
-func (s *ProductSrv) ProductShow(ctx context.Context, req *types.ProductServiceReq) (resp interface{}, err error) {
+func (s *ProductSrv) ProductShow(ctx context.Context, req *types.ProductShowReq) (resp interface{}, err error) {
 	product, err := dao.NewProductDao(ctx).ShowProductById(req.ID)
 	if err != nil {
 		log.LogrusObj.Error(err)
@@ -143,10 +143,10 @@ func (s *ProductSrv) ProductDelete(ctx context.Context, req *types.ProductDelete
 }
 
 // 更新商品
-func (s *ProductSrv) ProductUpdate(ctx context.Context, req *types.ProductServiceReq) (resp interface{}, err error) {
+func (s *ProductSrv) ProductUpdate(ctx context.Context, req *types.ProductUpdateReq) (resp interface{}, err error) {
 	product := &model.Product{
 		Name:       req.Name,
-		CategoryID: uint(req.CategoryID),
+		CategoryID: req.CategoryID,
 		Title:      req.Title,
 		Info:       req.Info,
 		// ImgPath:       service.ImgPath,
@@ -176,7 +176,7 @@ func (s *ProductSrv) ProductSearch(ctx context.Context, req *types.ProductServic
 }
 
 // ProductImgList 获取商品列表图片
-func (s *ProductSrv) ProductImgList(ctx context.Context, req *types.ProductServiceReq) (resp interface{}, err error) {
+func (s *ProductSrv) ProductImgList(ctx context.Context, req *types.ListProductImgReq) (resp interface{}, err error) {
 	productImgs, _ := dao.NewProductImgDao(ctx).ListProductImgByProductId(req.ID)
 	return ctl.RespList(productImgs, int64(len(productImgs))), nil
 }

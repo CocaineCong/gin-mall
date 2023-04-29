@@ -64,7 +64,7 @@ func ListProductsHandler() gin.HandlerFunc {
 // ShowProduct 商品详情
 func ShowProductHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		var req types.ProductServiceReq
+		var req types.ProductShowReq
 
 		if err := ctx.ShouldBind(&req); err == nil {
 			// 参数校验
@@ -108,7 +108,7 @@ func DeleteProductHandler() gin.HandlerFunc {
 // 更新商品
 func UpdateProductHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		var req types.ProductServiceReq
+		var req types.ProductUpdateReq
 
 		if err := ctx.ShouldBind(&req); err == nil {
 			// 参数校验
@@ -154,7 +154,7 @@ func SearchProductsHandler() gin.HandlerFunc {
 
 func ListProductImgHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		var req types.ProductServiceReq
+		var req types.ListProductImgReq
 
 		if err := ctx.ShouldBind(&req); err == nil {
 			// 参数校验
