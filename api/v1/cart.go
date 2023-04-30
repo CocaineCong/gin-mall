@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"mall/consts"
-	util "mall/pkg/utils/log"
+	"mall/pkg/utils/log"
 	"mall/service"
 	"mall/types"
 )
@@ -20,13 +20,13 @@ func CreateCartHandler() gin.HandlerFunc {
 			l := service.GetCartSrv()
 			resp, err := l.CartCreate(ctx.Request.Context(), &req)
 			if err != nil {
-				util.LogrusObj.Infoln(err)
+				log.LogrusObj.Infoln(err)
 				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
 				return
 			}
 			ctx.JSON(http.StatusOK, resp)
 		} else {
-			util.LogrusObj.Infoln(err)
+			log.LogrusObj.Infoln(err)
 			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
 		}
 	}
@@ -45,13 +45,13 @@ func ListCartHandler() gin.HandlerFunc {
 			l := service.GetCartSrv()
 			resp, err := l.CartList(ctx.Request.Context(), &req)
 			if err != nil {
-				util.LogrusObj.Infoln(err)
+				log.LogrusObj.Infoln(err)
 				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
 				return
 			}
 			ctx.JSON(http.StatusOK, resp)
 		} else {
-			util.LogrusObj.Infoln(err)
+			log.LogrusObj.Infoln(err)
 			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
 		}
 	}
@@ -68,13 +68,13 @@ func UpdateCartHandler() gin.HandlerFunc {
 			l := service.GetCartSrv()
 			resp, err := l.CartUpdate(ctx.Request.Context(), &req)
 			if err != nil {
-				util.LogrusObj.Infoln(err)
+				log.LogrusObj.Infoln(err)
 				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
 				return
 			}
 			ctx.JSON(http.StatusOK, resp)
 		} else {
-			util.LogrusObj.Infoln(err)
+			log.LogrusObj.Infoln(err)
 			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
 		}
 	}
@@ -91,13 +91,13 @@ func DeleteCartHandler() gin.HandlerFunc {
 			l := service.GetCartSrv()
 			resp, err := l.CartDelete(ctx.Request.Context(), &req)
 			if err != nil {
-				util.LogrusObj.Infoln(err)
+				log.LogrusObj.Infoln(err)
 				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
 				return
 			}
 			ctx.JSON(http.StatusOK, resp)
 		} else {
-			util.LogrusObj.Infoln(err)
+			log.LogrusObj.Infoln(err)
 			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
 		}
 	}

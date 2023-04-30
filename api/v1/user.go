@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	util "mall/pkg/utils/log"
+	"mall/pkg/utils/log"
 	"mall/service"
 	"mall/types"
 )
@@ -19,13 +19,13 @@ func UserRegisterHandler() gin.HandlerFunc {
 			l := service.GetUserSrv()
 			resp, err := l.UserRegister(ctx.Request.Context(), &req)
 			if err != nil {
-				util.LogrusObj.Infoln(err)
+				log.LogrusObj.Infoln(err)
 				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
 				return
 			}
 			ctx.JSON(http.StatusOK, resp)
 		} else {
-			util.LogrusObj.Infoln(err)
+			log.LogrusObj.Infoln(err)
 			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
 		}
 	}
@@ -41,13 +41,13 @@ func UserLoginHandler() gin.HandlerFunc {
 			l := service.GetUserSrv()
 			resp, err := l.UserLogin(ctx.Request.Context(), &req)
 			if err != nil {
-				util.LogrusObj.Infoln(err)
+				log.LogrusObj.Infoln(err)
 				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
 				return
 			}
 			ctx.JSON(http.StatusOK, resp)
 		} else {
-			util.LogrusObj.Infoln(err)
+			log.LogrusObj.Infoln(err)
 			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
 		}
 	}
@@ -62,13 +62,13 @@ func UserUpdateHandler() gin.HandlerFunc {
 			l := service.GetUserSrv()
 			resp, err := l.UserInfoUpdate(ctx.Request.Context(), &req)
 			if err != nil {
-				util.LogrusObj.Infoln(err)
+				log.LogrusObj.Infoln(err)
 				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
 				return
 			}
 			ctx.JSON(http.StatusOK, resp)
 		} else {
-			util.LogrusObj.Infoln(err)
+			log.LogrusObj.Infoln(err)
 			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
 		}
 	}
@@ -85,13 +85,13 @@ func UploadAvatarHandler() gin.HandlerFunc {
 			l := service.GetUserSrv()
 			resp, err := l.UserAvatarUpload(ctx.Request.Context(), file, fileSize, &req)
 			if err != nil {
-				util.LogrusObj.Infoln(err)
+				log.LogrusObj.Infoln(err)
 				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
 				return
 			}
 			ctx.JSON(http.StatusOK, resp)
 		} else {
-			util.LogrusObj.Infoln(err)
+			log.LogrusObj.Infoln(err)
 			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
 		}
 	}
@@ -106,13 +106,13 @@ func SendEmailHandler() gin.HandlerFunc {
 			l := service.GetUserSrv()
 			resp, err := l.SendEmail(ctx.Request.Context(), &req)
 			if err != nil {
-				util.LogrusObj.Infoln(err)
+				log.LogrusObj.Infoln(err)
 				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
 				return
 			}
 			ctx.JSON(http.StatusOK, resp)
 		} else {
-			util.LogrusObj.Infoln(err)
+			log.LogrusObj.Infoln(err)
 			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
 		}
 	}
@@ -127,13 +127,13 @@ func ValidEmailHandler() gin.HandlerFunc {
 			l := service.GetUserSrv()
 			resp, err := l.Valid(ctx.Request.Context(), ctx.Param("token"), &req)
 			if err != nil {
-				util.LogrusObj.Infoln(err)
+				log.LogrusObj.Infoln(err)
 				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
 				return
 			}
 			ctx.JSON(http.StatusOK, resp)
 		} else {
-			util.LogrusObj.Infoln(err)
+			log.LogrusObj.Infoln(err)
 			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
 		}
 	}

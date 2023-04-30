@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"mall/consts"
-	util "mall/pkg/utils/log"
+	"mall/pkg/utils/log"
 	"mall/service"
 	"mall/types"
 )
@@ -20,13 +20,13 @@ func CreateOrderHandler() gin.HandlerFunc {
 			l := service.GetOrderSrv()
 			resp, err := l.OrderCreate(ctx.Request.Context(), &req)
 			if err != nil {
-				util.LogrusObj.Infoln(err)
+				log.LogrusObj.Infoln(err)
 				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
 				return
 			}
 			ctx.JSON(http.StatusOK, resp)
 		} else {
-			util.LogrusObj.Infoln(err)
+			log.LogrusObj.Infoln(err)
 			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
 		}
 	}
@@ -45,13 +45,13 @@ func ListOrdersHandler() gin.HandlerFunc {
 			l := service.GetOrderSrv()
 			resp, err := l.OrderList(ctx.Request.Context(), &req)
 			if err != nil {
-				util.LogrusObj.Infoln(err)
+				log.LogrusObj.Infoln(err)
 				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
 				return
 			}
 			ctx.JSON(http.StatusOK, resp)
 		} else {
-			util.LogrusObj.Infoln(err)
+			log.LogrusObj.Infoln(err)
 			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
 		}
 	}
@@ -67,13 +67,13 @@ func ShowOrderHandler() gin.HandlerFunc {
 			l := service.GetOrderSrv()
 			resp, err := l.OrderShow(ctx.Request.Context(), &req)
 			if err != nil {
-				util.LogrusObj.Infoln(err)
+				log.LogrusObj.Infoln(err)
 				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
 				return
 			}
 			ctx.JSON(http.StatusOK, resp)
 		} else {
-			util.LogrusObj.Infoln(err)
+			log.LogrusObj.Infoln(err)
 			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
 		}
 	}
@@ -88,13 +88,13 @@ func DeleteOrderHandler() gin.HandlerFunc {
 			l := service.GetOrderSrv()
 			resp, err := l.OrderDelete(ctx.Request.Context(), &req)
 			if err != nil {
-				util.LogrusObj.Infoln(err)
+				log.LogrusObj.Infoln(err)
 				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
 				return
 			}
 			ctx.JSON(http.StatusOK, resp)
 		} else {
-			util.LogrusObj.Infoln(err)
+			log.LogrusObj.Infoln(err)
 			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
 		}
 	}

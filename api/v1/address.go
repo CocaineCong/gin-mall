@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/cast"
 
 	"mall/consts"
-	util "mall/pkg/utils/log"
+	"mall/pkg/utils/log"
 	"mall/service"
 	"mall/types"
 )
@@ -22,13 +22,13 @@ func CreateAddressHandler() gin.HandlerFunc {
 			l := service.GetAddressSrv()
 			resp, err := l.AddressCreate(ctx.Request.Context(), &req)
 			if err != nil {
-				util.LogrusObj.Infoln(err)
+				log.LogrusObj.Infoln(err)
 				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
 				return
 			}
 			ctx.JSON(http.StatusOK, resp)
 		} else {
-			util.LogrusObj.Infoln(err)
+			log.LogrusObj.Infoln(err)
 			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
 		}
 
@@ -45,13 +45,13 @@ func GetAddressHandler() gin.HandlerFunc {
 			l := service.GetAddressSrv()
 			resp, err := l.AddressGet(ctx.Request.Context(), &req)
 			if err != nil {
-				util.LogrusObj.Infoln(err)
+				log.LogrusObj.Infoln(err)
 				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
 				return
 			}
 			ctx.JSON(http.StatusOK, resp)
 		} else {
-			util.LogrusObj.Infoln(err)
+			log.LogrusObj.Infoln(err)
 			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
 		}
 	}
@@ -70,13 +70,13 @@ func ListAddressHandler() gin.HandlerFunc {
 			l := service.GetAddressSrv()
 			resp, err := l.AddressList(ctx.Request.Context(), &req)
 			if err != nil {
-				util.LogrusObj.Infoln(err)
+				log.LogrusObj.Infoln(err)
 				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
 				return
 			}
 			ctx.JSON(http.StatusOK, resp)
 		} else {
-			util.LogrusObj.Infoln(err)
+			log.LogrusObj.Infoln(err)
 			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
 		}
 	}
@@ -92,13 +92,13 @@ func UpdateAddressHandler() gin.HandlerFunc {
 			l := service.GetAddressSrv()
 			resp, err := l.AddressUpdate(ctx.Request.Context(), &req, cast.ToUint(ctx.Param("id")))
 			if err != nil {
-				util.LogrusObj.Infoln(err)
+				log.LogrusObj.Infoln(err)
 				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
 				return
 			}
 			ctx.JSON(http.StatusOK, resp)
 		} else {
-			util.LogrusObj.Infoln(err)
+			log.LogrusObj.Infoln(err)
 			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
 		}
 	}
@@ -114,13 +114,13 @@ func DeleteAddressHandler() gin.HandlerFunc {
 			l := service.GetAddressSrv()
 			resp, err := l.AddressDelete(ctx.Request.Context(), &req)
 			if err != nil {
-				util.LogrusObj.Infoln(err)
+				log.LogrusObj.Infoln(err)
 				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
 				return
 			}
 			ctx.JSON(http.StatusOK, resp)
 		} else {
-			util.LogrusObj.Infoln(err)
+			log.LogrusObj.Infoln(err)
 			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
 		}
 	}
