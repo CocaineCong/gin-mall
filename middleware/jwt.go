@@ -14,7 +14,6 @@ import (
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var code int
-		var data interface{}
 		code = e.SUCCESS
 		token := c.GetHeader("access_token")
 		if token == "" {
@@ -22,7 +21,7 @@ func AuthMiddleware() gin.HandlerFunc {
 			c.JSON(200, gin.H{
 				"status": code,
 				"msg":    e.GetMsg(code),
-				"data":   data,
+				"data":   "Token不能为空",
 			})
 			c.Abort()
 			return
@@ -37,7 +36,7 @@ func AuthMiddleware() gin.HandlerFunc {
 			c.JSON(200, gin.H{
 				"status": code,
 				"msg":    e.GetMsg(code),
-				"data":   data,
+				"data":   "鉴权失败",
 			})
 			c.Abort()
 			return

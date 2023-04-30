@@ -86,7 +86,13 @@ func (s *SkillProductSrv) InitSkillGoods(ctx context.Context) (interface{}, erro
 	return nil, nil
 }
 
-func (s *SkillProductSrv) SkillProduct(ctx context.Context, uId uint, req *types.SkillProductServiceReq) (resp interface{}, err error) {
+func (s *SkillProductSrv) SkillProduct(ctx context.Context, req *types.SkillProductServiceReq) (resp interface{}, err error) {
+	u, err := ctl.GetUserInfo(ctx)
+	if err != nil {
+		util.LogrusObj.Error(err)
+		return nil, err
+	}
+	uId := u.Id
 	mo, _ := cache.RedisClient.HGet("SK"+strconv.Itoa(int(req.SkillProductId)), "money").Float64()
 	sk := &model.SkillProduct2MQ{
 		ProductId:      req.ProductId,

@@ -33,9 +33,14 @@ func GetOrderSrv() *OrderSrv {
 	return OrderSrvIns
 }
 
-func (s *OrderSrv) OrderCreate(ctx context.Context, id uint, req *types.OrderCreateReq) (resp interface{}, err error) {
+func (s *OrderSrv) OrderCreate(ctx context.Context, req *types.OrderCreateReq) (resp interface{}, err error) {
+	u, err := ctl.GetUserInfo(ctx)
+	if err != nil {
+		util.LogrusObj.Error(err)
+		return nil, err
+	}
 	order := &model.Order{
-		UserID:    id,
+		UserID:    u.Id,
 		ProductID: req.ProductID,
 		BossID:    req.BossID,
 		Num:       int(req.Num),
@@ -52,7 +57,7 @@ func (s *OrderSrv) OrderCreate(ctx context.Context, id uint, req *types.OrderCre
 	order.AddressID = address.ID
 	number := fmt.Sprintf("%09v", rand.New(rand.NewSource(time.Now().UnixNano())).Int31n(1000000000))
 	productNum := strconv.Itoa(int(req.ProductID))
-	userNum := strconv.Itoa(int(id))
+	userNum := strconv.Itoa(int(u.Id))
 	number = number + productNum + userNum
 	orderNum, _ := strconv.ParseUint(number, 10, 64)
 	order.OrderNum = orderNum
@@ -73,8 +78,13 @@ func (s *OrderSrv) OrderCreate(ctx context.Context, id uint, req *types.OrderCre
 	return ctl.RespSuccess(), nil
 }
 
-func (s *OrderSrv) OrderList(ctx context.Context, uId uint, req *types.OrderListReq) (resp interface{}, err error) {
-	orders, total, err := dao.NewOrderDao(ctx).ListOrderByCondition(uId, req)
+func (s *OrderSrv) OrderList(ctx context.Context, req *types.OrderListReq) (resp interface{}, err error) {
+	u, err := ctl.GetUserInfo(ctx)
+	if err != nil {
+		util.LogrusObj.Error(err)
+		return nil, err
+	}
+	orders, total, err := dao.NewOrderDao(ctx).ListOrderByCondition(u.Id, req)
 	if err != nil {
 		util.LogrusObj.Error(err)
 		return
@@ -83,9 +93,13 @@ func (s *OrderSrv) OrderList(ctx context.Context, uId uint, req *types.OrderList
 	return ctl.RespList(orders, total), nil
 }
 
-func (s *OrderSrv) OrderShow(ctx context.Context, uId uint, req *types.OrderShowReq) (resp interface{}, err error) {
-	orderDao := dao.NewOrderDao(ctx)
-	order, err := orderDao.ShowOrderById(uId, req.OrderId)
+func (s *OrderSrv) OrderShow(ctx context.Context, req *types.OrderShowReq) (resp interface{}, err error) {
+	u, err := ctl.GetUserInfo(ctx)
+	if err != nil {
+		util.LogrusObj.Error(err)
+		return nil, err
+	}
+	order, err := dao.NewOrderDao(ctx).ShowOrderById(u.Id, req.OrderId)
 	if err != nil {
 		util.LogrusObj.Error(err)
 		return
@@ -94,8 +108,13 @@ func (s *OrderSrv) OrderShow(ctx context.Context, uId uint, req *types.OrderShow
 	return ctl.RespSuccessWithData(order), nil
 }
 
-func (s *OrderSrv) OrderDelete(ctx context.Context, uId uint, req *types.OrderDeleteReq) (resp interface{}, err error) {
-	err = dao.NewOrderDao(ctx).DeleteOrderById(req.OrderId, uId)
+func (s *OrderSrv) OrderDelete(ctx context.Context, req *types.OrderDeleteReq) (resp interface{}, err error) {
+	u, err := ctl.GetUserInfo(ctx)
+	if err != nil {
+		util.LogrusObj.Error(err)
+		return nil, err
+	}
+	err = dao.NewOrderDao(ctx).DeleteOrderById(req.OrderId, u.Id)
 	if err != nil {
 		util.LogrusObj.Error(err)
 		return

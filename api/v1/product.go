@@ -20,9 +20,8 @@ func CreateProductHandler() gin.HandlerFunc {
 			// 参数校验
 			form, _ := ctx.MultipartForm()
 			files := form.File["file"]
-			userId := ctx.Keys["user_id"].(uint)
 			l := service.GetProductSrv()
-			resp, err := l.ProductCreate(ctx.Request.Context(), userId, files, &req)
+			resp, err := l.ProductCreate(ctx.Request.Context(), files, &req)
 			if err != nil {
 				util.LogrusObj.Infoln(err)
 				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))

@@ -143,8 +143,13 @@ func (s *UserSrv) UserInfoUpdate(ctx context.Context, req *types.UserInfoUpdateR
 }
 
 // UserAvatarUpload 更新头像
-func (s *UserSrv) UserAvatarUpload(ctx context.Context, uId uint, file multipart.File, fileSize int64, req *types.UserServiceReq) (resp interface{}, err error) {
-
+func (s *UserSrv) UserAvatarUpload(ctx context.Context, file multipart.File, fileSize int64, req *types.UserServiceReq) (resp interface{}, err error) {
+	u, err := ctl.GetUserInfo(ctx)
+	if err != nil {
+		log.LogrusObj.Error(err)
+		return nil, err
+	}
+	uId := u.Id
 	userDao := dao.NewUserDao(ctx)
 	user, err := userDao.GetUserById(uId)
 	if err != nil {
@@ -174,9 +179,14 @@ func (s *UserSrv) UserAvatarUpload(ctx context.Context, uId uint, file multipart
 }
 
 // SendEmail 发送邮件
-func (s *UserSrv) SendEmail(ctx context.Context, id uint, req *types.SendEmailServiceReq) (resp interface{}, err error) {
+func (s *UserSrv) SendEmail(ctx context.Context, req *types.SendEmailServiceReq) (resp interface{}, err error) {
+	u, err := ctl.GetUserInfo(ctx)
+	if err != nil {
+		log.LogrusObj.Error(err)
+		return nil, err
+	}
 	var address string
-	token, err := jwt.GenerateEmailToken(id, req.OperationType, req.Email, req.Password)
+	token, err := jwt.GenerateEmailToken(u.Id, req.OperationType, req.Email, req.Password)
 	if err != nil {
 		log.LogrusObj.Error(err)
 		return nil, err

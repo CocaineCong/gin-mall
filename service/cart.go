@@ -26,7 +26,12 @@ func GetCartSrv() *CartSrv {
 }
 
 // CartCreate 创建购物车
-func (s *CartSrv) CartCreate(ctx context.Context, uId uint, req *types.CartServiceReq) (resp interface{}, err error) {
+func (s *CartSrv) CartCreate(ctx context.Context, req *types.CartServiceReq) (resp interface{}, err error) {
+	u, err := ctl.GetUserInfo(ctx)
+	if err != nil {
+		util.LogrusObj.Error(err)
+		return nil, err
+	}
 	// 判断有无这个商品
 	_, err = dao.NewProductDao(ctx).GetProductById(req.ProductId)
 	if err != nil {
@@ -36,7 +41,7 @@ func (s *CartSrv) CartCreate(ctx context.Context, uId uint, req *types.CartServi
 
 	// 创建购物车
 	cartDao := dao.NewCartDao(ctx)
-	_, status, _ := cartDao.CreateCart(req.ProductId, uId, req.BossID)
+	_, status, _ := cartDao.CreateCart(req.ProductId, u.Id, req.BossID)
 	if status == e.ErrorProductMoreCart {
 		err = errors.New(e.GetMsg(status))
 		return
@@ -45,9 +50,13 @@ func (s *CartSrv) CartCreate(ctx context.Context, uId uint, req *types.CartServi
 }
 
 // CartList 购物车
-func (s *CartSrv) CartList(ctx context.Context, uId uint, req *types.CartListReq) (resp interface{}, err error) {
-	cartDao := dao.NewCartDao(ctx)
-	carts, err := cartDao.ListCartByUserId(uId)
+func (s *CartSrv) CartList(ctx context.Context, req *types.CartListReq) (resp interface{}, err error) {
+	u, err := ctl.GetUserInfo(ctx)
+	if err != nil {
+		util.LogrusObj.Error(err)
+		return nil, err
+	}
+	carts, err := dao.NewCartDao(ctx).ListCartByUserId(u.Id)
 	if err != nil {
 		util.LogrusObj.Error(err)
 		return

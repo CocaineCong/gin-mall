@@ -30,8 +30,14 @@ func GetPaymentSrv() *PaymentSrv {
 	return PaymentSrvIns
 }
 
-func (s *PaymentSrv) PayDown(ctx context.Context, uId uint, req *types.PaymentDownReq) (resp interface{}, err error) {
+func (s *PaymentSrv) PayDown(ctx context.Context, req *types.PaymentDownReq) (resp interface{}, err error) {
+	u, err := ctl.GetUserInfo(ctx)
+	if err != nil {
+		log.LogrusObj.Error(err)
+		return nil, err
+	}
 	err = dao.NewOrderDao(ctx).Transaction(func(tx *gorm.DB) error {
+		uId := u.Id
 		util.Encrypt.SetKey(req.Key)
 
 		payment, err := dao.NewOrderDaoByDB(tx).GetOrderById(req.OrderId, uId)

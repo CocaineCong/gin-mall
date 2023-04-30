@@ -82,9 +82,8 @@ func UploadAvatarHandler() gin.HandlerFunc {
 			// 参数校验
 			file, fileHeader, _ := ctx.Request.FormFile("file")
 			fileSize := fileHeader.Size
-			userId := ctx.Keys["user_id"].(uint)
 			l := service.GetUserSrv()
-			resp, err := l.UserAvatarUpload(ctx.Request.Context(), userId, file, fileSize, &req)
+			resp, err := l.UserAvatarUpload(ctx.Request.Context(), file, fileSize, &req)
 			if err != nil {
 				util.LogrusObj.Infoln(err)
 				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
@@ -104,9 +103,8 @@ func SendEmailHandler() gin.HandlerFunc {
 
 		if err := ctx.ShouldBind(&req); err == nil {
 			// 参数校验
-			userId := ctx.Keys["user_id"].(uint)
 			l := service.GetUserSrv()
-			resp, err := l.SendEmail(ctx.Request.Context(), userId, &req)
+			resp, err := l.SendEmail(ctx.Request.Context(), &req)
 			if err != nil {
 				util.LogrusObj.Infoln(err)
 				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))

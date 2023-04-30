@@ -24,10 +24,15 @@ func GetAddressSrv() *AddressSrv {
 	return AddressSrvIns
 }
 
-func (s *AddressSrv) AddressCreate(ctx context.Context, req *types.AddressCreateReq, uId uint) (resp interface{}, err error) {
+func (s *AddressSrv) AddressCreate(ctx context.Context, req *types.AddressCreateReq) (resp interface{}, err error) {
+	u, err := ctl.GetUserInfo(ctx)
+	if err != nil {
+		util.LogrusObj.Error(err)
+		return nil, err
+	}
 	addressDao := dao.NewAddressDao(ctx)
 	address := &model.Address{
-		UserID:  uId,
+		UserID:  u.Id,
 		Name:    req.Name,
 		Phone:   req.Phone,
 		Address: req.Address,
@@ -61,8 +66,13 @@ func (s *AddressSrv) AddressList(ctx context.Context, req *types.AddressListReq)
 	return ctl.RespList(addresses, int64(len(addresses))), nil
 }
 
-func (s *AddressSrv) AddressDelete(ctx context.Context, req *types.AddressDeleteReq, uId uint) (resp interface{}, err error) {
-	err = dao.NewAddressDao(ctx).DeleteAddressById(req.Id, uId)
+func (s *AddressSrv) AddressDelete(ctx context.Context, req *types.AddressDeleteReq) (resp interface{}, err error) {
+	u, err := ctl.GetUserInfo(ctx)
+	if err != nil {
+		util.LogrusObj.Error(err)
+		return nil, err
+	}
+	err = dao.NewAddressDao(ctx).DeleteAddressById(req.Id, u.Id)
 	if err != nil {
 		util.LogrusObj.Error(err)
 		return
@@ -70,10 +80,15 @@ func (s *AddressSrv) AddressDelete(ctx context.Context, req *types.AddressDelete
 	return ctl.RespSuccess(), nil
 }
 
-func (s *AddressSrv) AddressUpdate(ctx context.Context, req *types.AddressServiceReq, uid, aid uint) (resp interface{}, err error) {
+func (s *AddressSrv) AddressUpdate(ctx context.Context, req *types.AddressServiceReq, aid uint) (resp interface{}, err error) {
+	u, err := ctl.GetUserInfo(ctx)
+	if err != nil {
+		util.LogrusObj.Error(err)
+		return nil, err
+	}
 	addressDao := dao.NewAddressDao(ctx)
 	address := &model.Address{
-		UserID:  uid,
+		UserID:  u.Id,
 		Name:    req.Name,
 		Phone:   req.Phone,
 		Address: req.Address,
@@ -84,7 +99,7 @@ func (s *AddressSrv) AddressUpdate(ctx context.Context, req *types.AddressServic
 		return
 	}
 	var addresses []*types.AddressResp
-	addresses, err = addressDao.ListAddressByUid(uid)
+	addresses, err = addressDao.ListAddressByUid(u.Id)
 	if err != nil {
 		util.LogrusObj.Error(err)
 		return

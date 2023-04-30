@@ -20,8 +20,7 @@ func CreateAddressHandler() gin.HandlerFunc {
 		if err := ctx.ShouldBind(&req); err == nil {
 			// 参数校验
 			l := service.GetAddressSrv()
-			userId := ctx.Keys["user_id"].(uint)
-			resp, err := l.AddressCreate(ctx.Request.Context(), &req, userId)
+			resp, err := l.AddressCreate(ctx.Request.Context(), &req)
 			if err != nil {
 				util.LogrusObj.Infoln(err)
 				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
@@ -90,9 +89,8 @@ func UpdateAddressHandler() gin.HandlerFunc {
 
 		if err := ctx.ShouldBind(&req); err == nil {
 			// 参数校验
-			userId := ctx.Keys["user_id"].(uint)
 			l := service.GetAddressSrv()
-			resp, err := l.AddressUpdate(ctx.Request.Context(), &req, userId, cast.ToUint(ctx.Param("id")))
+			resp, err := l.AddressUpdate(ctx.Request.Context(), &req, cast.ToUint(ctx.Param("id")))
 			if err != nil {
 				util.LogrusObj.Infoln(err)
 				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
@@ -113,9 +111,8 @@ func DeleteAddressHandler() gin.HandlerFunc {
 
 		if err := ctx.ShouldBind(&req); err == nil {
 			// 参数校验
-			userId := ctx.Keys["user_id"].(uint)
 			l := service.GetAddressSrv()
-			resp, err := l.AddressDelete(ctx.Request.Context(), &req, userId)
+			resp, err := l.AddressDelete(ctx.Request.Context(), &req)
 			if err != nil {
 				util.LogrusObj.Infoln(err)
 				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))

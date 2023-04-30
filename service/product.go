@@ -41,7 +41,13 @@ func (s *ProductSrv) ProductShow(ctx context.Context, req *types.ProductShowReq)
 }
 
 // 创建商品
-func (s *ProductSrv) ProductCreate(ctx context.Context, uId uint, files []*multipart.FileHeader, req *types.ProductCreateReq) (resp interface{}, err error) {
+func (s *ProductSrv) ProductCreate(ctx context.Context, files []*multipart.FileHeader, req *types.ProductCreateReq) (resp interface{}, err error) {
+	u, err := ctl.GetUserInfo(ctx)
+	if err != nil {
+		log.LogrusObj.Error(err)
+		return nil, err
+	}
+	uId := u.Id
 	boss, _ := dao.NewUserDao(ctx).GetUserById(uId)
 	// 以第一张作为封面图
 	tmp, _ := files[0].Open()
@@ -57,7 +63,7 @@ func (s *ProductSrv) ProductCreate(ctx context.Context, uId uint, files []*multi
 	}
 	product := &model.Product{
 		Name:          req.Name,
-		CategoryID:    uint(req.CategoryID),
+		CategoryID:    req.CategoryID,
 		Title:         req.Title,
 		Info:          req.Info,
 		ImgPath:       path,

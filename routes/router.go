@@ -43,8 +43,8 @@ func NewRouter() *gin.Engine {
 
 			// 用户操作
 			authed.POST("user_update", api.UserUpdateHandler())
-			authed.POST("user/sending-email", api.SendEmailHandler())
-			authed.POST("user/valid-email", api.ValidEmailHandler())
+			authed.POST("user/send_email", api.SendEmailHandler())
+			authed.POST("user/valid_email", api.ValidEmailHandler())
 			authed.POST("avatar", api.UploadAvatarHandler()) // 上传头像
 
 			// 商品操作

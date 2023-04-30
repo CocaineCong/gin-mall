@@ -59,9 +59,8 @@ func SkillProductHandler() gin.HandlerFunc {
 
 		if err := ctx.ShouldBind(&req); err == nil {
 			// 参数校验
-			userId := ctx.Keys["user_id"].(uint)
 			l := service.GetSkillProductSrv()
-			resp, err := l.SkillProduct(ctx.Request.Context(), userId, &req)
+			resp, err := l.SkillProduct(ctx.Request.Context(), &req)
 			if err != nil {
 				util.LogrusObj.Infoln(err)
 				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))

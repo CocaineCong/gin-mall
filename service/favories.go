@@ -26,8 +26,13 @@ func GetFavoriteSrv() *FavoriteSrv {
 }
 
 // FavoriteList 商品收藏夹
-func (s *FavoriteSrv) FavoriteList(ctx context.Context, uId uint, req *types.FavoritesServiceReq) (resp interface{}, err error) {
-	favorites, total, err := dao.NewFavoritesDao(ctx).ListFavoriteByUserId(uId, req.PageSize, req.PageNum)
+func (s *FavoriteSrv) FavoriteList(ctx context.Context, req *types.FavoritesServiceReq) (resp interface{}, err error) {
+	u, err := ctl.GetUserInfo(ctx)
+	if err != nil {
+		util.LogrusObj.Error(err)
+		return nil, err
+	}
+	favorites, total, err := dao.NewFavoritesDao(ctx).ListFavoriteByUserId(u.Id, req.PageSize, req.PageNum)
 	if err != nil {
 		util.LogrusObj.Error(err)
 		return
@@ -36,9 +41,14 @@ func (s *FavoriteSrv) FavoriteList(ctx context.Context, uId uint, req *types.Fav
 }
 
 // FavoriteCreate 创建收藏夹
-func (s *FavoriteSrv) FavoriteCreate(ctx context.Context, uId uint, req *types.FavoriteCreateReq) (resp interface{}, err error) {
-	favoriteDao := dao.NewFavoritesDao(ctx)
-	exist, _ := favoriteDao.FavoriteExistOrNot(req.ProductId, uId)
+func (s *FavoriteSrv) FavoriteCreate(ctx context.Context, req *types.FavoriteCreateReq) (resp interface{}, err error) {
+	u, err := ctl.GetUserInfo(ctx)
+	if err != nil {
+		util.LogrusObj.Error(err)
+		return nil, err
+	}
+	fDao := dao.NewFavoritesDao(ctx)
+	exist, _ := fDao.FavoriteExistOrNot(req.ProductId, u.Id)
 	if exist {
 		err = errors.New("已经存在了")
 		util.LogrusObj.Error(err)
@@ -46,7 +56,7 @@ func (s *FavoriteSrv) FavoriteCreate(ctx context.Context, uId uint, req *types.F
 	}
 
 	userDao := dao.NewUserDao(ctx)
-	user, err := userDao.GetUserById(uId)
+	user, err := userDao.GetUserById(u.Id)
 	if err != nil {
 		util.LogrusObj.Error(err)
 		return
@@ -66,15 +76,14 @@ func (s *FavoriteSrv) FavoriteCreate(ctx context.Context, uId uint, req *types.F
 	}
 
 	favorite := &model.Favorite{
-		UserID:    uId,
+		UserID:    u.Id,
 		User:      *user,
 		ProductID: req.ProductId,
 		Product:   *product,
 		BossID:    req.BossId,
 		Boss:      *boss,
 	}
-	favoriteDao = dao.NewFavoritesDaoByDB(favoriteDao.DB)
-	err = favoriteDao.CreateFavorite(favorite)
+	err = fDao.CreateFavorite(favorite)
 	if err != nil {
 		util.LogrusObj.Error(err)
 		return

@@ -3,7 +3,6 @@ package ctl
 import (
 	"context"
 	"errors"
-	"fmt"
 )
 
 type key int
@@ -32,5 +31,5 @@ func FromContext(ctx context.Context) (*UserInfo, bool) {
 }
 
 func InitUserInfo(ctx context.Context) {
-	fmt.Println("ctx", ctx)
+	// TOOD 放缓存，之后的用户信息，走缓存
 }
