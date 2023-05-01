@@ -27,7 +27,7 @@ type OrderCreateReq struct {
 
 type OrderListReq struct {
 	Type int `form:"type" json:"type"`
-	*BasePage
+	BasePage
 }
 
 type OrderShowReq struct {

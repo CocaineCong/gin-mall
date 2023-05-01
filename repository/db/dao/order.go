@@ -32,7 +32,7 @@ func (dao *OrderDao) ListOrderByCondition(uId uint, req *types.OrderListReq) (r 
 	d := dao.DB.Model(&model.Order{}).
 		Where("user_id = ?", uId)
 	if req.Type != 0 {
-		d.Where("o.type = ?", req.Type)
+		d.Where("type = ?", req.Type)
 	}
 	d.Count(&count) // 总数
 
@@ -47,8 +47,8 @@ func (dao *OrderDao) ListOrderByCondition(uId uint, req *types.OrderListReq) (r 
 		Limit(req.PageSize).Order("created_at DESC").
 		Select("o.id AS id," +
 			"o.order_num AS order_num," +
-			"o.created_at AS created_at," +
-			"o.updated_at AS updated_at," +
+			"UNIX_TIMESTAMP(o.created_at) AS created_at," +
+			"UNIX_TIMESTAMP(o.updated_at) AS updated_at," +
 			"o.user_id AS user_id," +
 			"o.product_id AS product_id," +
 			"o.boss_id AS boss_id," +
@@ -78,12 +78,11 @@ func (dao *OrderDao) ShowOrderById(id, uId uint) (r *types.OrderListResp, err er
 	err = dao.DB.Model(&model.Order{}).
 		Joins("AS o LEFT JOIN product AS p ON p.id = o.product_id").
 		Joins("LEFT JOIN address AS a ON a.id = o.address_id").
-		Where("o,id = ? AND o.user_id = ?", id, uId).
-		Order("created_at DESC").
+		Where("o.id = ? AND o.user_id = ?", id, uId).
 		Select("o.id AS id," +
 			"o.order_num AS order_num," +
-			"o.created_at AS created_at," +
-			"o.updated_at AS updated_at," +
+			"UNIX_TIMESTAMP(o.created_at) AS created_at," +
+			"UNIX_TIMESTAMP(o.updated_at) AS updated_at," +
 			"o.user_id AS user_id," +
 			"o.product_id AS product_id," +
 			"o.boss_id AS boss_id," +
@@ -95,7 +94,7 @@ func (dao *OrderDao) ShowOrderById(id, uId uint) (r *types.OrderListResp, err er
 			"a.name AS address_name," +
 			"a.phone AS address_phone," +
 			"a.address AS address").
-		First(&r).Error
+		Find(&r).Error
 
 	return
 }

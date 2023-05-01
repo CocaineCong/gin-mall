@@ -10,6 +10,8 @@ import (
 
 	"github.com/go-redis/redis"
 
+	"mall/conf"
+	"mall/consts"
 	"mall/pkg/utils/ctl"
 	util "mall/pkg/utils/log"
 	"mall/repository/cache"
@@ -89,6 +91,11 @@ func (s *OrderSrv) OrderList(ctx context.Context, req *types.OrderListReq) (resp
 		util.LogrusObj.Error(err)
 		return
 	}
+	for i := range orders {
+		if conf.UploadModel == consts.UploadModelLocal {
+			orders[i].ImgPath = conf.PhotoHost + conf.HttpPort + conf.ProductPhotoPath + orders[i].ImgPath
+		}
+	}
 
 	return ctl.RespList(orders, total), nil
 }
@@ -99,10 +106,13 @@ func (s *OrderSrv) OrderShow(ctx context.Context, req *types.OrderShowReq) (resp
 		util.LogrusObj.Error(err)
 		return nil, err
 	}
-	order, err := dao.NewOrderDao(ctx).ShowOrderById(u.Id, req.OrderId)
+	order, err := dao.NewOrderDao(ctx).ShowOrderById(req.OrderId, u.Id)
 	if err != nil {
 		util.LogrusObj.Error(err)
 		return
+	}
+	if conf.UploadModel == consts.UploadModelLocal {
+		order.ImgPath = conf.PhotoHost + conf.HttpPort + conf.ProductPhotoPath + order.ImgPath
 	}
 
 	return ctl.RespSuccessWithData(order), nil
