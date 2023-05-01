@@ -9,6 +9,7 @@ import (
 
 	"gorm.io/gorm"
 
+	"mall/consts"
 	"mall/pkg/utils/ctl"
 	util "mall/pkg/utils/encryption"
 	"mall/pkg/utils/log"
@@ -102,8 +103,8 @@ func (s *PaymentSrv) PayDown(ctx context.Context, req *types.PaymentDownReq) (re
 		}
 
 		// 更新订单状态
-		payment.Type = 2
-		err = dao.NewOrderDaoByDB(tx).UpdateOrderById(req.OrderId, payment)
+		payment.Type = consts.OrderTypePendingShipping
+		err = dao.NewOrderDaoByDB(tx).UpdateOrderById(req.OrderId, uId, payment)
 		if err != nil { // 更新订单失败，回滚
 			log.LogrusObj.Error(err)
 			return err

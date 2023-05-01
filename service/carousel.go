@@ -30,5 +30,5 @@ func (s *CarouselSrv) ListCarousel(ctx context.Context, req *types.ListCarouselR
 		util.LogrusObj.Error(err)
 		return
 	}
-	return ctl.RespSuccessWithData(carousels), nil
+	return ctl.RespList(carousels, int64(len(carousels))), nil
 }

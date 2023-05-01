@@ -122,7 +122,7 @@ func (s *OrderSrv) OrderDelete(ctx context.Context, req *types.OrderDeleteReq) (
 	u, err := ctl.GetUserInfo(ctx)
 	if err != nil {
 		util.LogrusObj.Error(err)
-		return nil, err
+		return
 	}
 	err = dao.NewOrderDao(ctx).DeleteOrderById(req.OrderId, u.Id)
 	if err != nil {
@@ -130,5 +130,5 @@ func (s *OrderSrv) OrderDelete(ctx context.Context, req *types.OrderDeleteReq) (
 		return
 	}
 
-	return
+	return ctl.RespSuccess(), nil
 }
