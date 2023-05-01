@@ -16,8 +16,9 @@
 
 而 ELK，MQ，Jaeger，Prometheus 这部分都集成在V3版本，并且V3版本的项目结构进行部分重构。
 
-
 由于整合上传oss和上传到本地，需要在 conf 中进行配置 `UploadModel` 字段，上传到 oss 则配置 oss，上传本地则配置 local
+
+其中我个人用到的测试sql数据都放在了`doc/mall_sql`文件当中
 
 # 开源合作
 欢迎大家把自己的想法 pr 到这个项目中。
