@@ -1,67 +1,126 @@
 package v1
 
 import (
-	"mall/consts"
-	util "mall/pkg/utils"
-	"mall/service"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
+
+	"mall/consts"
+	"mall/pkg/utils/log"
+	"mall/service"
+	"mall/types"
 )
 
-// CreateAddress 新增收货地址
-func CreateAddress(c *gin.Context) {
-	addressService := service.AddressService{}
-	claim, _ := util.ParseToken(c.GetHeader("Authorization"))
-	if err := c.ShouldBind(&addressService); err == nil {
-		res := addressService.Create(c.Request.Context(), claim.ID)
-		c.JSON(consts.StatusOK, res)
-	} else {
-		c.JSON(consts.IlleageRequest, ErrorResponse(err))
-		util.LogrusObj.Infoln(err)
+// CreateAddressHandler 新增收货地址
+func CreateAddressHandler() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		var req types.AddressCreateReq
+
+		if err := ctx.ShouldBind(&req); err == nil {
+			// 参数校验
+			l := service.GetAddressSrv()
+			resp, err := l.AddressCreate(ctx.Request.Context(), &req)
+			if err != nil {
+				log.LogrusObj.Infoln(err)
+				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+				return
+			}
+			ctx.JSON(http.StatusOK, resp)
+		} else {
+			log.LogrusObj.Infoln(err)
+			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+		}
+
 	}
 }
 
-// GetAddress 展示某个收货地址
-func GetAddress(c *gin.Context) {
-	addressService := service.AddressService{}
-	res := addressService.Show(c.Request.Context(), c.Param("id"))
-	c.JSON(consts.StatusOK, res)
-}
+// ShowAddressHandler 展示某个收货地址
+func ShowAddressHandler() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		var req types.AddressGetReq
 
-// ListAddress 展示收货地址
-func ListAddress(c *gin.Context) {
-	addressService := service.AddressService{}
-	claim, _ := util.ParseToken(c.GetHeader("Authorization"))
-	if err := c.ShouldBind(&addressService); err == nil {
-		res := addressService.List(c.Request.Context(), claim.ID)
-		c.JSON(consts.StatusOK, res)
-	} else {
-		c.JSON(consts.IlleageRequest, ErrorResponse(err))
-		util.LogrusObj.Infoln(err)
+		if err := ctx.ShouldBind(&req); err == nil {
+			// 参数校验
+			l := service.GetAddressSrv()
+			resp, err := l.AddressShow(ctx.Request.Context(), &req)
+			if err != nil {
+				log.LogrusObj.Infoln(err)
+				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+				return
+			}
+			ctx.JSON(http.StatusOK, resp)
+		} else {
+			log.LogrusObj.Infoln(err)
+			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+		}
 	}
 }
 
-// UpdateAddress 修改收货地址
-func UpdateAddress(c *gin.Context) {
-	addressService := service.AddressService{}
-	claim, _ := util.ParseToken(c.GetHeader("Authorization"))
-	if err := c.ShouldBind(&addressService); err == nil {
-		res := addressService.Update(c.Request.Context(), claim.ID, c.Param("id"))
-		c.JSON(consts.StatusOK, res)
-	} else {
-		c.JSON(consts.IlleageRequest, ErrorResponse(err))
-		util.LogrusObj.Infoln(err)
+// ListAddressHandler 展示收货地址
+func ListAddressHandler() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		var req types.AddressListReq
+
+		if err := ctx.ShouldBind(&req); err == nil {
+			// 参数校验
+			if req.PageSize == 0 {
+				req.PageSize = consts.BasePageSize
+			}
+			l := service.GetAddressSrv()
+			resp, err := l.AddressList(ctx.Request.Context(), &req)
+			if err != nil {
+				log.LogrusObj.Infoln(err)
+				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+				return
+			}
+			ctx.JSON(http.StatusOK, resp)
+		} else {
+			log.LogrusObj.Infoln(err)
+			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+		}
 	}
 }
 
-// DeleteAddress 删除收获地址
-func DeleteAddress(c *gin.Context) {
-	addressService := service.AddressService{}
-	if err := c.ShouldBind(&addressService); err == nil {
-		res := addressService.Delete(c.Request.Context(), c.Param("id"))
-		c.JSON(consts.StatusOK, res)
-	} else {
-		c.JSON(consts.IlleageRequest, ErrorResponse(err))
-		util.LogrusObj.Infoln(err)
+// UpdateAddressHandler 修改收货地址
+func UpdateAddressHandler() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		var req types.AddressServiceReq
+
+		if err := ctx.ShouldBind(&req); err == nil {
+			// 参数校验
+			l := service.GetAddressSrv()
+			resp, err := l.AddressUpdate(ctx.Request.Context(), &req)
+			if err != nil {
+				log.LogrusObj.Infoln(err)
+				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+				return
+			}
+			ctx.JSON(http.StatusOK, resp)
+		} else {
+			log.LogrusObj.Infoln(err)
+			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+		}
+	}
+}
+
+// DeleteAddressHandler 删除收获地址
+func DeleteAddressHandler() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		var req types.AddressDeleteReq
+
+		if err := ctx.ShouldBind(&req); err == nil {
+			// 参数校验
+			l := service.GetAddressSrv()
+			resp, err := l.AddressDelete(ctx.Request.Context(), &req)
+			if err != nil {
+				log.LogrusObj.Infoln(err)
+				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+				return
+			}
+			ctx.JSON(http.StatusOK, resp)
+		} else {
+			log.LogrusObj.Infoln(err)
+			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+		}
 	}
 }

@@ -1,56 +1,101 @@
 package v1
 
 import (
-	"mall/consts"
-	util "mall/pkg/utils"
-	"mall/service"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
+
+	"mall/consts"
+	"mall/pkg/utils/log"
+	"mall/service"
+	"mall/types"
 )
 
-func CreateOrder(c *gin.Context) {
-	createOrderService := service.OrderService{}
-	claim, _ := util.ParseToken(c.GetHeader("Authorization"))
-	if err := c.ShouldBind(&createOrderService); err == nil {
-		res := createOrderService.Create(c.Request.Context(), claim.ID)
-		c.JSON(consts.StatusOK, res)
-	} else {
-		c.JSON(consts.IlleageRequest, ErrorResponse(err))
-		util.LogrusObj.Infoln(err)
+func CreateOrderHandler() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		var req types.OrderCreateReq
+
+		if err := ctx.ShouldBind(&req); err == nil {
+			// 参数校验
+			l := service.GetOrderSrv()
+			resp, err := l.OrderCreate(ctx.Request.Context(), &req)
+			if err != nil {
+				log.LogrusObj.Infoln(err)
+				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+				return
+			}
+			ctx.JSON(http.StatusOK, resp)
+		} else {
+			log.LogrusObj.Infoln(err)
+			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+		}
 	}
 }
 
-func ListOrders(c *gin.Context) {
-	listOrdersService := service.OrderService{}
-	claim, _ := util.ParseToken(c.GetHeader("Authorization"))
-	if err := c.ShouldBind(&listOrdersService); err == nil {
-		res := listOrdersService.List(c.Request.Context(), claim.ID)
-		c.JSON(consts.StatusOK, res)
-	} else {
-		c.JSON(consts.IlleageRequest, ErrorResponse(err))
-		util.LogrusObj.Infoln(err)
+func ListOrdersHandler() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		var req types.OrderListReq
+
+		if err := ctx.ShouldBind(&req); err == nil {
+			// 参数校验
+			if req.PageSize == 0 {
+				req.PageSize = consts.BasePageSize
+			}
+
+			l := service.GetOrderSrv()
+			resp, err := l.OrderList(ctx.Request.Context(), &req)
+			if err != nil {
+				log.LogrusObj.Infoln(err)
+				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+				return
+			}
+			ctx.JSON(http.StatusOK, resp)
+		} else {
+			log.LogrusObj.Infoln(err)
+			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+		}
 	}
 }
 
 // 订单详情
-func ShowOrder(c *gin.Context) {
-	showOrderService := service.OrderService{}
-	if err := c.ShouldBind(&showOrderService); err == nil {
-		res := showOrderService.Show(c.Request.Context(), c.Param("id"))
-		c.JSON(consts.StatusOK, res)
-	} else {
-		c.JSON(consts.IlleageRequest, ErrorResponse(err))
-		util.LogrusObj.Infoln(err)
+func ShowOrderHandler() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		var req types.OrderShowReq
+
+		if err := ctx.ShouldBind(&req); err == nil {
+			// 参数校验
+			l := service.GetOrderSrv()
+			resp, err := l.OrderShow(ctx.Request.Context(), &req)
+			if err != nil {
+				log.LogrusObj.Infoln(err)
+				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+				return
+			}
+			ctx.JSON(http.StatusOK, resp)
+		} else {
+			log.LogrusObj.Infoln(err)
+			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+		}
 	}
 }
 
-func DeleteOrder(c *gin.Context) {
-	deleteOrderService := service.OrderService{}
-	if err := c.ShouldBind(&deleteOrderService); err == nil {
-		res := deleteOrderService.Delete(c.Request.Context(), c.Param("id"))
-		c.JSON(consts.StatusOK, res)
-	} else {
-		c.JSON(consts.IlleageRequest, ErrorResponse(err))
-		util.LogrusObj.Infoln(err)
+func DeleteOrderHandler() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		var req types.OrderDeleteReq
+
+		if err := ctx.ShouldBind(&req); err == nil {
+			// 参数校验
+			l := service.GetOrderSrv()
+			resp, err := l.OrderDelete(ctx.Request.Context(), &req)
+			if err != nil {
+				log.LogrusObj.Infoln(err)
+				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+				return
+			}
+			ctx.JSON(http.StatusOK, resp)
+		} else {
+			log.LogrusObj.Infoln(err)
+			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+		}
 	}
 }

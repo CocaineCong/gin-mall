@@ -6,6 +6,7 @@ import (
 	"gorm.io/gorm"
 
 	"mall/repository/db/model"
+	"mall/types"
 )
 
 type FavoritesDao struct {
@@ -21,17 +22,37 @@ func NewFavoritesDaoByDB(db *gorm.DB) *FavoritesDao {
 }
 
 // ListFavoriteByUserId 通过 user_id 获取收藏夹列表
-func (dao *FavoritesDao) ListFavoriteByUserId(uId uint, pageSize, pageNum int) (favorites []*model.Favorite, total int64, err error) {
+func (dao *FavoritesDao) ListFavoriteByUserId(uId uint, pageSize, pageNum int) (r []*types.FavoriteListResp, total int64, err error) {
 	// 总数
 	err = dao.DB.Model(&model.Favorite{}).Preload("User").
 		Where("user_id=?", uId).Count(&total).Error
 	if err != nil {
 		return
 	}
-	// 分页
-	err = dao.DB.Model(model.Favorite{}).Preload("User").Where("user_id=?", uId).
-		Offset((pageNum - 1) * pageSize).
-		Limit(pageSize).Find(&favorites).Error
+	err = dao.DB.Model(&model.Favorite{}).
+		Joins("AS f LEFT JOIN user AS u on u.id = f.boss_id").
+		Joins("LEFT JOIN product AS p ON p.id = f.product_id").
+		Joins("LEFT JOIN category AS c ON c.id = p.category_id").
+		Where("f.user_id = ?", uId).
+		Offset((pageNum - 1) * pageSize).Limit(pageSize).
+		Select("f.user_id AS user_id," +
+			"f.product_id AS product_id," +
+			"UNIX_TIMESTAMP(f.created_at) AS created_at," +
+			"p.title AS title," +
+			"p.info AS info," +
+			"p.name AS name," +
+			"c.id AS category_id," +
+			"c.category_name AS category_name," +
+			"u.id AS boss_id," +
+			"u.user_name AS boss_name," +
+			"u.avatar AS boss_avatar," +
+			"p.price AS price," +
+			"p.img_path AS img_path," +
+			"p.discount_price AS discount_price," +
+			"p.num AS num," +
+			"p.on_sale AS on_sale").
+		Find(&r).Error
+
 	return
 }
 

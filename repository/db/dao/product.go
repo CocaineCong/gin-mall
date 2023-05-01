@@ -5,7 +5,8 @@ import (
 
 	"gorm.io/gorm"
 
-	model2 "mall/repository/db/model"
+	"mall/repository/db/model"
+	"mall/types"
 )
 
 type ProductDao struct {
@@ -21,14 +22,21 @@ func NewProductDaoByDB(db *gorm.DB) *ProductDao {
 }
 
 // GetProductById 通过 id 获取product
-func (dao *ProductDao) GetProductById(id uint) (product *model2.Product, err error) {
-	err = dao.DB.Model(&model2.Product{}).Where("id=?", id).
+func (dao *ProductDao) GetProductById(id uint) (product *model.Product, err error) {
+	err = dao.DB.Model(&model.Product{}).Where("id=?", id).
+		First(&product).Error
+	return
+}
+
+// ShowProductById 通过 id 获取product
+func (dao *ProductDao) ShowProductById(id uint) (product *model.Product, err error) {
+	err = dao.DB.Model(&model.Product{}).Where("id=?", id).
 		First(&product).Error
 	return
 }
 
 // ListProductByCondition 获取商品列表
-func (dao *ProductDao) ListProductByCondition(condition map[string]interface{}, page model2.BasePage) (products []*model2.Product, err error) {
+func (dao *ProductDao) ListProductByCondition(condition map[string]interface{}, page types.BasePage) (products []*model.Product, err error) {
 	err = dao.DB.Where(condition).
 		Offset((page.PageNum - 1) * page.PageSize).
 		Limit(page.PageSize).Find(&products).Error
@@ -36,32 +44,47 @@ func (dao *ProductDao) ListProductByCondition(condition map[string]interface{}, 
 }
 
 // CreateProduct 创建商品
-func (dao *ProductDao) CreateProduct(product *model2.Product) error {
-	return dao.DB.Model(&model2.Product{}).Create(&product).Error
+func (dao *ProductDao) CreateProduct(product *model.Product) error {
+	return dao.DB.Model(&model.Product{}).Create(&product).Error
 }
 
 // CountProductByCondition 根据情况获取商品的数量
 func (dao *ProductDao) CountProductByCondition(condition map[string]interface{}) (total int64, err error) {
-	err = dao.DB.Model(&model2.Product{}).Where(condition).Count(&total).Error
+	err = dao.DB.Model(&model.Product{}).Where(condition).Count(&total).Error
 	return
 }
 
 // DeleteProduct 删除商品
-func (dao *ProductDao) DeleteProduct(pId uint) error {
-	return dao.DB.Model(&model2.Product{}).Delete(&model2.Product{}).Error
+func (dao *ProductDao) DeleteProduct(pId, uId uint) error {
+	return dao.DB.Model(&model.Product{}).
+		Where("id = ? AND boss_id = ?", pId, uId).
+		Delete(&model.Product{}).
+		Error
 }
 
 // UpdateProduct 更新商品
-func (dao *ProductDao) UpdateProduct(pId uint, product *model2.Product) error {
-	return dao.DB.Model(&model2.Product{}).Where("id=?", pId).
+func (dao *ProductDao) UpdateProduct(pId uint, product *model.Product) error {
+	return dao.DB.Model(&model.Product{}).Where("id=?", pId).
 		Updates(&product).Error
 }
 
 // SearchProduct 搜索商品
-func (dao *ProductDao) SearchProduct(info string, page model2.BasePage) (products []*model2.Product, err error) {
-	err = dao.DB.Model(&model2.Product{}).
+func (dao *ProductDao) SearchProduct(info string, page types.BasePage) (products []*model.Product, count int64, err error) {
+	err = dao.DB.Model(&model.Product{}).
 		Where("name LIKE ? OR info LIKE ?", "%"+info+"%", "%"+info+"%").
 		Offset((page.PageNum - 1) * page.PageSize).
-		Limit(page.PageSize).Find(&products).Error
+		Limit(page.PageSize).
+		Find(&products).
+		Error
+
+	if err != nil {
+		return
+	}
+
+	err = dao.DB.Model(&model.Product{}).
+		Where("name LIKE ? OR info LIKE ?", "%"+info+"%", "%"+info+"%").
+		Count(&count).
+		Error
+
 	return
 }

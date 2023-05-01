@@ -12,7 +12,7 @@ import (
 // RedisClient Redis缓存客户端单例
 var RedisClient *redis.Client
 
-// InitCache 在中间件中初始化redis链接  防止循环导包，所以放在这里
+// InitCache 在中间件中初始化redis链接
 func InitCache() {
 	Redis()
 }

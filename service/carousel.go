@@ -2,29 +2,33 @@ package service
 
 import (
 	"context"
+	"sync"
 
-	logging "github.com/sirupsen/logrus"
-
-	"mall/pkg/e"
+	"mall/pkg/utils/ctl"
+	util "mall/pkg/utils/log"
 	"mall/repository/db/dao"
-	"mall/serializer"
+	"mall/types"
 )
 
-type ListCarouselsService struct {
+var CarouselSrvIns *CarouselSrv
+var CarouselSrvOnce sync.Once
+
+type CarouselSrv struct {
 }
 
-func (service *ListCarouselsService) List() serializer.Response {
-	code := e.SUCCESS
-	carouselsCtx := dao.NewCarouselDao(context.Background())
-	carousels, err := carouselsCtx.ListAddress()
+func GetCarouselSrv() *CarouselSrv {
+	CarouselSrvOnce.Do(func() {
+		CarouselSrvIns = &CarouselSrv{}
+	})
+	return CarouselSrvIns
+}
+
+// ListCarousel 列表
+func (s *CarouselSrv) ListCarousel(ctx context.Context, req *types.ListCarouselReq) (resp interface{}, err error) {
+	carousels, err := dao.NewCarouselDao(ctx).ListCarousel()
 	if err != nil {
-		logging.Info(err)
-		code = e.ErrorDatabase
-		return serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Error:  err.Error(),
-		}
+		util.LogrusObj.Error(err)
+		return
 	}
-	return serializer.BuildListResponse(serializer.BuildCarousels(carousels), uint(len(carousels)))
+	return ctl.RespList(carousels, int64(len(carousels))), nil
 }

@@ -2,128 +2,112 @@ package service
 
 import (
 	"context"
+	"errors"
+	"sync"
 
-	logging "github.com/sirupsen/logrus"
-
-	"mall/pkg/e"
-	dao2 "mall/repository/db/dao"
+	"mall/conf"
+	"mall/consts"
+	"mall/pkg/utils/ctl"
+	util "mall/pkg/utils/log"
+	"mall/repository/db/dao"
 	"mall/repository/db/model"
-	"mall/serializer"
+	"mall/types"
 )
 
-type FavoritesService struct {
-	ProductId  uint `form:"product_id" json:"product_id"`
-	BossId     uint `form:"boss_id" json:"boss_id"`
-	FavoriteId uint `form:"favorite_id" json:"favorite_id"`
-	PageNum    int  `form:"pageNum"`
-	PageSize   int  `form:"pageSize"`
+var FavoriteSrvIns *FavoriteSrv
+var FavoriteSrvOnce sync.Once
+
+type FavoriteSrv struct {
 }
 
-// Show 商品收藏夹
-func (service *FavoritesService) Show(ctx context.Context, uId uint) serializer.Response {
-	favoritesDao := dao2.NewFavoritesDao(ctx)
-	code := e.SUCCESS
-	if service.PageSize == 0 {
-		service.PageSize = 15
-	}
-	favorites, total, err := favoritesDao.ListFavoriteByUserId(uId, service.PageSize, service.PageNum)
+func GetFavoriteSrv() *FavoriteSrv {
+	FavoriteSrvOnce.Do(func() {
+		FavoriteSrvIns = &FavoriteSrv{}
+	})
+	return FavoriteSrvIns
+}
+
+// FavoriteList 商品收藏夹
+func (s *FavoriteSrv) FavoriteList(ctx context.Context, req *types.FavoritesServiceReq) (resp interface{}, err error) {
+	u, err := ctl.GetUserInfo(ctx)
 	if err != nil {
-		logging.Info(err)
-		code = e.ErrorDatabase
-		return serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Error:  err.Error(),
+		util.LogrusObj.Error(err)
+		return nil, err
+	}
+	favorites, total, err := dao.NewFavoritesDao(ctx).ListFavoriteByUserId(u.Id, req.PageSize, req.PageNum)
+	if err != nil {
+		util.LogrusObj.Error(err)
+		return
+	}
+	for i := range favorites {
+		if conf.UploadModel == consts.UploadModelLocal {
+			favorites[i].ImgPath = conf.PhotoHost + conf.HttpPort + conf.ProductPhotoPath + favorites[i].ImgPath
 		}
 	}
-	return serializer.BuildListResponse(serializer.BuildFavorites(ctx, favorites), uint(total))
+
+	return ctl.RespList(favorites, total), nil
 }
 
-// Create 创建收藏夹
-func (service *FavoritesService) Create(ctx context.Context, uId uint) serializer.Response {
-	code := e.SUCCESS
-	favoriteDao := dao2.NewFavoritesDao(ctx)
-	exist, _ := favoriteDao.FavoriteExistOrNot(service.ProductId, uId)
+// FavoriteCreate 创建收藏夹
+func (s *FavoriteSrv) FavoriteCreate(ctx context.Context, req *types.FavoriteCreateReq) (resp interface{}, err error) {
+	u, err := ctl.GetUserInfo(ctx)
+	if err != nil {
+		util.LogrusObj.Error(err)
+		return nil, err
+	}
+	fDao := dao.NewFavoritesDao(ctx)
+	exist, _ := fDao.FavoriteExistOrNot(req.ProductId, u.Id)
 	if exist {
-		code = e.ErrorExistFavorite
-		return serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-		}
+		err = errors.New("已经存在了")
+		util.LogrusObj.Error(err)
+		return
 	}
 
-	userDao := dao2.NewUserDao(ctx)
-	user, err := userDao.GetUserById(uId)
+	userDao := dao.NewUserDao(ctx)
+	user, err := userDao.GetUserById(u.Id)
 	if err != nil {
-		code = e.ErrorDatabase
-		return serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-		}
+		util.LogrusObj.Error(err)
+		return
 	}
 
-	bossDao := dao2.NewUserDaoByDB(userDao.DB)
-	boss, err := bossDao.GetUserById(service.BossId)
+	bossDao := dao.NewUserDaoByDB(userDao.DB)
+	boss, err := bossDao.GetUserById(req.BossId)
 	if err != nil {
-		code = e.ErrorDatabase
-		return serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-		}
+		util.LogrusObj.Error(err)
+		return
 	}
 
-	productDao := dao2.NewProductDao(ctx)
-	product, err := productDao.GetProductById(service.ProductId)
+	product, err := dao.NewProductDao(ctx).GetProductById(req.ProductId)
 	if err != nil {
-		code = e.ErrorDatabase
-		return serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-		}
+		util.LogrusObj.Error(err)
+		return
 	}
 
 	favorite := &model.Favorite{
-		UserID:    uId,
+		UserID:    u.Id,
 		User:      *user,
-		ProductID: service.ProductId,
+		ProductID: req.ProductId,
 		Product:   *product,
-		BossID:    service.BossId,
+		BossID:    req.BossId,
 		Boss:      *boss,
 	}
-	favoriteDao = dao2.NewFavoritesDaoByDB(favoriteDao.DB)
-	err = favoriteDao.CreateFavorite(favorite)
+	err = fDao.CreateFavorite(favorite)
 	if err != nil {
-		code = e.ErrorDatabase
-		return serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-		}
+		util.LogrusObj.Error(err)
+		return
 	}
 
-	return serializer.Response{
-		Status: code,
-		Msg:    e.GetMsg(code),
-	}
+	return ctl.RespSuccess(), nil
 }
 
-// Delete 删除收藏夹
-func (service *FavoritesService) Delete(ctx context.Context) serializer.Response {
-	code := e.SUCCESS
-
-	favoriteDao := dao2.NewFavoritesDao(ctx)
-	err := favoriteDao.DeleteFavoriteById(service.FavoriteId)
+// FavoriteDelete 删除收藏夹
+func (s *FavoriteSrv) FavoriteDelete(ctx context.Context, req *types.FavoriteDeleteReq) (resp interface{}, err error) {
+	favoriteDao := dao.NewFavoritesDao(ctx)
+	err = favoriteDao.DeleteFavoriteById(req.Id)
 	if err != nil {
-		logging.Info(err)
-		code = e.ErrorDatabase
-		return serializer.Response{
-			Status: code,
-			Data:   e.GetMsg(code),
-			Error:  err.Error(),
-		}
+		util.LogrusObj.Error(err)
+		return
 	}
 
-	return serializer.Response{
-		Status: code,
-		Data:   e.GetMsg(code),
-	}
+	return ctl.RespSuccess(), nil
 }
