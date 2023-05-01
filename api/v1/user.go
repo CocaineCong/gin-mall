@@ -1,10 +1,13 @@
 package v1
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 
+	"mall/consts"
+	"mall/pkg/e"
 	"mall/pkg/utils/log"
 	"mall/service"
 	"mall/types"
@@ -81,6 +84,12 @@ func UploadAvatarHandler() gin.HandlerFunc {
 		if err := ctx.ShouldBind(&req); err == nil {
 			// 参数校验
 			file, fileHeader, _ := ctx.Request.FormFile("file")
+			if fileHeader == nil {
+				err := errors.New(e.GetMsg(e.ErrorUploadFile))
+				ctx.JSON(consts.IlleageRequest, ErrorResponse(err))
+				log.LogrusObj.Infoln(err)
+				return
+			}
 			fileSize := fileHeader.Size
 			l := service.GetUserSrv()
 			resp, err := l.UserAvatarUpload(ctx.Request.Context(), file, fileSize, &req)
