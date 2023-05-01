@@ -173,7 +173,7 @@ func (s *ProductSrv) ProductList(ctx context.Context, req *types.ProductListReq)
 		pRespList = append(pRespList, pResp)
 	}
 
-	return ctl.RespList(products, total), nil
+	return ctl.RespList(pRespList, total), nil
 }
 
 // ProductDelete 删除商品

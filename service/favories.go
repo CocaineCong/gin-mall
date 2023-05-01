@@ -5,6 +5,8 @@ import (
 	"errors"
 	"sync"
 
+	"mall/conf"
+	"mall/consts"
 	"mall/pkg/utils/ctl"
 	util "mall/pkg/utils/log"
 	"mall/repository/db/dao"
@@ -37,6 +39,12 @@ func (s *FavoriteSrv) FavoriteList(ctx context.Context, req *types.FavoritesServ
 		util.LogrusObj.Error(err)
 		return
 	}
+	for i := range favorites {
+		if conf.UploadModel == consts.UploadModelLocal {
+			favorites[i].ImgPath = conf.PhotoHost + conf.HttpPort + conf.ProductPhotoPath + favorites[i].ImgPath
+		}
+	}
+
 	return ctl.RespList(favorites, total), nil
 }
 
