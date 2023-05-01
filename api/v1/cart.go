@@ -13,7 +13,7 @@ import (
 
 func CreateCartHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		var req types.CartServiceReq
+		var req types.CartCreateReq
 
 		if err := ctx.ShouldBind(&req); err == nil {
 			// 参数校验
@@ -64,7 +64,6 @@ func UpdateCartHandler() gin.HandlerFunc {
 
 		if err := ctx.ShouldBind(&req); err == nil {
 			// 参数校验
-			req.UserId = ctx.Keys["user_id"].(uint)
 			l := service.GetCartSrv()
 			resp, err := l.CartUpdate(ctx.Request.Context(), &req)
 			if err != nil {
@@ -83,11 +82,10 @@ func UpdateCartHandler() gin.HandlerFunc {
 // 删除购物车
 func DeleteCartHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		var req types.CartServiceReq
+		var req types.CartDeleteReq
 
 		if err := ctx.ShouldBind(&req); err == nil {
 			// 参数校验
-			req.UserId = ctx.Keys["user_id"].(uint)
 			l := service.GetCartSrv()
 			resp, err := l.CartDelete(ctx.Request.Context(), &req)
 			if err != nil {

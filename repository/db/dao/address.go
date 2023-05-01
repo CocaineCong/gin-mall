@@ -22,7 +22,7 @@ func NewAddressDaoByDB(db *gorm.DB) *AddressDao {
 }
 
 // GetAddressByAid 根据 AddressId 获取 Address
-func (dao *AddressDao) GetAddressByAid(aId uint) (address *types.AddressResp, err error) {
+func (dao *AddressDao) GetAddressByAid(aId uint) (address *model.Address, err error) {
 	err = dao.DB.Model(&model.Address{}).
 		Where("id = ?", aId).First(&address).
 		Error
@@ -32,7 +32,9 @@ func (dao *AddressDao) GetAddressByAid(aId uint) (address *types.AddressResp, er
 // ListAddressByUid 根据 User Id 获取User
 func (dao *AddressDao) ListAddressByUid(uid uint) (addressList []*types.AddressResp, err error) {
 	err = dao.DB.Model(&model.Address{}).
-		Where("user_id = ?", uid).Order("created_at desc").
+		Where("user_id = ?", uid).
+		Order("created_at desc").
+		Select("id,user_id,name,phone,address,UNIX_TIMESTAMP(created_at)").
 		Find(&addressList).Error
 	return
 }

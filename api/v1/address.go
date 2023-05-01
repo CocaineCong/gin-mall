@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/spf13/cast"
 
 	"mall/consts"
 	"mall/pkg/utils/log"
@@ -35,15 +34,15 @@ func CreateAddressHandler() gin.HandlerFunc {
 	}
 }
 
-// GetAddressHandler 展示某个收货地址
-func GetAddressHandler() gin.HandlerFunc {
+// ShowAddressHandler 展示某个收货地址
+func ShowAddressHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var req types.AddressGetReq
 
 		if err := ctx.ShouldBind(&req); err == nil {
 			// 参数校验
 			l := service.GetAddressSrv()
-			resp, err := l.AddressGet(ctx.Request.Context(), &req)
+			resp, err := l.AddressShow(ctx.Request.Context(), &req)
 			if err != nil {
 				log.LogrusObj.Infoln(err)
 				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
@@ -90,7 +89,7 @@ func UpdateAddressHandler() gin.HandlerFunc {
 		if err := ctx.ShouldBind(&req); err == nil {
 			// 参数校验
 			l := service.GetAddressSrv()
-			resp, err := l.AddressUpdate(ctx.Request.Context(), &req, cast.ToUint(ctx.Param("id")))
+			resp, err := l.AddressUpdate(ctx.Request.Context(), &req)
 			if err != nil {
 				log.LogrusObj.Infoln(err)
 				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))

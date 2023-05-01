@@ -67,20 +67,19 @@ func (dao *CartDao) GetCartById(pId, uId, bId uint) (cart *model.Cart, err error
 // ListCartByUserId 获取 Cart 通过 user_id
 func (dao *CartDao) ListCartByUserId(uId uint) (cart []*types.CartResp, err error) {
 	err = dao.DB.Model(&model.Cart{}).
-		Joins("AS c LEFT JOIN user AS u ON c.boss_id=u.id").
-		Joins("LEFT JOIN product AS p ON c.product_id = p.id").
+		Joins("AS c LEFT JOIN product AS p ON c.product_id = p.id").
 		Where("c.user_id = ?", uId).
 		Select("c.id AS id," +
 			"c.user_id AS user_id," +
 			"c.product_id AS product_id," +
-			"c.created AS created_at," +
+			"UNIX_TIMESTAMP(c.created_at) AS created_at," +
 			"c.num AS num," +
 			"c.max_num AS max_num," +
-			"c.check AS check," +
+			"c.check AS check_," +
 			"p.img_path AS img_path," +
-			"u.id AS boss_id," +
-			"u.boss_name AS boss_name," +
-			"p.info AS desc," +
+			"p.boss_id AS boss_id," +
+			"p.boss_name AS boss_name," +
+			"p.info AS info," +
 			"p.discount_price AS discount_price").
 		Find(&cart).Error
 
@@ -97,6 +96,6 @@ func (dao *CartDao) UpdateCartNumById(cId, uId, num uint) error {
 // DeleteCartById 通过 cart_id 删除 cart
 func (dao *CartDao) DeleteCartById(cId, uId uint) error {
 	return dao.DB.Model(&model.Cart{}).
-		Where("id = ? AND uid = ?", cId, uId).
+		Where("id = ? AND user_id = ?", cId, uId).
 		Delete(&model.Cart{}).Error
 }

@@ -26,7 +26,7 @@ func GetCartSrv() *CartSrv {
 }
 
 // CartCreate 创建购物车
-func (s *CartSrv) CartCreate(ctx context.Context, req *types.CartServiceReq) (resp interface{}, err error) {
+func (s *CartSrv) CartCreate(ctx context.Context, req *types.CartCreateReq) (resp interface{}, err error) {
 	u, err := ctl.GetUserInfo(ctx)
 	if err != nil {
 		util.LogrusObj.Error(err)
@@ -66,7 +66,12 @@ func (s *CartSrv) CartList(ctx context.Context, req *types.CartListReq) (resp in
 
 // CartUpdate 修改购物车信息
 func (s *CartSrv) CartUpdate(ctx context.Context, req *types.UpdateCartServiceReq) (resp interface{}, err error) {
-	err = dao.NewCartDao(ctx).UpdateCartNumById(req.Id, req.UserId, req.Num)
+	u, err := ctl.GetUserInfo(ctx)
+	if err != nil {
+		util.LogrusObj.Error(err)
+		return nil, err
+	}
+	err = dao.NewCartDao(ctx).UpdateCartNumById(req.Id, u.Id, req.Num)
 	if err != nil {
 		util.LogrusObj.Error(err)
 		return
@@ -76,8 +81,13 @@ func (s *CartSrv) CartUpdate(ctx context.Context, req *types.UpdateCartServiceRe
 }
 
 // CartDelete 删除购物车
-func (s *CartSrv) CartDelete(ctx context.Context, req *types.CartServiceReq) (resp interface{}, err error) {
-	err = dao.NewCartDao(ctx).DeleteCartById(req.Id, req.UserId)
+func (s *CartSrv) CartDelete(ctx context.Context, req *types.CartDeleteReq) (resp interface{}, err error) {
+	u, err := ctl.GetUserInfo(ctx)
+	if err != nil {
+		util.LogrusObj.Error(err)
+		return nil, err
+	}
+	err = dao.NewCartDao(ctx).DeleteCartById(req.Id, u.Id)
 	if err != nil {
 		util.LogrusObj.Error(err)
 		return

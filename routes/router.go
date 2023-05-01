@@ -70,7 +70,7 @@ func NewRouter() *gin.Engine {
 
 			// 收获地址操作
 			authed.POST("addresses_create", api.CreateAddressHandler())
-			authed.GET("addresses_show", api.GetAddressHandler())
+			authed.GET("addresses_show", api.ShowAddressHandler())
 			authed.GET("addresses_list", api.ListAddressHandler())
 			authed.POST("addresses_update", api.UpdateAddressHandler())
 			authed.POST("addresses_delete", api.DeleteAddressHandler())

@@ -45,14 +45,23 @@ func (s *AddressSrv) AddressCreate(ctx context.Context, req *types.AddressCreate
 	return ctl.RespSuccess(), nil
 }
 
-func (s *AddressSrv) AddressGet(ctx context.Context, req *types.AddressGetReq) (resp interface{}, err error) {
-	addressDao := dao.NewAddressDao(ctx)
-	address, err := addressDao.GetAddressByAid(req.Id)
+func (s *AddressSrv) AddressShow(ctx context.Context, req *types.AddressGetReq) (resp interface{}, err error) {
+	address, err := dao.NewAddressDao(ctx).GetAddressByAid(req.Id)
 	if err != nil {
 		util.LogrusObj.Error(err)
 		return
 	}
-	return ctl.RespSuccessWithData(address), nil
+
+	aResp := &types.AddressResp{
+		ID:        address.ID,
+		UserID:    address.UserID,
+		Name:      address.Name,
+		Phone:     address.Phone,
+		Address:   address.Address,
+		CreatedAt: address.CreatedAt.Unix(),
+	}
+
+	return ctl.RespSuccessWithData(aResp), nil
 }
 
 func (s *AddressSrv) AddressList(ctx context.Context, req *types.AddressListReq) (resp interface{}, err error) {
@@ -80,7 +89,7 @@ func (s *AddressSrv) AddressDelete(ctx context.Context, req *types.AddressDelete
 	return ctl.RespSuccess(), nil
 }
 
-func (s *AddressSrv) AddressUpdate(ctx context.Context, req *types.AddressServiceReq, aid uint) (resp interface{}, err error) {
+func (s *AddressSrv) AddressUpdate(ctx context.Context, req *types.AddressServiceReq) (resp interface{}, err error) {
 	u, err := ctl.GetUserInfo(ctx)
 	if err != nil {
 		util.LogrusObj.Error(err)
@@ -93,7 +102,7 @@ func (s *AddressSrv) AddressUpdate(ctx context.Context, req *types.AddressServic
 		Phone:   req.Phone,
 		Address: req.Address,
 	}
-	err = addressDao.UpdateAddressById(aid, address)
+	err = addressDao.UpdateAddressById(req.Id, address)
 	if err != nil {
 		util.LogrusObj.Error(err)
 		return
@@ -104,5 +113,6 @@ func (s *AddressSrv) AddressUpdate(ctx context.Context, req *types.AddressServic
 		util.LogrusObj.Error(err)
 		return
 	}
-	return ctl.RespSuccessWithData(addresses), nil
+	return ctl.RespList(addresses, int64(len(addresses))), nil
+
 }
