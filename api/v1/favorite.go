@@ -1,46 +1,81 @@
 package v1
 
 import (
+	"net/http"
+
 	"mall/consts"
-	util "mall/pkg/utils"
-	service2 "mall/service"
+	"mall/pkg/utils/log"
+	"mall/service"
+	"mall/types"
 
 	"github.com/gin-gonic/gin"
 )
 
 // 创建收藏
-func CreateFavorite(c *gin.Context) {
-	service := service2.FavoritesService{}
-	claim, _ := util.ParseToken(c.GetHeader("Authorization"))
-	if err := c.ShouldBind(&service); err == nil {
-		res := service.Create(c.Request.Context(), claim.ID)
-		c.JSON(consts.StatusOK, res)
-	} else {
-		c.JSON(consts.IlleageRequest, ErrorResponse(err))
-		util.LogrusObj.Infoln(err)
+func CreateFavoriteHandler() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		var req types.FavoriteCreateReq
+
+		if err := ctx.ShouldBind(&req); err == nil {
+			// 参数校验
+			l := service.GetFavoriteSrv()
+			resp, err := l.FavoriteCreate(ctx.Request.Context(), &req)
+			if err != nil {
+				log.LogrusObj.Infoln(err)
+				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+				return
+			}
+			ctx.JSON(http.StatusOK, resp)
+		} else {
+			log.LogrusObj.Infoln(err)
+			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+		}
 	}
 }
 
-// 收藏夹详情接口
-func ShowFavorites(c *gin.Context) {
-	service := service2.FavoritesService{}
-	claim, _ := util.ParseToken(c.GetHeader("Authorization"))
-	if err := c.ShouldBind(&service); err == nil {
-		res := service.Show(c.Request.Context(), claim.ID)
-		c.JSON(consts.StatusOK, res)
-	} else {
-		c.JSON(consts.IlleageRequest, ErrorResponse(err))
-		util.LogrusObj.Infoln(err)
+// ListFavoritesHandler 收藏夹详情接口
+func ListFavoritesHandler() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		var req types.FavoritesServiceReq
+
+		if err := ctx.ShouldBind(&req); err == nil {
+			// 参数校验
+			if req.PageSize == 0 {
+				req.PageSize = consts.BasePageSize
+			}
+			l := service.GetFavoriteSrv()
+			resp, err := l.FavoriteList(ctx.Request.Context(), &req)
+			if err != nil {
+				log.LogrusObj.Infoln(err)
+				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+				return
+			}
+			ctx.JSON(http.StatusOK, resp)
+		} else {
+			log.LogrusObj.Infoln(err)
+			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+		}
 	}
 }
 
-func DeleteFavorite(c *gin.Context) {
-	service := service2.FavoritesService{}
-	if err := c.ShouldBind(&service); err == nil {
-		res := service.Delete(c.Request.Context())
-		c.JSON(consts.StatusOK, res)
-	} else {
-		c.JSON(consts.IlleageRequest, ErrorResponse(err))
-		util.LogrusObj.Infoln(err)
+// DeleteFavoriteHandler 删除收藏夹
+func DeleteFavoriteHandler() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		var req types.FavoriteDeleteReq
+
+		if err := ctx.ShouldBind(&req); err == nil {
+			// 参数校验
+			l := service.GetFavoriteSrv()
+			resp, err := l.FavoriteDelete(ctx.Request.Context(), &req)
+			if err != nil {
+				log.LogrusObj.Infoln(err)
+				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+				return
+			}
+			ctx.JSON(http.StatusOK, resp)
+		} else {
+			log.LogrusObj.Infoln(err)
+			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+		}
 	}
 }

@@ -1,6 +1,7 @@
 package es
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/olivere/elastic/v7"
@@ -14,7 +15,7 @@ var EsClient *elastic.Client
 
 // InitEs 初始化es
 func InitEs() {
-	esConn := "http://" + conf.EsHost + ":" + conf.EsPort
+	esConn := fmt.Sprintf("http://%s:%s", conf.EsHost, conf.EsPort)
 	client, err := elastic.NewClient(elastic.SetSniff(false), elastic.SetURL(esConn))
 	if err != nil {
 		log.Panic(err)

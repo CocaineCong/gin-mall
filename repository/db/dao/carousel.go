@@ -6,6 +6,7 @@ import (
 	"gorm.io/gorm"
 
 	"mall/repository/db/model"
+	"mall/types"
 )
 
 type CarouselDao struct {
@@ -20,7 +21,9 @@ func NewNewCarouselDao(db *gorm.DB) *CarouselDao {
 	return &CarouselDao{db}
 }
 
-func (dao *CarouselDao) ListAddress() (carousels []*model.Carousel, err error) {
-	err = dao.DB.Model(&model.Carousel{}).Find(&carousels).Error
+func (dao *CarouselDao) ListCarousel() (r []*types.ListCarouselResp, err error) {
+	err = dao.DB.Model(&model.Carousel{}).
+		Select("id,img_path,product_id,UNIX_TIMESTAMP(created_at)").
+		Find(&r).Error
 	return
 }

@@ -2,148 +2,117 @@ package service
 
 import (
 	"context"
-	"strconv"
+	"sync"
 
-	logging "github.com/sirupsen/logrus"
-
-	"mall/pkg/e"
+	"mall/pkg/utils/ctl"
+	util "mall/pkg/utils/log"
 	"mall/repository/db/dao"
 	"mall/repository/db/model"
-	"mall/serializer"
+	"mall/types"
 )
 
-type AddressService struct {
-	Name    string `form:"name" json:"name"`
-	Phone   string `form:"phone" json:"phone"`
-	Address string `form:"address" json:"address"`
+var AddressSrvIns *AddressSrv
+var AddressSrvOnce sync.Once
+
+type AddressSrv struct {
 }
 
-func (service *AddressService) Create(ctx context.Context, uId uint) serializer.Response {
-	code := e.SUCCESS
+func GetAddressSrv() *AddressSrv {
+	AddressSrvOnce.Do(func() {
+		AddressSrvIns = &AddressSrv{}
+	})
+	return AddressSrvIns
+}
+
+func (s *AddressSrv) AddressCreate(ctx context.Context, req *types.AddressCreateReq) (resp interface{}, err error) {
+	u, err := ctl.GetUserInfo(ctx)
+	if err != nil {
+		util.LogrusObj.Error(err)
+		return nil, err
+	}
 	addressDao := dao.NewAddressDao(ctx)
 	address := &model.Address{
-		UserID:  uId,
-		Name:    service.Name,
-		Phone:   service.Phone,
-		Address: service.Address,
+		UserID:  u.Id,
+		Name:    req.Name,
+		Phone:   req.Phone,
+		Address: req.Address,
 	}
-	err := addressDao.CreateAddress(address)
+	err = addressDao.CreateAddress(address)
 	if err != nil {
-		logging.Info(err)
-		code = e.ErrorDatabase
-		return serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Error:  err.Error(),
-		}
+		util.LogrusObj.Error(err)
+		return
 	}
-	addressDao = dao.NewAddressDaoByDB(addressDao.DB)
-	var addresses []*model.Address
-	addresses, err = addressDao.ListAddressByUid(uId)
-	if err != nil {
-		logging.Info(err)
-		code = e.ErrorDatabase
-		return serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Error:  err.Error(),
-		}
-	}
-	return serializer.Response{
-		Status: code,
-		Data:   serializer.BuildAddresses(addresses),
-		Msg:    e.GetMsg(code),
-	}
+	return ctl.RespSuccess(), nil
 }
 
-func (service *AddressService) Show(ctx context.Context, aId string) serializer.Response {
-	code := e.SUCCESS
-	addressDao := dao.NewAddressDao(ctx)
-	addressId, _ := strconv.Atoi(aId)
-	address, err := addressDao.GetAddressByAid(uint(addressId))
+func (s *AddressSrv) AddressShow(ctx context.Context, req *types.AddressGetReq) (resp interface{}, err error) {
+	address, err := dao.NewAddressDao(ctx).GetAddressByAid(req.Id)
 	if err != nil {
-		logging.Info(err)
-		code = e.ErrorDatabase
-		return serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Error:  err.Error(),
-		}
+		util.LogrusObj.Error(err)
+		return
 	}
-	return serializer.Response{
-		Status: code,
-		Data:   serializer.BuildAddress(address),
-		Msg:    e.GetMsg(code),
+
+	aResp := &types.AddressResp{
+		ID:        address.ID,
+		UserID:    address.UserID,
+		Name:      address.Name,
+		Phone:     address.Phone,
+		Address:   address.Address,
+		CreatedAt: address.CreatedAt.Unix(),
 	}
+
+	return ctl.RespSuccessWithData(aResp), nil
 }
 
-func (service *AddressService) List(ctx context.Context, uId uint) serializer.Response {
-	code := e.SUCCESS
-	addressDao := dao.NewAddressDao(ctx)
-	address, err := addressDao.ListAddressByUid(uId)
+func (s *AddressSrv) AddressList(ctx context.Context, req *types.AddressListReq) (resp interface{}, err error) {
+	u, _ := ctl.GetUserInfo(ctx)
+	addresses, err := dao.NewAddressDao(ctx).
+		ListAddressByUid(u.Id)
 	if err != nil {
-		logging.Info(err)
-		code = e.ErrorDatabase
-		return serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Error:  err.Error(),
-		}
+		util.LogrusObj.Error(err)
+		return
 	}
-	return serializer.Response{
-		Status: code,
-		Data:   serializer.BuildAddresses(address),
-		Msg:    e.GetMsg(code),
-	}
+	return ctl.RespList(addresses, int64(len(addresses))), nil
 }
 
-func (service *AddressService) Delete(ctx context.Context, aId string) serializer.Response {
-	addressDao := dao.NewAddressDao(ctx)
-	code := e.SUCCESS
-	addressId, _ := strconv.Atoi(aId)
-	err := addressDao.DeleteAddressById(uint(addressId))
+func (s *AddressSrv) AddressDelete(ctx context.Context, req *types.AddressDeleteReq) (resp interface{}, err error) {
+	u, err := ctl.GetUserInfo(ctx)
 	if err != nil {
-		logging.Info(err)
-		code = e.ErrorDatabase
-		return serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Error:  err.Error(),
-		}
+		util.LogrusObj.Error(err)
+		return nil, err
 	}
-	return serializer.Response{
-		Status: code,
-		Msg:    e.GetMsg(code),
+	err = dao.NewAddressDao(ctx).DeleteAddressById(req.Id, u.Id)
+	if err != nil {
+		util.LogrusObj.Error(err)
+		return
 	}
+	return ctl.RespSuccess(), nil
 }
 
-func (service *AddressService) Update(ctx context.Context, uid uint, aid string) serializer.Response {
-	code := e.SUCCESS
-
+func (s *AddressSrv) AddressUpdate(ctx context.Context, req *types.AddressServiceReq) (resp interface{}, err error) {
+	u, err := ctl.GetUserInfo(ctx)
+	if err != nil {
+		util.LogrusObj.Error(err)
+		return nil, err
+	}
 	addressDao := dao.NewAddressDao(ctx)
 	address := &model.Address{
-		UserID:  uid,
-		Name:    service.Name,
-		Phone:   service.Phone,
-		Address: service.Address,
+		UserID:  u.Id,
+		Name:    req.Name,
+		Phone:   req.Phone,
+		Address: req.Address,
 	}
-	addressId, _ := strconv.Atoi(aid)
-	err := addressDao.UpdateAddressById(uint(addressId), address)
-	addressDao = dao.NewAddressDaoByDB(addressDao.DB)
-	var addresses []*model.Address
-	addresses, err = addressDao.ListAddressByUid(uid)
+	err = addressDao.UpdateAddressById(req.Id, address)
 	if err != nil {
-		logging.Info(err)
-		code = e.ErrorDatabase
-		return serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Error:  err.Error(),
-		}
+		util.LogrusObj.Error(err)
+		return
 	}
-	return serializer.Response{
-		Status: code,
-		Data:   serializer.BuildAddresses(addresses),
-		Msg:    e.GetMsg(code),
+	var addresses []*types.AddressResp
+	addresses, err = addressDao.ListAddressByUid(u.Id)
+	if err != nil {
+		util.LogrusObj.Error(err)
+		return
 	}
+	return ctl.RespList(addresses, int64(len(addresses))), nil
+
 }

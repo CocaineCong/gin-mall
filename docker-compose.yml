@@ -13,6 +13,8 @@ services:
     depends_on:
       - mysql
       - redis
+      - kibana
+      - elasticsearch
 
   mysql:
     container_name: mysql

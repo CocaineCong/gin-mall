@@ -11,7 +11,7 @@ import (
 	"mall/middleware"
 )
 
-// 路由配置
+// NewRouter 路由配置
 func NewRouter() *gin.Engine {
 	r := gin.Default()
 	store := cookie.NewStore([]byte("something-very-secret"))
@@ -26,65 +26,65 @@ func NewRouter() *gin.Engine {
 		})
 
 		// 用户操作
-		v1.POST("user/register", api.UserRegister)
-		v1.POST("user/login", api.UserLogin)
+		v1.POST("user/register", api.UserRegisterHandler())
+		v1.POST("user/login", api.UserLoginHandler())
 
 		// 商品操作
-		v1.GET("products", api.ListProducts)
-		v1.GET("product/:id", api.ShowProduct)
-		v1.POST("products", api.SearchProducts)
-		v1.GET("imgs/:id", api.ListProductImg)   // 商品图片
-		v1.GET("categories", api.ListCategories) // 商品分类
-		v1.GET("carousels", api.ListCarousels)   // 轮播图
+		v1.GET("product_list", api.ListProductsHandler())
+		v1.GET("product_show", api.ShowProductHandler())
+		v1.POST("product_search", api.SearchProductsHandler())
+		v1.GET("imgs_list", api.ListProductImgHandler()) // 商品图片
+		v1.GET("categories", api.ListCategoryHandler())  // 商品分类
+		v1.GET("carousels", api.ListCarouselsHandler())  // 轮播图
 
 		authed := v1.Group("/") // 需要登陆保护
-		authed.Use(middleware.JWT())
+		authed.Use(middleware.AuthMiddleware())
 		{
 
 			// 用户操作
-			authed.PUT("user", api.UserUpdate)
-			authed.POST("user/sending-email", api.SendEmail)
-			authed.POST("user/valid-email", api.ValidEmail)
-			authed.POST("avatar", api.UploadAvatar) // 上传头像
+			authed.POST("user_update", api.UserUpdateHandler())
+			authed.POST("user/send_email", api.SendEmailHandler())
+			authed.GET("user/valid_email", api.ValidEmailHandler())
+			authed.POST("avatar", api.UploadAvatarHandler()) // 上传头像
 
 			// 商品操作
-			authed.POST("product", api.CreateProduct)
-			authed.PUT("product/:id", api.UpdateProduct)
-			authed.DELETE("product/:id", api.DeleteProduct)
+			authed.POST("product_create", api.CreateProductHandler())
+			authed.POST("product_update", api.UpdateProductHandler())
+			authed.POST("product_delete", api.DeleteProductHandler())
 			// 收藏夹
-			authed.GET("favorites", api.ShowFavorites)
-			authed.POST("favorites", api.CreateFavorite)
-			authed.DELETE("favorites/:id", api.DeleteFavorite)
+			authed.GET("favorites_list", api.ListFavoritesHandler())
+			authed.POST("favorites_create", api.CreateFavoriteHandler())
+			authed.POST("favorites_delete", api.DeleteFavoriteHandler())
 
 			// 订单操作
-			authed.POST("orders", api.CreateOrder)
-			authed.GET("orders", api.ListOrders)
-			authed.GET("orders/:id", api.ShowOrder)
-			authed.DELETE("orders/:id", api.DeleteOrder)
+			authed.POST("orders_create", api.CreateOrderHandler())
+			authed.GET("orders_list", api.ListOrdersHandler())
+			authed.GET("orders_show", api.ShowOrderHandler())
+			authed.POST("orders_delete", api.DeleteOrderHandler())
 
 			// 购物车
-			authed.POST("carts", api.CreateCart)
-			authed.GET("carts", api.ShowCarts)
-			authed.PUT("carts/:id", api.UpdateCart) // 购物车id
-			authed.DELETE("carts/:id", api.DeleteCart)
+			authed.POST("carts_create", api.CreateCartHandler())
+			authed.GET("carts_list", api.ListCartHandler())
+			authed.POST("carts_update", api.UpdateCartHandler()) // 购物车id
+			authed.POST("carts_delete", api.DeleteCartHandler())
 
 			// 收获地址操作
-			authed.POST("addresses", api.CreateAddress)
-			authed.GET("addresses/:id", api.GetAddress)
-			authed.GET("addresses", api.ListAddress)
-			authed.PUT("addresses/:id", api.UpdateAddress)
-			authed.DELETE("addresses/:id", api.DeleteAddress)
+			authed.POST("addresses_create", api.CreateAddressHandler())
+			authed.GET("addresses_show", api.ShowAddressHandler())
+			authed.GET("addresses_list", api.ListAddressHandler())
+			authed.POST("addresses_update", api.UpdateAddressHandler())
+			authed.POST("addresses_delete", api.DeleteAddressHandler())
 
 			// 支付功能
-			authed.POST("paydown", api.OrderPay)
+			authed.POST("paydown", api.OrderPaymentHandler())
 
 			// 显示金额
-			authed.POST("money", api.ShowMoney)
+			authed.POST("money", api.ShowMoneyHandler())
 
 			// 秒杀专场
-			authed.POST("import_skill_goods", api.ImportSkillGoods)
-			authed.POST("init_skill_goods", api.InitSkillGoods)
-			authed.POST("skill_goods", api.SkillGoods)
+			authed.POST("import_skill_goods", api.ImportSkillProductHandler())
+			authed.POST("init_skill_goods", api.InitSkillProductHandler())
+			authed.POST("skill_goods", api.SkillProductHandler())
 		}
 	}
 	return r
