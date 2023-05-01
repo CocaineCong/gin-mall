@@ -30,5 +30,14 @@ func (s *CategorySrv) CategoryList(ctx context.Context, req *types.ListCategoryR
 		util.LogrusObj.Error(err)
 		return
 	}
-	return ctl.RespSuccessWithData(categories), nil
+	cResp := make([]*types.ListCategoryResp, 0)
+	for _, v := range categories {
+		cResp = append(cResp, &types.ListCategoryResp{
+			ID:           v.ID,
+			CategoryName: v.CategoryName,
+			CreatedAt:    v.CreatedAt.Unix(),
+		})
+	}
+
+	return ctl.RespList(cResp, int64(len(cResp))), nil
 }

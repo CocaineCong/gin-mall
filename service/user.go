@@ -6,11 +6,9 @@ import (
 	"fmt"
 	"mime/multipart"
 	"sync"
-	"time"
 
 	"mall/conf"
 	"mall/consts"
-	"mall/pkg/e"
 	"mall/pkg/utils/ctl"
 	"mall/pkg/utils/email"
 	"mall/pkg/utils/encryption"
@@ -202,34 +200,26 @@ func (s *UserSrv) SendEmail(ctx context.Context, req *types.SendEmailServiceReq)
 }
 
 // Valid 验证内容
-func (s *UserSrv) Valid(ctx context.Context, token string, req *types.ValidEmailServiceReq) (resp interface{}, err error) {
+func (s *UserSrv) Valid(ctx context.Context, req *types.ValidEmailServiceReq) (resp interface{}, err error) {
 	var userId uint
 	var email string
 	var password string
 	var operationType uint
-	code := e.SUCCESS
-
 	// 验证token
-	if token == "" {
-		code = e.InvalidParams
-	} else {
-		claims, err := jwt.ParseEmailToken(token)
-		if err != nil {
-			log.LogrusObj.Error(err)
-			code = e.ErrorAuthCheckTokenFail
-		} else if time.Now().Unix() > claims.ExpiresAt {
-			code = e.ErrorAuthCheckTokenTimeout
-		} else {
-			userId = claims.UserID
-			email = claims.Email
-			password = claims.Password
-			operationType = claims.OperationType
-		}
-	}
-	if code != e.SUCCESS {
-		err = errors.New(e.GetMsg(code))
+	if req.Token == "" {
+		err = errors.New("Token不存在")
 		log.LogrusObj.Error(err)
 		return
+	}
+	claims, err := jwt.ParseEmailToken(req.Token)
+	if err != nil {
+		log.LogrusObj.Error(err)
+		return
+	} else {
+		userId = claims.UserID
+		email = claims.Email
+		password = claims.Password
+		operationType = claims.OperationType
 	}
 
 	// 获取该用户信息

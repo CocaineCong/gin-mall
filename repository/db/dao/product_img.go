@@ -28,9 +28,9 @@ func (dao *ProductImgDao) CreateProductImg(productImg *model.ProductImg) (err er
 }
 
 // ListProductImgByProductId 根据商品id获取商品图片
-func (dao *ProductImgDao) ListProductImgByProductId(pId uint) (products []*types.ProductImgResp, err error) {
+func (dao *ProductImgDao) ListProductImgByProductId(pId uint) (r []*types.ProductImgResp, err error) {
 	err = dao.DB.Model(&model.ProductImg{}).
 		Where("product_id=?", pId).
-		Find(&products).Error
+		Find(&r).Error
 	return
 }

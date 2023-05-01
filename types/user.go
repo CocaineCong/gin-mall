@@ -31,6 +31,7 @@ type SendEmailServiceReq struct {
 }
 
 type ValidEmailServiceReq struct {
+	Token string `json:"token" form:"token"`
 }
 
 type UserInfoResp struct {

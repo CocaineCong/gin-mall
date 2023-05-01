@@ -6,7 +6,6 @@ import (
 	"gorm.io/gorm"
 
 	"mall/repository/db/model"
-	"mall/types"
 )
 
 type CategoryDao struct {
@@ -22,7 +21,7 @@ func NewCategoryDaoByDB(db *gorm.DB) *CategoryDao {
 }
 
 // ListCategory 分类列表
-func (dao *CategoryDao) ListCategory() (category []*types.ListCategoryResp, err error) {
-	err = dao.DB.Model(&model.Category{}).Find(&category).Error
+func (dao *CategoryDao) ListCategory() (r []*model.Category, err error) {
+	err = dao.DB.Model(&model.Category{}).Find(&r).Error
 	return
 }

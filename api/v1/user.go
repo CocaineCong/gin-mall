@@ -125,7 +125,7 @@ func ValidEmailHandler() gin.HandlerFunc {
 		if err := ctx.ShouldBind(&req); err == nil {
 			// 参数校验
 			l := service.GetUserSrv()
-			resp, err := l.Valid(ctx.Request.Context(), ctx.Param("token"), &req)
+			resp, err := l.Valid(ctx.Request.Context(), &req)
 			if err != nil {
 				log.LogrusObj.Infoln(err)
 				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))

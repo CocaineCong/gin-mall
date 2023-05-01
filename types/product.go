@@ -1,17 +1,15 @@
 package types
 
-type ProductServiceReq struct {
+type ProductSearchReq struct {
 	ID            uint   `form:"id" json:"id"`
 	Name          string `form:"name" json:"name"`
 	CategoryID    int    `form:"category_id" json:"category_id"`
 	Title         string `form:"title" json:"title" `
 	Info          string `form:"info" json:"info" `
-	ImgPath       string `form:"img_path" json:"img_path"`
 	Price         string `form:"price" json:"price"`
 	DiscountPrice string `form:"discount_price" json:"discount_price"`
 	OnSale        bool   `form:"on_sale" json:"on_sale"`
-	Num           int    `form:"num" json:"num"`
-	*BasePage
+	BasePage
 }
 
 type ProductCreateReq struct {
@@ -29,12 +27,12 @@ type ProductCreateReq struct {
 
 type ProductListReq struct {
 	CategoryID uint `form:"category_id" json:"category_id"`
-	*BasePage
+	BasePage
 }
 
 type ProductDeleteReq struct {
 	ID uint `form:"id" json:"id"`
-	*BasePage
+	BasePage
 }
 
 type ProductShowReq struct {
@@ -55,7 +53,7 @@ type ProductUpdateReq struct {
 }
 
 type ListProductImgReq struct {
-	ID uint `json:"id"`
+	ID uint `json:"id" form:"id"`
 }
 
 type ProductResp struct {
@@ -71,7 +69,7 @@ type ProductResp struct {
 	CreatedAt     int64  `json:"created_at"`
 	Num           int    `json:"num"`
 	OnSale        bool   `json:"on_sale"`
-	BossID        int    `json:"boss_id"`
+	BossID        uint   `json:"boss_id"`
 	BossName      string `json:"boss_name"`
 	BossAvatar    string `json:"boss_avatar"`
 }

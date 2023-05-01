@@ -29,14 +29,14 @@ func (dao *ProductDao) GetProductById(id uint) (product *model.Product, err erro
 }
 
 // ShowProductById 通过 id 获取product
-func (dao *ProductDao) ShowProductById(id uint) (product *types.ProductResp, err error) {
+func (dao *ProductDao) ShowProductById(id uint) (product *model.Product, err error) {
 	err = dao.DB.Model(&model.Product{}).Where("id=?", id).
 		First(&product).Error
 	return
 }
 
 // ListProductByCondition 获取商品列表
-func (dao *ProductDao) ListProductByCondition(condition map[string]interface{}, page *types.BasePage) (products []*types.ProductResp, err error) {
+func (dao *ProductDao) ListProductByCondition(condition map[string]interface{}, page types.BasePage) (products []*model.Product, err error) {
 	err = dao.DB.Where(condition).
 		Offset((page.PageNum - 1) * page.PageSize).
 		Limit(page.PageSize).Find(&products).Error
@@ -69,7 +69,7 @@ func (dao *ProductDao) UpdateProduct(pId uint, product *model.Product) error {
 }
 
 // SearchProduct 搜索商品
-func (dao *ProductDao) SearchProduct(info string, page *types.BasePage) (products []*types.ProductResp, count int64, err error) {
+func (dao *ProductDao) SearchProduct(info string, page types.BasePage) (products []*model.Product, count int64, err error) {
 	err = dao.DB.Model(&model.Product{}).
 		Where("name LIKE ? OR info LIKE ?", "%"+info+"%", "%"+info+"%").
 		Offset((page.PageNum - 1) * page.PageSize).

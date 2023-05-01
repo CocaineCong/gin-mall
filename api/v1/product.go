@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -129,7 +130,7 @@ func UpdateProductHandler() gin.HandlerFunc {
 // 搜索商品
 func SearchProductsHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		var req types.ProductServiceReq
+		var req types.ProductSearchReq
 
 		if err := ctx.ShouldBind(&req); err == nil {
 			// 参数校验
@@ -157,6 +158,11 @@ func ListProductImgHandler() gin.HandlerFunc {
 
 		if err := ctx.ShouldBind(&req); err == nil {
 			// 参数校验
+			if req.ID == 0 {
+				err = errors.New("参数错误,id不能为空")
+				ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+				return
+			}
 			l := service.GetProductSrv()
 			resp, err := l.ProductImgList(ctx.Request.Context(), &req)
 			if err != nil {

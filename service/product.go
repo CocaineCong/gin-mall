@@ -31,13 +31,34 @@ func GetProductSrv() *ProductSrv {
 
 // ProductShow 商品
 func (s *ProductSrv) ProductShow(ctx context.Context, req *types.ProductShowReq) (resp interface{}, err error) {
-	product, err := dao.NewProductDao(ctx).ShowProductById(req.ID)
+	p, err := dao.NewProductDao(ctx).ShowProductById(req.ID)
 	if err != nil {
 		log.LogrusObj.Error(err)
 		return
 	}
+	pResp := &types.ProductResp{
+		ID:            p.ID,
+		Name:          p.Name,
+		CategoryID:    p.CategoryID,
+		Title:         p.Title,
+		Info:          p.Info,
+		ImgPath:       p.ImgPath,
+		Price:         p.Price,
+		DiscountPrice: p.DiscountPrice,
+		View:          p.View(),
+		CreatedAt:     p.CreatedAt.Unix(),
+		Num:           p.Num,
+		OnSale:        p.OnSale,
+		BossID:        p.BossID,
+		BossName:      p.BossName,
+		BossAvatar:    p.BossAvatar,
+	}
+	if conf.UploadModel == consts.UploadModelLocal {
+		pResp.BossAvatar = conf.PhotoHost + conf.HttpPort + conf.AvatarPath + pResp.BossAvatar
+		pResp.ImgPath = conf.PhotoHost + conf.HttpPort + conf.ProductPhotoPath + pResp.ImgPath
+	}
 
-	return ctl.RespSuccessWithData(product), nil
+	return ctl.RespSuccessWithData(pResp), nil
 }
 
 // 创建商品
@@ -114,26 +135,44 @@ func (s *ProductSrv) ProductCreate(ctx context.Context, files []*multipart.FileH
 }
 
 func (s *ProductSrv) ProductList(ctx context.Context, req *types.ProductListReq) (resp interface{}, err error) {
-	var products []*types.ProductResp
 	var total int64
 	condition := make(map[string]interface{})
 	if req.CategoryID != 0 {
 		condition["category_id"] = req.CategoryID
 	}
 	productDao := dao.NewProductDao(ctx)
-	wg := new(sync.WaitGroup)
-	wg.Add(1)
-	go func() {
-		productDao = dao.NewProductDaoByDB(productDao.DB)
-		products, _ = productDao.ListProductByCondition(condition, req.BasePage)
-		wg.Done()
-	}()
-	wg.Wait()
+	products, _ := productDao.ListProductByCondition(condition, req.BasePage)
 	total, err = productDao.CountProductByCondition(condition)
 	if err != nil {
 		log.LogrusObj.Error(err)
 		return
 	}
+	pRespList := make([]*types.ProductResp, 0)
+	for _, p := range products {
+		pResp := &types.ProductResp{
+			ID:            p.ID,
+			Name:          p.Name,
+			CategoryID:    p.CategoryID,
+			Title:         p.Title,
+			Info:          p.Info,
+			ImgPath:       p.ImgPath,
+			Price:         p.Price,
+			DiscountPrice: p.DiscountPrice,
+			View:          p.View(),
+			CreatedAt:     p.CreatedAt.Unix(),
+			Num:           p.Num,
+			OnSale:        p.OnSale,
+			BossID:        p.BossID,
+			BossName:      p.BossName,
+			BossAvatar:    p.BossAvatar,
+		}
+		if conf.UploadModel == consts.UploadModelLocal {
+			pResp.BossAvatar = conf.PhotoHost + conf.HttpPort + conf.AvatarPath + pResp.BossAvatar
+			pResp.ImgPath = conf.PhotoHost + conf.HttpPort + conf.ProductPhotoPath + pResp.ImgPath
+		}
+		pRespList = append(pRespList, pResp)
+	}
+
 	return ctl.RespList(products, total), nil
 }
 
@@ -170,18 +209,49 @@ func (s *ProductSrv) ProductUpdate(ctx context.Context, req *types.ProductUpdate
 }
 
 // 搜索商品 TODO 后续用脚本同步数据MySQL到ES，用ES进行搜索
-func (s *ProductSrv) ProductSearch(ctx context.Context, req *types.ProductServiceReq) (resp interface{}, err error) {
-	productDao := dao.NewProductDao(ctx)
-	products, count, err := productDao.SearchProduct(req.Info, req.BasePage)
+func (s *ProductSrv) ProductSearch(ctx context.Context, req *types.ProductSearchReq) (resp interface{}, err error) {
+	products, count, err := dao.NewProductDao(ctx).SearchProduct(req.Info, req.BasePage)
 	if err != nil {
 		log.LogrusObj.Error(err)
 		return
 	}
-	return ctl.RespList(products, count), nil
+
+	pRespList := make([]*types.ProductResp, 0)
+	for _, p := range products {
+		pResp := &types.ProductResp{
+			ID:            p.ID,
+			Name:          p.Name,
+			CategoryID:    p.CategoryID,
+			Title:         p.Title,
+			Info:          p.Info,
+			ImgPath:       p.ImgPath,
+			Price:         p.Price,
+			DiscountPrice: p.DiscountPrice,
+			View:          p.View(),
+			CreatedAt:     p.CreatedAt.Unix(),
+			Num:           p.Num,
+			OnSale:        p.OnSale,
+			BossID:        p.BossID,
+			BossName:      p.BossName,
+			BossAvatar:    p.BossAvatar,
+		}
+		if conf.UploadModel == consts.UploadModelLocal {
+			pResp.BossAvatar = conf.PhotoHost + conf.HttpPort + conf.AvatarPath + pResp.BossAvatar
+			pResp.ImgPath = conf.PhotoHost + conf.HttpPort + conf.ProductPhotoPath + pResp.ImgPath
+		}
+		pRespList = append(pRespList, pResp)
+	}
+
+	return ctl.RespList(pRespList, count), nil
 }
 
 // ProductImgList 获取商品列表图片
 func (s *ProductSrv) ProductImgList(ctx context.Context, req *types.ListProductImgReq) (resp interface{}, err error) {
 	productImgs, _ := dao.NewProductImgDao(ctx).ListProductImgByProductId(req.ID)
+	for i := range productImgs {
+		if conf.UploadModel == consts.UploadModelLocal {
+			productImgs[i].ImgPath = conf.PhotoHost + conf.HttpPort + conf.ProductPhotoPath + productImgs[i].ImgPath
+		}
+	}
 	return ctl.RespList(productImgs, int64(len(productImgs))), nil
 }

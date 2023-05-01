@@ -30,12 +30,12 @@ func NewRouter() *gin.Engine {
 		v1.POST("user/login", api.UserLoginHandler())
 
 		// 商品操作
-		v1.GET("products", api.ListProductsHandler())
-		v1.GET("product/:id", api.ShowProductHandler())
-		v1.POST("products", api.SearchProductsHandler())
-		v1.GET("imgs/:id", api.ListProductImgHandler()) // 商品图片
-		v1.GET("categories", api.ListCategoryHandler()) // 商品分类
-		v1.GET("carousels", api.ListCarouselsHandler()) // 轮播图
+		v1.GET("product_list", api.ListProductsHandler())
+		v1.GET("product_show", api.ShowProductHandler())
+		v1.POST("product_search", api.SearchProductsHandler())
+		v1.GET("imgs_list", api.ListProductImgHandler()) // 商品图片
+		v1.GET("categories", api.ListCategoryHandler())  // 商品分类
+		v1.GET("carousels", api.ListCarouselsHandler())  // 轮播图
 
 		authed := v1.Group("/") // 需要登陆保护
 		authed.Use(middleware.AuthMiddleware())
@@ -44,7 +44,7 @@ func NewRouter() *gin.Engine {
 			// 用户操作
 			authed.POST("user_update", api.UserUpdateHandler())
 			authed.POST("user/send_email", api.SendEmailHandler())
-			authed.POST("user/valid_email", api.ValidEmailHandler())
+			authed.GET("user/valid_email", api.ValidEmailHandler())
 			authed.POST("avatar", api.UploadAvatarHandler()) // 上传头像
 
 			// 商品操作
