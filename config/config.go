@@ -19,6 +19,8 @@ type Conf struct {
 	Cache         *Cache                  `yaml:"cache"`
 	KafKa         map[string]*KafkaConfig `yaml:"kafKa"`
 	RabbitMq      *RabbitMq               `yaml:"rabbitMq"`
+	Es            *Es                     `yaml:"es"`
+	PhotoPath     *LocalPhotoPath         `yaml:"photoPath"`
 }
 
 type RabbitMq struct {

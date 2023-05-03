@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"mall/conf"
+	conf "mall/config"
 	util "mall/pkg/utils/log"
 	"mall/repository/cache"
 	"mall/repository/db/dao"

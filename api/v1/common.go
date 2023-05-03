@@ -6,7 +6,7 @@ import (
 
 	"github.com/go-playground/validator/v10"
 
-	"mall/conf"
+	conf "mall/config"
 	"mall/pkg/e"
 	"mall/pkg/utils/ctl"
 )

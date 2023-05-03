@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"mall/conf"
+	conf "mall/config"
 	"mall/routes"
 )
 

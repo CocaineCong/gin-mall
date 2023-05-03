@@ -10,7 +10,7 @@ import (
 	"github.com/Shopify/sarama"
 	"go.uber.org/zap"
 
-	"mall/conf"
+	conf "mall/config"
 	"mall/pkg/utils/log"
 )
 
