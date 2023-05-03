@@ -69,22 +69,17 @@ func SendMessagePartitionPar(ctx context.Context, key, topic, value, partitionKe
 	return err
 }
 
-func KafkaInit() {
-	wg := sync.WaitGroup{}
+func InitKafka() {
 	for k, v := range conf.Config.KafKa {
 		key := k
 		val := v
-		wg.Add(1)
-		go func() {
-			scfg := buildConfig(val)
-			kafka, err := newKafkaClient(key, val, scfg)
-			if err != nil {
-				return
-			}
-			globalKafkaClient.Store(key, kafka)
-		}()
+		scfg := buildConfig(val)
+		kafka, err := newKafkaClient(key, val, scfg)
+		if err != nil {
+			return
+		}
+		globalKafkaClient.Store(key, kafka)
 	}
-	wg.Wait()
 }
 
 func buildConfig(v *conf.KafkaConfig) *sarama.Config {
