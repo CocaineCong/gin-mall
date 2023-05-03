@@ -91,7 +91,7 @@ func (s *UserSrv) UserLogin(ctx context.Context, req *types.UserServiceReq) (res
 		return nil, errors.New("账号/密码不正确")
 	}
 
-	token, err := jwt.GenerateToken(user.ID, req.UserName, 0)
+	accessToken, refreshToken, err := jwt.GenerateToken(user.ID, req.UserName)
 	if err != nil {
 		log.LogrusObj.Error(err)
 		return nil, err
@@ -109,8 +109,8 @@ func (s *UserSrv) UserLogin(ctx context.Context, req *types.UserServiceReq) (res
 
 	userTokenResp := ctl.TokenData{
 		User:         userResp,
-		AccessToken:  token,
-		RefreshToken: token, // TODO 加上 refresh token
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
 	}
 
 	return ctl.RespSuccessWithData(userTokenResp), nil
