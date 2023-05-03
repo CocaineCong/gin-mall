@@ -61,7 +61,7 @@ func (s *UserSrv) UserRegister(ctx context.Context, req *types.UserRegisterReq) 
 		return
 	}
 
-	if conf.UploadModel == consts.UploadModelOss {
+	if conf.Config.System.UploadModel == consts.UploadModelOss {
 		user.Avatar = "http://q1.qlogo.cn/g?b=qq&nk=294350394&s=640"
 	} else {
 		user.Avatar = "avatar.JPG"
