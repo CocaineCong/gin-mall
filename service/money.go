@@ -2,34 +2,45 @@ package service
 
 import (
 	"context"
+	"sync"
 
-	logging "github.com/sirupsen/logrus"
-
-	"mall/pkg/e"
+	"mall/pkg/utils/ctl"
+	util "mall/pkg/utils/encryption"
+	"mall/pkg/utils/log"
 	"mall/repository/db/dao"
-	"mall/serializer"
+	"mall/types"
 )
 
-type ShowMoneyService struct {
-	Key string `json:"key" form:"key"`
+var MoneySrvIns *MoneySrv
+var MoneySrvOnce sync.Once
+
+type MoneySrv struct {
 }
 
-func (service *ShowMoneyService) Show(ctx context.Context, uId uint) serializer.Response {
-	code := e.SUCCESS
-	userDao := dao.NewUserDao(ctx)
-	user, err := userDao.GetUserById(uId)
+func GetMoneySrv() *MoneySrv {
+	MoneySrvOnce.Do(func() {
+		MoneySrvIns = &MoneySrv{}
+	})
+	return MoneySrvIns
+}
+
+// MoneyShow 展示用户的金额
+func (s *MoneySrv) MoneyShow(ctx context.Context, req *types.MoneyShowReq) (resp interface{}, err error) {
+	u, err := ctl.GetUserInfo(ctx)
 	if err != nil {
-		logging.Info(err)
-		code = e.ErrorDatabase
-		return serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Error:  err.Error(),
-		}
+		log.LogrusObj.Error(err)
+		return
 	}
-	return serializer.Response{
-		Status: code,
-		Data:   serializer.BuildMoney(user, service.Key),
-		Msg:    e.GetMsg(code),
+	user, err := dao.NewUserDao(ctx).GetUserById(u.Id)
+	if err != nil {
+		log.LogrusObj.Error(err)
+		return
 	}
+	util.Encrypt.SetKey(req.Key)
+	mResp := &types.MoneyShowResp{
+		UserID:    user.ID,
+		UserName:  user.UserName,
+		UserMoney: util.Encrypt.AesDecoding(user.Money),
+	}
+	return ctl.RespSuccessWithData(mResp), nil
 }

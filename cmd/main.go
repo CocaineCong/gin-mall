@@ -1,15 +1,15 @@
 package main
 
 import (
-	"mall/conf"
-	"mall/loading"
+	"fmt"
+
+	conf "mall/config"
 	"mall/routes"
 )
 
 func main() {
-	// Ek1+Ep1==Ek2+Ep2
-	conf.Init()
-	loading.Loading()
+	Loading() // 加载配置
 	r := routes.NewRouter()
-	_ = r.Run(conf.HttpPort)
+	_ = r.Run(conf.Config.System.HttpPort)
+	fmt.Println("启动配成功...")
 }

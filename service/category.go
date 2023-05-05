@@ -2,33 +2,42 @@ package service
 
 import (
 	"context"
+	"sync"
 
-	logging "github.com/sirupsen/logrus"
-
-	"mall/pkg/e"
+	"mall/pkg/utils/ctl"
+	util "mall/pkg/utils/log"
 	"mall/repository/db/dao"
-	"mall/serializer"
+	"mall/types"
 )
 
-type ListCategoriesService struct {
+var CategorySrvIns *CategorySrv
+var CategorySrvOnce sync.Once
+
+type CategorySrv struct {
 }
 
-func (service *ListCategoriesService) List(ctx context.Context) serializer.Response {
-	code := e.SUCCESS
-	categoryDao := dao.NewCategoryDao(ctx)
-	categories, err := categoryDao.ListCategory()
+func GetCategorySrv() *CategorySrv {
+	CategorySrvOnce.Do(func() {
+		CategorySrvIns = &CategorySrv{}
+	})
+	return CategorySrvIns
+}
+
+// CategoryList 列举分类
+func (s *CategorySrv) CategoryList(ctx context.Context, req *types.ListCategoryReq) (resp interface{}, err error) {
+	categories, err := dao.NewCategoryDao(ctx).ListCategory()
 	if err != nil {
-		logging.Info(err)
-		code = e.ErrorDatabase
-		return serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Error:  err.Error(),
-		}
+		util.LogrusObj.Error(err)
+		return
 	}
-	return serializer.Response{
-		Status: code,
-		Msg:    e.GetMsg(code),
-		Data:   serializer.BuildCategories(categories),
+	cResp := make([]*types.ListCategoryResp, 0)
+	for _, v := range categories {
+		cResp = append(cResp, &types.ListCategoryResp{
+			ID:           v.ID,
+			CategoryName: v.CategoryName,
+			CreatedAt:    v.CreatedAt.Unix(),
+		})
 	}
+
+	return ctl.RespList(cResp, int64(len(cResp))), nil
 }

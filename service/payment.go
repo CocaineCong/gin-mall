@@ -5,51 +5,55 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"sync"
 
-	logging "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 
-	"mall/pkg/e"
-	util "mall/pkg/utils"
-	dao2 "mall/repository/db/dao"
-	model2 "mall/repository/db/model"
-	"mall/serializer"
+	"mall/consts"
+	"mall/pkg/utils/ctl"
+	util "mall/pkg/utils/encryption"
+	"mall/pkg/utils/log"
+	"mall/repository/db/dao"
+	"mall/repository/db/model"
+	"mall/types"
 )
 
-type OrderPay struct {
-	OrderId   uint    `form:"order_id" json:"order_id"`
-	Money     float64 `form:"money" json:"money"`
-	OrderNo   string  `form:"orderNo" json:"orderNo"`
-	ProductID int     `form:"product_id" json:"product_id"`
-	PayTime   string  `form:"payTime" json:"payTime" `
-	Sign      string  `form:"sign" json:"sign" `
-	BossID    int     `form:"boss_id" json:"boss_id"`
-	BossName  string  `form:"boss_name" json:"boss_name"`
-	Num       int     `form:"num" json:"num"`
-	Key       string  `form:"key" json:"key"`
+var PaymentSrvIns *PaymentSrv
+var PaymentSrvOnce sync.Once
+
+type PaymentSrv struct {
 }
 
-func (service *OrderPay) PayDown(ctx context.Context, uId uint) serializer.Response {
-	code := e.SUCCESS
+func GetPaymentSrv() *PaymentSrv {
+	PaymentSrvOnce.Do(func() {
+		PaymentSrvIns = &PaymentSrv{}
+	})
+	return PaymentSrvIns
+}
 
-	err := dao2.NewOrderDao(ctx).Transaction(func(tx *gorm.DB) error {
-		util.Encrypt.SetKey(service.Key)
-		orderDao := dao2.NewOrderDaoByDB(tx)
+func (s *PaymentSrv) PayDown(ctx context.Context, req *types.PaymentDownReq) (resp interface{}, err error) {
+	u, err := ctl.GetUserInfo(ctx)
+	if err != nil {
+		log.LogrusObj.Error(err)
+		return nil, err
+	}
+	err = dao.NewOrderDao(ctx).Transaction(func(tx *gorm.DB) error {
+		uId := u.Id
+		util.Encrypt.SetKey(req.Key)
 
-		order, err := orderDao.GetOrderById(service.OrderId)
+		payment, err := dao.NewOrderDaoByDB(tx).GetOrderById(req.OrderId, uId)
 		if err != nil {
-			logging.Info(err)
+			log.LogrusObj.Error(err)
 			return err
 		}
-		money := order.Money
-		num := order.Num
+		money := payment.Money
+		num := payment.Num
 		money = money * float64(num)
 
-		userDao := dao2.NewUserDaoByDB(tx)
+		userDao := dao.NewUserDaoByDB(tx)
 		user, err := userDao.GetUserById(uId)
 		if err != nil {
-			logging.Info(err)
-			code = e.ErrorDatabase
+			log.LogrusObj.Error(err)
 			return err
 		}
 
@@ -57,8 +61,7 @@ func (service *OrderPay) PayDown(ctx context.Context, uId uint) serializer.Respo
 		moneyStr := util.Encrypt.AesDecoding(user.Money)
 		moneyFloat, _ := strconv.ParseFloat(moneyStr, 64)
 		if moneyFloat-money < 0.0 { // 金额不足进行回滚
-			logging.Info(err)
-			code = e.ErrorDatabase
+			log.LogrusObj.Error(err)
 			return errors.New("金币不足")
 		}
 
@@ -67,48 +70,47 @@ func (service *OrderPay) PayDown(ctx context.Context, uId uint) serializer.Respo
 
 		err = userDao.UpdateUserById(uId, user)
 		if err != nil { // 更新用户金额失败，回滚
-			logging.Info(err)
-			code = e.ErrorDatabase
+			log.LogrusObj.Error(err)
 			return err
 		}
-		boss := new(model2.User)
-		boss, err = userDao.GetUserById(uint(service.BossID))
+		boss, err := userDao.GetUserById(uint(req.BossID))
+		if err != nil {
+			log.LogrusObj.Error(err)
+			return err
+		}
 		moneyStr = util.Encrypt.AesDecoding(boss.Money)
 		moneyFloat, _ = strconv.ParseFloat(moneyStr, 64)
 		finMoney = fmt.Sprintf("%f", moneyFloat+money)
 		boss.Money = util.Encrypt.AesEncoding(finMoney)
 
-		err = userDao.UpdateUserById(uint(service.BossID), boss)
+		err = userDao.UpdateUserById(uint(req.BossID), boss)
 		if err != nil { // 更新boss金额失败，回滚
-			logging.Info(err)
-			code = e.ErrorDatabase
+			log.LogrusObj.Error(err)
 			return err
 		}
 
-		product := new(model2.Product)
-		productDao := dao2.NewProductDaoByDB(tx)
-		product, err = productDao.GetProductById(uint(service.ProductID))
+		productDao := dao.NewProductDaoByDB(tx)
+		product, err := productDao.GetProductById(uint(req.ProductID))
 		if err != nil {
+			log.LogrusObj.Error(err)
 			return err
 		}
 		product.Num -= num
-		err = productDao.UpdateProduct(uint(service.ProductID), product)
+		err = productDao.UpdateProduct(uint(req.ProductID), product)
 		if err != nil { // 更新商品数量减少失败，回滚
-			logging.Info(err)
-			code = e.ErrorDatabase
+			log.LogrusObj.Error(err)
 			return err
 		}
 
 		// 更新订单状态
-		order.Type = 2
-		err = orderDao.UpdateOrderById(service.OrderId, order)
+		payment.Type = consts.OrderTypePendingShipping
+		err = dao.NewOrderDaoByDB(tx).UpdateOrderById(req.OrderId, uId, payment)
 		if err != nil { // 更新订单失败，回滚
-			logging.Info(err)
-			code = e.ErrorDatabase
+			log.LogrusObj.Error(err)
 			return err
 		}
 
-		productUser := model2.Product{
+		productUser := model.Product{
 			Name:          product.Name,
 			CategoryID:    product.CategoryID,
 			Title:         product.Title,
@@ -125,8 +127,7 @@ func (service *OrderPay) PayDown(ctx context.Context, uId uint) serializer.Respo
 
 		err = productDao.CreateProduct(&productUser)
 		if err != nil { // 买完商品后创建成了自己的商品失败。订单失败，回滚
-			logging.Info(err)
-			code = e.ErrorDatabase
+			log.LogrusObj.Error(err)
 			return err
 		}
 
@@ -135,15 +136,9 @@ func (service *OrderPay) PayDown(ctx context.Context, uId uint) serializer.Respo
 	})
 
 	if err != nil {
-		return serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Error:  err.Error(),
-		}
+		log.LogrusObj.Error(err)
+		return
 	}
 
-	return serializer.Response{
-		Status: code,
-		Msg:    e.GetMsg(code),
-	}
+	return ctl.RespSuccess(), nil
 }

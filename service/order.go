@@ -5,73 +5,70 @@ import (
 	"fmt"
 	"math/rand"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/go-redis/redis"
-	logging "github.com/sirupsen/logrus"
 
-	"mall/pkg/e"
+	conf "mall/config"
+	"mall/consts"
+	"mall/pkg/utils/ctl"
+	util "mall/pkg/utils/log"
 	"mall/repository/cache"
-	dao2 "mall/repository/db/dao"
-	model2 "mall/repository/db/model"
-	"mall/serializer"
+	"mall/repository/db/dao"
+	"mall/repository/db/model"
+	"mall/types"
 )
 
 const OrderTimeKey = "OrderTime"
 
-type OrderService struct {
-	ProductID uint `form:"product_id" json:"product_id"`
-	Num       uint `form:"num" json:"num"`
-	AddressID uint `form:"address_id" json:"address_id"`
-	Money     int  `form:"money" json:"money"`
-	BossID    uint `form:"boss_id" json:"boss_id"`
-	UserID    uint `form:"user_id" json:"user_id"`
-	OrderNum  uint `form:"order_num" json:"order_num"`
-	Type      int  `form:"type" json:"type"`
-	model2.BasePage
+var OrderSrvIns *OrderSrv
+var OrderSrvOnce sync.Once
+
+type OrderSrv struct {
 }
 
-func (service *OrderService) Create(ctx context.Context, id uint) serializer.Response {
-	code := e.SUCCESS
+func GetOrderSrv() *OrderSrv {
+	OrderSrvOnce.Do(func() {
+		OrderSrvIns = &OrderSrv{}
+	})
+	return OrderSrvIns
+}
 
-	order := &model2.Order{
-		UserID:    id,
-		ProductID: service.ProductID,
-		BossID:    service.BossID,
-		Num:       int(service.Num),
-		Money:     float64(service.Money),
+func (s *OrderSrv) OrderCreate(ctx context.Context, req *types.OrderCreateReq) (resp interface{}, err error) {
+	u, err := ctl.GetUserInfo(ctx)
+	if err != nil {
+		util.LogrusObj.Error(err)
+		return nil, err
+	}
+	order := &model.Order{
+		UserID:    u.Id,
+		ProductID: req.ProductID,
+		BossID:    req.BossID,
+		Num:       int(req.Num),
+		Money:     float64(req.Money),
 		Type:      1,
 	}
-	addressDao := dao2.NewAddressDao(ctx)
-	address, err := addressDao.GetAddressByAid(service.AddressID)
+	addressDao := dao.NewAddressDao(ctx)
+	address, err := addressDao.GetAddressByAid(req.AddressID)
 	if err != nil {
-		logging.Info(err)
-		code = e.ErrorDatabase
-		return serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Error:  err.Error(),
-		}
+		util.LogrusObj.Error(err)
+		return
 	}
 
 	order.AddressID = address.ID
 	number := fmt.Sprintf("%09v", rand.New(rand.NewSource(time.Now().UnixNano())).Int31n(1000000000))
-	productNum := strconv.Itoa(int(service.ProductID))
-	userNum := strconv.Itoa(int(id))
+	productNum := strconv.Itoa(int(req.ProductID))
+	userNum := strconv.Itoa(int(u.Id))
 	number = number + productNum + userNum
 	orderNum, _ := strconv.ParseUint(number, 10, 64)
 	order.OrderNum = orderNum
 
-	orderDao := dao2.NewOrderDao(ctx)
+	orderDao := dao.NewOrderDao(ctx)
 	err = orderDao.CreateOrder(order)
 	if err != nil {
-		logging.Info(err)
-		code = e.ErrorDatabase
-		return serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Error:  err.Error(),
-		}
+		util.LogrusObj.Error(err)
+		return
 	}
 
 	// 订单号存入Redis中，设置过期时间
@@ -80,95 +77,58 @@ func (service *OrderService) Create(ctx context.Context, id uint) serializer.Res
 		Member: orderNum,
 	}
 	cache.RedisClient.ZAdd(OrderTimeKey, data)
-	return serializer.Response{
-		Status: code,
-		Msg:    e.GetMsg(code),
-	}
+	return ctl.RespSuccess(), nil
 }
 
-func (service *OrderService) List(ctx context.Context, uId uint) serializer.Response {
-	var orders []*model2.Order
-	var total int64
-	code := e.SUCCESS
-	if service.PageSize == 0 {
-		service.PageSize = 5
-	}
-
-	orderDao := dao2.NewOrderDao(ctx)
-	condition := make(map[string]interface{})
-	condition["user_id"] = uId
-
-	if service.Type == 0 {
-		condition["type"] = 0
-	} else {
-		condition["type"] = service.Type
-	}
-	orders, total, err := orderDao.ListOrderByCondition(condition, service.BasePage)
+func (s *OrderSrv) OrderList(ctx context.Context, req *types.OrderListReq) (resp interface{}, err error) {
+	u, err := ctl.GetUserInfo(ctx)
 	if err != nil {
-		code = e.ErrorDatabase
-		return serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
+		util.LogrusObj.Error(err)
+		return nil, err
+	}
+	orders, total, err := dao.NewOrderDao(ctx).ListOrderByCondition(u.Id, req)
+	if err != nil {
+		util.LogrusObj.Error(err)
+		return
+	}
+	for i := range orders {
+		if conf.Config.System.UploadModel == consts.UploadModelLocal {
+			orders[i].ImgPath = conf.Config.PhotoPath.PhotoHost + conf.Config.System.HttpPort + conf.Config.PhotoPath.ProductPhotoPath + orders[i].ImgPath
 		}
 	}
 
-	return serializer.BuildListResponse(serializer.BuildOrders(ctx, orders), uint(total))
+	return ctl.RespList(orders, total), nil
 }
 
-func (service *OrderService) Show(ctx context.Context, uId string) serializer.Response {
-	code := e.SUCCESS
-
-	orderId, _ := strconv.Atoi(uId)
-	orderDao := dao2.NewOrderDao(ctx)
-	order, _ := orderDao.GetOrderById(uint(orderId))
-
-	addressDao := dao2.NewAddressDao(ctx)
-	address, err := addressDao.GetAddressByAid(order.AddressID)
+func (s *OrderSrv) OrderShow(ctx context.Context, req *types.OrderShowReq) (resp interface{}, err error) {
+	u, err := ctl.GetUserInfo(ctx)
 	if err != nil {
-		logging.Info(err)
-		code = e.ErrorDatabase
-		return serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-		}
+		util.LogrusObj.Error(err)
+		return nil, err
 	}
-
-	productDao := dao2.NewProductDao(ctx)
-	product, err := productDao.GetProductById(order.ProductID)
+	order, err := dao.NewOrderDao(ctx).ShowOrderById(req.OrderId, u.Id)
 	if err != nil {
-		logging.Info(err)
-		code = e.ErrorDatabase
-		return serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-		}
+		util.LogrusObj.Error(err)
+		return
+	}
+	if conf.Config.System.UploadModel == consts.UploadModelLocal {
+		order.ImgPath = conf.Config.PhotoPath.PhotoHost + conf.Config.System.HttpPort + conf.Config.PhotoPath.ProductPhotoPath + order.ImgPath
 	}
 
-	return serializer.Response{
-		Status: code,
-		Msg:    e.GetMsg(code),
-		Data:   serializer.BuildOrder(order, product, address),
-	}
+	return ctl.RespSuccessWithData(order), nil
 }
 
-func (service *OrderService) Delete(ctx context.Context, oId string) serializer.Response {
-	code := e.SUCCESS
-
-	orderDao := dao2.NewOrderDao(ctx)
-	orderId, _ := strconv.Atoi(oId)
-	err := orderDao.DeleteOrderById(uint(orderId))
+func (s *OrderSrv) OrderDelete(ctx context.Context, req *types.OrderDeleteReq) (resp interface{}, err error) {
+	u, err := ctl.GetUserInfo(ctx)
 	if err != nil {
-		logging.Info(err)
-		code = e.ErrorDatabase
-		return serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Error:  err.Error(),
-		}
+		util.LogrusObj.Error(err)
+		return
+	}
+	err = dao.NewOrderDao(ctx).DeleteOrderById(req.OrderId, u.Id)
+	if err != nil {
+		util.LogrusObj.Error(err)
+		return
 	}
 
-	return serializer.Response{
-		Status: code,
-		Msg:    e.GetMsg(code),
-	}
+	return ctl.RespSuccess(), nil
 }

@@ -2,120 +2,95 @@ package service
 
 import (
 	"context"
-	"strconv"
+	"errors"
+	"sync"
 
 	"mall/pkg/e"
-	dao2 "mall/repository/db/dao"
-	"mall/repository/db/model"
-	"mall/serializer"
-
-	logging "github.com/sirupsen/logrus"
+	"mall/pkg/utils/ctl"
+	util "mall/pkg/utils/log"
+	"mall/repository/db/dao"
+	"mall/types"
 )
 
-// CartService 创建购物车
-type CartService struct {
-	Id        uint `form:"id" json:"id"`
-	BossID    uint `form:"boss_id" json:"boss_id"`
-	ProductId uint `form:"product_id" json:"product_id"`
-	Num       uint `form:"num" json:"num"`
+var CartSrvIns *CartSrv
+var CartSrvOnce sync.Once
+
+type CartSrv struct {
 }
 
-func (service *CartService) Create(ctx context.Context, uId uint) serializer.Response {
-	var product *model.Product
-	code := e.SUCCESS
+func GetCartSrv() *CartSrv {
+	CartSrvOnce.Do(func() {
+		CartSrvIns = &CartSrv{}
+	})
+	return CartSrvIns
+}
 
-	// 判断有无这个商品
-	productDao := dao2.NewProductDao(ctx)
-	product, err := productDao.GetProductById(service.ProductId)
+// CartCreate 创建购物车
+func (s *CartSrv) CartCreate(ctx context.Context, req *types.CartCreateReq) (resp interface{}, err error) {
+	u, err := ctl.GetUserInfo(ctx)
 	if err != nil {
-		logging.Info(err)
-		code = e.ErrorDatabase
-		return serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Error:  err.Error(),
-		}
+		util.LogrusObj.Error(err)
+		return nil, err
+	}
+	// 判断有无这个商品
+	_, err = dao.NewProductDao(ctx).GetProductById(req.ProductId)
+	if err != nil {
+		util.LogrusObj.Error(err)
+		return
 	}
 
 	// 创建购物车
-	cartDao := dao2.NewCartDao(ctx)
-	cart, status, _ := cartDao.CreateCart(service.ProductId, uId, service.BossID)
+	cartDao := dao.NewCartDao(ctx)
+	_, status, _ := cartDao.CreateCart(req.ProductId, u.Id, req.BossID)
 	if status == e.ErrorProductMoreCart {
-		return serializer.Response{
-			Status: status,
-			Msg:    e.GetMsg(status),
-		}
+		err = errors.New(e.GetMsg(status))
+		return
 	}
-
-	userDao := dao2.NewUserDao(ctx)
-	boss, _ := userDao.GetUserById(service.BossID)
-	return serializer.Response{
-		Status: status,
-		Msg:    e.GetMsg(status),
-		Data:   serializer.BuildCart(cart, product, boss),
-	}
+	return ctl.RespSuccess(), nil
 }
 
-// Show 购物车
-func (service *CartService) Show(ctx context.Context, uId uint) serializer.Response {
-	code := e.SUCCESS
-	cartDao := dao2.NewCartDao(ctx)
-	carts, err := cartDao.ListCartByUserId(uId)
+// CartList 购物车
+func (s *CartSrv) CartList(ctx context.Context, req *types.CartListReq) (resp interface{}, err error) {
+	u, err := ctl.GetUserInfo(ctx)
 	if err != nil {
-		logging.Info(err)
-		code = e.ErrorDatabase
-		return serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Error:  err.Error(),
-		}
+		util.LogrusObj.Error(err)
+		return nil, err
 	}
-	return serializer.Response{
-		Status: code,
-		Data:   serializer.BuildCarts(carts),
-		Msg:    e.GetMsg(code),
+	carts, err := dao.NewCartDao(ctx).ListCartByUserId(u.Id)
+	if err != nil {
+		util.LogrusObj.Error(err)
+		return
 	}
+	return ctl.RespList(carts, int64(len(carts))), nil // TODO 无分页，之后考虑要不要加
 }
 
-// Update 修改购物车信息
-func (service *CartService) Update(ctx context.Context, cId string) serializer.Response {
-	code := e.SUCCESS
-	cartId, _ := strconv.Atoi(cId)
-
-	cartDao := dao2.NewCartDao(ctx)
-	err := cartDao.UpdateCartNumById(uint(cartId), service.Num)
+// CartUpdate 修改购物车信息
+func (s *CartSrv) CartUpdate(ctx context.Context, req *types.UpdateCartServiceReq) (resp interface{}, err error) {
+	u, err := ctl.GetUserInfo(ctx)
 	if err != nil {
-		logging.Info(err)
-		code = e.ErrorDatabase
-		return serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Error:  err.Error(),
-		}
+		util.LogrusObj.Error(err)
+		return nil, err
+	}
+	err = dao.NewCartDao(ctx).UpdateCartNumById(req.Id, u.Id, req.Num)
+	if err != nil {
+		util.LogrusObj.Error(err)
+		return
 	}
 
-	return serializer.Response{
-		Status: code,
-		Msg:    e.GetMsg(code),
-	}
+	return ctl.RespSuccess(), nil
 }
 
-// 删除购物车
-func (service *CartService) Delete(ctx context.Context) serializer.Response {
-	code := e.SUCCESS
-	cartDao := dao2.NewCartDao(ctx)
-	err := cartDao.DeleteCartById(service.Id)
+// CartDelete 删除购物车
+func (s *CartSrv) CartDelete(ctx context.Context, req *types.CartDeleteReq) (resp interface{}, err error) {
+	u, err := ctl.GetUserInfo(ctx)
 	if err != nil {
-		logging.Info(err)
-		code = e.ErrorDatabase
-		return serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Error:  err.Error(),
-		}
+		util.LogrusObj.Error(err)
+		return nil, err
 	}
-	return serializer.Response{
-		Status: code,
-		Msg:    e.GetMsg(code),
+	err = dao.NewCartDao(ctx).DeleteCartById(req.Id, u.Id)
+	if err != nil {
+		util.LogrusObj.Error(err)
+		return
 	}
+	return ctl.RespSuccess(), nil
 }

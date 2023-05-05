@@ -1,79 +1,140 @@
 package v1
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
-	util "mall/pkg/utils"
+
+	"mall/pkg/utils/log"
 	"mall/service"
+	"mall/types"
 )
 
-func UserRegister(c *gin.Context) {
-	var userRegisterService service.UserService //相当于创建了一个UserRegisterService对象，调用这个对象中的Register方法。
-	if err := c.ShouldBind(&userRegisterService); err == nil {
-		res := userRegisterService.Register(c.Request.Context())
-		c.JSON(200, res)
-	} else {
-		c.JSON(400, ErrorResponse(err))
-		util.LogrusObj.Infoln(err)
+func UserRegisterHandler() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		var req types.UserRegisterReq
+
+		if err := ctx.ShouldBind(&req); err == nil {
+			// 参数校验
+			l := service.GetUserSrv()
+			resp, err := l.UserRegister(ctx.Request.Context(), &req)
+			if err != nil {
+				log.LogrusObj.Infoln(err)
+				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+				return
+			}
+			ctx.JSON(http.StatusOK, resp)
+		} else {
+			log.LogrusObj.Infoln(err)
+			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+		}
 	}
 }
 
-//UserLogin 用户登陆接口
-func UserLogin(c *gin.Context) {
-	var userLoginService service.UserService
-	if err := c.ShouldBind(&userLoginService); err == nil {
-		res := userLoginService.Login(c.Request.Context())
-		c.JSON(200, res)
-	} else {
-		c.JSON(400, ErrorResponse(err))
-		util.LogrusObj.Infoln(err)
+// UserLoginHandler 用户登陆接口
+func UserLoginHandler() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		var req types.UserServiceReq
+
+		if err := ctx.ShouldBind(&req); err == nil {
+			// 参数校验
+			l := service.GetUserSrv()
+			resp, err := l.UserLogin(ctx.Request.Context(), &req)
+			if err != nil {
+				log.LogrusObj.Infoln(err)
+				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+				return
+			}
+			ctx.JSON(http.StatusOK, resp)
+		} else {
+			log.LogrusObj.Infoln(err)
+			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+		}
 	}
 }
 
-func UserUpdate(c *gin.Context) {
-	var userUpdateService service.UserService
-	claims, _ := util.ParseToken(c.GetHeader("Authorization"))
-	if err := c.ShouldBind(&userUpdateService); err == nil {
-		res := userUpdateService.Update(c.Request.Context(), claims.ID)
-		c.JSON(200, res)
-	} else {
-		c.JSON(400, ErrorResponse(err))
-		util.LogrusObj.Infoln(err)
+func UserUpdateHandler() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		var req types.UserInfoUpdateReq
+
+		if err := ctx.ShouldBind(&req); err == nil {
+			// 参数校验
+			l := service.GetUserSrv()
+			resp, err := l.UserInfoUpdate(ctx.Request.Context(), &req)
+			if err != nil {
+				log.LogrusObj.Infoln(err)
+				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+				return
+			}
+			ctx.JSON(http.StatusOK, resp)
+		} else {
+			log.LogrusObj.Infoln(err)
+			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+		}
 	}
 }
 
-func UploadAvatar(c *gin.Context) {
-	file, fileHeader, _ := c.Request.FormFile("file")
-	fileSize := fileHeader.Size
-	uploadAvatarService := service.UserService{}
-	chaim, _ := util.ParseToken(c.GetHeader("Authorization"))
-	if err := c.ShouldBind(&uploadAvatarService); err == nil {
-		res := uploadAvatarService.Post(c.Request.Context(), chaim.ID, file, fileSize)
-		c.JSON(200, res)
-	} else {
-		c.JSON(400, ErrorResponse(err))
-		util.LogrusObj.Infoln(err)
+func UploadAvatarHandler() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		var req types.UserServiceReq
+
+		if err := ctx.ShouldBind(&req); err == nil {
+			// 参数校验
+			file, fileHeader, _ := ctx.Request.FormFile("file")
+			fileSize := fileHeader.Size
+			l := service.GetUserSrv()
+			resp, err := l.UserAvatarUpload(ctx.Request.Context(), file, fileSize, &req)
+			if err != nil {
+				log.LogrusObj.Infoln(err)
+				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+				return
+			}
+			ctx.JSON(http.StatusOK, resp)
+		} else {
+			log.LogrusObj.Infoln(err)
+			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+		}
 	}
 }
 
-func SendEmail(c *gin.Context) {
-	var sendEmailService service.SendEmailService
-	chaim, _ := util.ParseToken(c.GetHeader("Authorization"))
-	if err := c.ShouldBind(&sendEmailService); err == nil {
-		res := sendEmailService.Send(c.Request.Context(), chaim.ID)
-		c.JSON(200, res)
-	} else {
-		c.JSON(400, ErrorResponse(err))
-		util.LogrusObj.Infoln(err)
+func SendEmailHandler() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		var req types.SendEmailServiceReq
+
+		if err := ctx.ShouldBind(&req); err == nil {
+			// 参数校验
+			l := service.GetUserSrv()
+			resp, err := l.SendEmail(ctx.Request.Context(), &req)
+			if err != nil {
+				log.LogrusObj.Infoln(err)
+				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+				return
+			}
+			ctx.JSON(http.StatusOK, resp)
+		} else {
+			log.LogrusObj.Infoln(err)
+			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+		}
 	}
 }
 
-func ValidEmail(c *gin.Context) {
-	var vaildEmailService service.ValidEmailService
-	if err := c.ShouldBind(vaildEmailService); err == nil {
-		res := vaildEmailService.Valid(c.Request.Context(), c.GetHeader("Authorization"))
-		c.JSON(200, res)
-	} else {
-		c.JSON(400, ErrorResponse(err))
-		util.LogrusObj.Infoln(err)
+func ValidEmailHandler() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		var req types.ValidEmailServiceReq
+
+		if err := ctx.ShouldBind(&req); err == nil {
+			// 参数校验
+			l := service.GetUserSrv()
+			resp, err := l.Valid(ctx.Request.Context(), &req)
+			if err != nil {
+				log.LogrusObj.Infoln(err)
+				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+				return
+			}
+			ctx.JSON(http.StatusOK, resp)
+		} else {
+			log.LogrusObj.Infoln(err)
+			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+		}
 	}
 }
