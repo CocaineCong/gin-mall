@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"sync"
 
-	"mall/conf"
+	conf "mall/config"
 	"mall/consts"
 	"mall/pkg/utils/ctl"
 	"mall/pkg/utils/log"
@@ -53,9 +53,9 @@ func (s *ProductSrv) ProductShow(ctx context.Context, req *types.ProductShowReq)
 		BossName:      p.BossName,
 		BossAvatar:    p.BossAvatar,
 	}
-	if conf.UploadModel == consts.UploadModelLocal {
-		pResp.BossAvatar = conf.PhotoHost + conf.HttpPort + conf.AvatarPath + pResp.BossAvatar
-		pResp.ImgPath = conf.PhotoHost + conf.HttpPort + conf.ProductPhotoPath + pResp.ImgPath
+	if conf.Config.System.UploadModel == consts.UploadModelLocal {
+		pResp.BossAvatar = conf.Config.PhotoPath.PhotoHost + conf.Config.System.HttpPort + conf.Config.PhotoPath.AvatarPath + pResp.BossAvatar
+		pResp.ImgPath = conf.Config.PhotoPath.PhotoHost + conf.Config.System.HttpPort + conf.Config.PhotoPath.ProductPhotoPath + pResp.ImgPath
 	}
 
 	return ctl.RespSuccessWithData(pResp), nil
@@ -73,8 +73,8 @@ func (s *ProductSrv) ProductCreate(ctx context.Context, files []*multipart.FileH
 	// 以第一张作为封面图
 	tmp, _ := files[0].Open()
 	var path string
-	if conf.UploadModel == consts.UploadModelLocal {
-		path, err = util.UploadProductToLocalStatic(tmp, uId, req.Name)
+	if conf.Config.System.UploadModel == consts.UploadModelLocal {
+		path, err = util.ProductUploadToLocalStatic(tmp, uId, req.Name)
 	} else {
 		path, err = util.UploadToQiNiu(tmp, files[0].Size)
 	}
@@ -108,8 +108,8 @@ func (s *ProductSrv) ProductCreate(ctx context.Context, files []*multipart.FileH
 	for index, file := range files {
 		num := strconv.Itoa(index)
 		tmp, _ = file.Open()
-		if conf.UploadModel == consts.UploadModelLocal {
-			path, err = util.UploadProductToLocalStatic(tmp, uId, req.Name+num)
+		if conf.Config.System.UploadModel == consts.UploadModelLocal {
+			path, err = util.ProductUploadToLocalStatic(tmp, uId, req.Name+num)
 		} else {
 			path, err = util.UploadToQiNiu(tmp, file.Size)
 		}
@@ -166,9 +166,9 @@ func (s *ProductSrv) ProductList(ctx context.Context, req *types.ProductListReq)
 			BossName:      p.BossName,
 			BossAvatar:    p.BossAvatar,
 		}
-		if conf.UploadModel == consts.UploadModelLocal {
-			pResp.BossAvatar = conf.PhotoHost + conf.HttpPort + conf.AvatarPath + pResp.BossAvatar
-			pResp.ImgPath = conf.PhotoHost + conf.HttpPort + conf.ProductPhotoPath + pResp.ImgPath
+		if conf.Config.System.UploadModel == consts.UploadModelLocal {
+			pResp.BossAvatar = conf.Config.PhotoPath.PhotoHost + conf.Config.System.HttpPort + conf.Config.PhotoPath.AvatarPath + pResp.BossAvatar
+			pResp.ImgPath = conf.Config.PhotoPath.PhotoHost + conf.Config.System.HttpPort + conf.Config.PhotoPath.ProductPhotoPath + pResp.ImgPath
 		}
 		pRespList = append(pRespList, pResp)
 	}
@@ -235,9 +235,9 @@ func (s *ProductSrv) ProductSearch(ctx context.Context, req *types.ProductSearch
 			BossName:      p.BossName,
 			BossAvatar:    p.BossAvatar,
 		}
-		if conf.UploadModel == consts.UploadModelLocal {
-			pResp.BossAvatar = conf.PhotoHost + conf.HttpPort + conf.AvatarPath + pResp.BossAvatar
-			pResp.ImgPath = conf.PhotoHost + conf.HttpPort + conf.ProductPhotoPath + pResp.ImgPath
+		if conf.Config.System.UploadModel == consts.UploadModelLocal {
+			pResp.BossAvatar = conf.Config.PhotoPath.PhotoHost + conf.Config.System.HttpPort + conf.Config.PhotoPath.AvatarPath + pResp.BossAvatar
+			pResp.ImgPath = conf.Config.PhotoPath.PhotoHost + conf.Config.System.HttpPort + conf.Config.PhotoPath.ProductPhotoPath + pResp.ImgPath
 		}
 		pRespList = append(pRespList, pResp)
 	}
@@ -249,8 +249,8 @@ func (s *ProductSrv) ProductSearch(ctx context.Context, req *types.ProductSearch
 func (s *ProductSrv) ProductImgList(ctx context.Context, req *types.ListProductImgReq) (resp interface{}, err error) {
 	productImgs, _ := dao.NewProductImgDao(ctx).ListProductImgByProductId(req.ID)
 	for i := range productImgs {
-		if conf.UploadModel == consts.UploadModelLocal {
-			productImgs[i].ImgPath = conf.PhotoHost + conf.HttpPort + conf.ProductPhotoPath + productImgs[i].ImgPath
+		if conf.Config.System.UploadModel == consts.UploadModelLocal {
+			productImgs[i].ImgPath = conf.Config.PhotoPath.PhotoHost + conf.Config.System.HttpPort + conf.Config.PhotoPath.ProductPhotoPath + productImgs[i].ImgPath
 		}
 	}
 	return ctl.RespList(productImgs, int64(len(productImgs))), nil

@@ -1,0 +1,68 @@
+system:
+  domain: mall
+  version: 1.0
+  env: "dev"
+  HttpPort: ":4000"
+  UploadModel: "local" # 如果上传到oss就是oss，上传到本地就是local
+
+mysql:
+  default:
+    dialect: "mysql"
+    dbHost: "127.0.0.1"
+    dbPort: "3306"
+    dbName: "mall"
+    userName: "root"
+    password: "root"
+    charset: "utf8mb4"
+
+kafka:
+  default:
+    debug: true
+    address: localhost:9092
+    requiredAck: -1 # 发送完数据后是否需要拿多少个副本确认 -1 需要全部
+    readTimeout: 30 # 默认30s
+    writeTimeout: 30 # 默认30s
+    maxOpenRequests: 5  # 在发送阻塞之前，允许有多少个未完成的请求，默认为5
+    partition: 2 # 分区生成方案 0根据topic进行hash、1随机、2轮询
+
+redis:
+  redisDbName: 4
+  redisHost: 127.0.0.1
+  redisPort: 6379
+  redisPassword: 123456
+  redisNetwork: "tcp"
+
+cache:
+  cacheType: redis
+  cacheEmpires: 600
+  cacheWarmUp:
+  cacheServer:
+
+email:
+  address: http://localhost:8080/#/vaild/email/
+  smtpHost: smtp.qq.com
+  smtpEmail:
+  smtpPass:
+
+encryptSecret:
+  jwtSecret: "FanOne666Secret"
+  emailSecret: "EmailSecret"
+  phoneSecret: "PhoneSecret"
+
+oss:
+  AccessKeyId:
+  AccessKeySecret:
+  BucketName:
+  QiNiuServer:
+
+path:
+  Host: http://127.0.0.1
+  ProductPath: /static/imgs/product/
+  AvatarPath: /static/imgs/avatar/
+
+rabbitMq:
+  rabbitMQ: amqp
+  rabbitMQUser: guest
+  rabbitMQPassWord: guest
+  rabbitMQHost: localhost
+  rabbitMQPort: 5672

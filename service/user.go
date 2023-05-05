@@ -7,7 +7,7 @@ import (
 	"mime/multipart"
 	"sync"
 
-	"mall/conf"
+	conf "mall/config"
 	"mall/consts"
 	"mall/pkg/utils/ctl"
 	"mall/pkg/utils/email"
@@ -61,7 +61,7 @@ func (s *UserSrv) UserRegister(ctx context.Context, req *types.UserRegisterReq) 
 		return
 	}
 
-	if conf.UploadModel == consts.UploadModelOss {
+	if conf.Config.System.UploadModel == consts.UploadModelOss {
 		user.Avatar = "http://q1.qlogo.cn/g?b=qq&nk=294350394&s=640"
 	} else {
 		user.Avatar = "avatar.JPG"
@@ -156,8 +156,8 @@ func (s *UserSrv) UserAvatarUpload(ctx context.Context, file multipart.File, fil
 	}
 
 	var path string
-	if conf.UploadModel == consts.UploadModelLocal { // 兼容两种存储方式
-		path, err = util.UploadAvatarToLocalStatic(file, uId, user.UserName)
+	if conf.Config.System.UploadModel == consts.UploadModelLocal { // 兼容两种存储方式
+		path, err = util.AvatarUploadToLocalStatic(file, uId, user.UserName)
 	} else {
 		path, err = util.UploadToQiNiu(file, fileSize)
 	}
@@ -190,7 +190,7 @@ func (s *UserSrv) SendEmail(ctx context.Context, req *types.SendEmailServiceReq)
 		return nil, err
 	}
 	sender := email.NewEmailSender()
-	address = conf.ValidEmail + token
+	address = conf.Config.Email.ValidEmail + token
 	mailText := fmt.Sprintf(consts.EmailOperationMap[req.OperationType], address)
 	if err = sender.Send(mailText, req.Email, "FanOneMall"); err != nil {
 		log.LogrusObj.Error(err)

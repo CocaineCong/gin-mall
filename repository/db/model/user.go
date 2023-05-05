@@ -4,7 +4,7 @@ import (
 	"github.com/jinzhu/gorm"
 	"golang.org/x/crypto/bcrypt"
 
-	"mall/conf"
+	conf "mall/config"
 	"mall/consts"
 )
 
@@ -43,8 +43,9 @@ func (user *User) CheckPassword(password string) bool {
 
 // AvatarUrl 头像地址
 func (user *User) AvatarURL() string {
-	if conf.UploadModel == consts.UploadModelOss {
+	if conf.Config.System.UploadModel == consts.UploadModelOss {
 		return user.Avatar
 	}
-	return conf.PhotoHost + conf.HttpPort + conf.AvatarPath + user.Avatar
+	pConfig := conf.Config.PhotoPath
+	return pConfig.PhotoHost + conf.Config.System.HttpPort + pConfig.AvatarPath + user.Avatar
 }
