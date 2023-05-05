@@ -44,8 +44,17 @@ func ListProductsHandler() gin.HandlerFunc {
 		if err := ctx.ShouldBind(&req); err == nil {
 			// 参数校验
 			if req.PageSize == 0 {
-				req.PageSize = 15
+				req.PageSize = consts.BaseProductPageSize
 			}
+			// spanCtxInterface, _ := ctx.Get(middleware.SpanCTX)
+			// var spanCtx context.Context
+			// spanCtx = spanCtxInterface.(context.Context)
+			// 创建子span
+			// span, _ := track.WithSpan(spanCtx, "JaegerTest")
+			// carrier, _ := track.GetCarrier(span)
+			// fmt.Println("span:", span)
+			// fmt.Println("spanCtx:", spanCtx)
+			// fmt.Println("spanCtxInterface:", spanCtxInterface)
 			l := service.GetProductSrv()
 			resp, err := l.ProductList(ctx.Request.Context(), &req)
 			if err != nil {

@@ -57,7 +57,7 @@ oss:
   QiNiuServer: http://rrqjsm17i.hd-bkt.clouddn.com/
 
 photoPath:
-  Host: http://127.0.0.1
+  photoHost: http://127.0.0.1
   ProductPath: /static/imgs/product/
   AvatarPath: /static/imgs/avatar/
 

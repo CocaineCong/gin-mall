@@ -6,16 +6,18 @@ import (
 
 // Response 基础序列化器
 type Response struct {
-	Status int         `json:"status"`
-	Data   interface{} `json:"data"`
-	Msg    string      `json:"msg"`
-	Error  string      `json:"error"`
+	Status  int         `json:"status"`
+	Data    interface{} `json:"data"`
+	Msg     string      `json:"msg"`
+	Error   string      `json:"error"`
+	TrackId string      `json:"track_id"`
 }
 
 // DataList 带有总数的Data结构
 type DataList struct {
-	Item  interface{} `json:"item"`
-	Total int64       `json:"total"`
+	Item    interface{} `json:"item"`
+	Total   int64       `json:"total"`
+	TrackId string      `json:"track_id"`
 }
 
 // TokenData 带有token的Data结构
@@ -23,6 +25,7 @@ type TokenData struct {
 	User         interface{} `json:"user"`
 	AccessToken  string      `json:"access_token"`
 	RefreshToken string      `json:"refresh_token"`
+	TrackId      string      `json:"track_id"`
 }
 
 // TrackedErrorResponse 有追踪信息的错误反应
