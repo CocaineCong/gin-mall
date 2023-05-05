@@ -1,10 +1,11 @@
 package middleware
 
 import (
-	"time"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 
+	"mall/consts"
 	"mall/pkg/e"
 	"mall/pkg/utils/ctl"
 	util "mall/pkg/utils/jwt"
@@ -15,10 +16,11 @@ func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var code int
 		code = e.SUCCESS
-		token := c.GetHeader("access_token")
-		if token == "" {
+		accessToken := c.GetHeader("access_token")
+		refreshToken := c.GetHeader("refresh_token")
+		if accessToken == "" {
 			code = e.InvalidParams
-			c.JSON(200, gin.H{
+			c.JSON(http.StatusBadRequest, gin.H{
 				"status": code,
 				"msg":    e.GetMsg(code),
 				"data":   "Token不能为空",
@@ -26,14 +28,12 @@ func AuthMiddleware() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		claims, err := util.ParseToken(token)
+		nAtoken, nRtoken, err := util.ParseRefreshToken(accessToken, refreshToken)
 		if err != nil {
 			code = e.ErrorAuthCheckTokenFail
-		} else if time.Now().Unix() > claims.ExpiresAt {
-			code = e.ErrorAuthCheckTokenTimeout
 		}
 		if code != e.SUCCESS {
-			c.JSON(200, gin.H{
+			c.JSON(http.StatusInternalServerError, gin.H{
 				"status": code,
 				"msg":    e.GetMsg(code),
 				"data":   "鉴权失败",
@@ -41,40 +41,36 @@ func AuthMiddleware() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		// c.Set("user_id", claims.ID)
+		claims, err := util.ParseToken(accessToken)
+		if err != nil {
+			code = e.ErrorAuthCheckTokenFail
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"status": code,
+				"msg":    e.GetMsg(code),
+				"data":   err.Error(),
+			})
+			c.Abort()
+			return
+		}
+		SetToken(c, nAtoken, nRtoken)
 		c.Request = c.Request.WithContext(ctl.NewContext(c.Request.Context(), &ctl.UserInfo{Id: claims.ID}))
 		ctl.InitUserInfo(c.Request.Context())
 		c.Next()
 	}
 }
 
-// JWTAdmin token验证中间件
-func JWTAdmin() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		var code int
-		var data interface{}
-		token := c.GetHeader("Authorization")
-		if token == "" {
-			code = e.InvalidParams
-		} else {
-			claims, err := util.ParseToken(token)
-			if err != nil {
-				code = e.ErrorAuthCheckTokenFail
-			} else if time.Now().Unix() > claims.ExpiresAt {
-				code = e.ErrorAuthCheckTokenTimeout
-			} else if claims.Authority == 0 {
-				code = e.ErrorAuthInsufficientAuthority
-			}
-		}
-		if code != e.SUCCESS {
-			c.JSON(200, gin.H{
-				"status": code,
-				"msg":    e.GetMsg(code),
-				"data":   data,
-			})
-			c.Abort()
-			return
-		}
-		c.Next()
+func SetToken(c *gin.Context, accessToken, refreshToken string) {
+	secure := IsHttps(c)
+	c.Header(consts.AccessTokenHeader, accessToken)
+	c.Header(consts.RefreshTokenHeader, refreshToken)
+	c.SetCookie(consts.AccessTokenHeader, accessToken, consts.MaxAge, "/", "", secure, true)
+	c.SetCookie(consts.RefreshTokenHeader, refreshToken, consts.MaxAge, "/", "", secure, true)
+}
+
+// 判断是否https
+func IsHttps(c *gin.Context) bool {
+	if c.GetHeader(consts.HeaderForwardedProto) == "https" || c.Request.TLS != nil {
+		return true
 	}
+	return false
 }

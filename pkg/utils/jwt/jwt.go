@@ -4,33 +4,46 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
+
+	"mall/consts"
 )
 
 var jwtSecret = []byte("FanOne")
 
 type Claims struct {
-	ID        uint   `json:"id"`
-	Username  string `json:"username"`
-	Authority int    `json:"authority"`
+	ID       uint   `json:"id"`
+	Username string `json:"username"`
 	jwt.StandardClaims
 }
 
 // GenerateToken 签发用户Token
-func GenerateToken(id uint, username string, authority int) (string, error) {
+func GenerateToken(id uint, username string) (accessToken, refreshToken string, err error) {
 	nowTime := time.Now()
-	expireTime := nowTime.Add(24 * time.Hour)
+	expireTime := nowTime.Add(consts.AccessTokenExpireDuration)
+	rtExpireTime := nowTime.Add(consts.RefreshTokenExpireDuration)
 	claims := Claims{
-		ID:        id,
-		Username:  username,
-		Authority: authority,
+		ID:       id,
+		Username: username,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expireTime.Unix(),
 			Issuer:    "mall",
 		},
 	}
-	tokenClaims := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	token, err := tokenClaims.SignedString(jwtSecret)
-	return token, err
+	// 加密并获得完整的编码后的字符串token
+	accessToken, err = jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString(jwtSecret)
+	if err != nil {
+		return "", "", err
+	}
+
+	refreshToken, err = jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.StandardClaims{
+		ExpiresAt: rtExpireTime.Unix(),
+		Issuer:    "mall",
+	}).SignedString(jwtSecret)
+	if err != nil {
+		return "", "", err
+	}
+
+	return accessToken, refreshToken, err
 }
 
 // ParseToken 验证用户token
@@ -44,6 +57,26 @@ func ParseToken(token string) (*Claims, error) {
 		}
 	}
 	return nil, err
+}
+
+// ParseRefreshToken 验证用户token
+func ParseRefreshToken(aToken, rToken string) (newAToken, newRToken string, err error) {
+	_, err = jwt.Parse(rToken, func(token *jwt.Token) (interface{}, error) {
+		return "", err
+	})
+
+	var claims Claims
+	_, err = jwt.ParseWithClaims(aToken, &claims, func(token *jwt.Token) (interface{}, error) {
+		return "", err
+	})
+
+	v, _ := err.(*jwt.ValidationError)
+
+	if v.Errors == jwt.ValidationErrorExpired {
+		return GenerateToken(claims.ID, claims.Username)
+	}
+
+	return
 }
 
 // EmailClaims

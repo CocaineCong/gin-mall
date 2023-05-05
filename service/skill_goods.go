@@ -21,7 +21,7 @@ import (
 	"mall/repository/cache"
 	"mall/repository/db/dao"
 	"mall/repository/db/model"
-	"mall/repository/mq"
+	"mall/repository/rabbitmq"
 	"mall/types"
 )
 
@@ -139,7 +139,7 @@ func RedissonSecKillGoods(sk *model.SkillProduct2MQ) error {
 
 // 传送到MQ
 func SendSecKillGoodsToMQ(sk *model.SkillProduct2MQ) error {
-	ch, err := mq.RabbitMQ.Channel()
+	ch, err := rabbitmq.RabbitMQ.Channel()
 	if err != nil {
 		err = errors.New("rabbitMQ err:" + err.Error())
 		return err

@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-redis/redis"
 
-	"mall/conf"
+	conf "mall/config"
 	"mall/consts"
 	"mall/pkg/utils/ctl"
 	util "mall/pkg/utils/log"
@@ -92,8 +92,8 @@ func (s *OrderSrv) OrderList(ctx context.Context, req *types.OrderListReq) (resp
 		return
 	}
 	for i := range orders {
-		if conf.UploadModel == consts.UploadModelLocal {
-			orders[i].ImgPath = conf.PhotoHost + conf.HttpPort + conf.ProductPhotoPath + orders[i].ImgPath
+		if conf.Config.System.UploadModel == consts.UploadModelLocal {
+			orders[i].ImgPath = conf.Config.PhotoPath.PhotoHost + conf.Config.System.HttpPort + conf.Config.PhotoPath.ProductPhotoPath + orders[i].ImgPath
 		}
 	}
 
@@ -111,8 +111,8 @@ func (s *OrderSrv) OrderShow(ctx context.Context, req *types.OrderShowReq) (resp
 		util.LogrusObj.Error(err)
 		return
 	}
-	if conf.UploadModel == consts.UploadModelLocal {
-		order.ImgPath = conf.PhotoHost + conf.HttpPort + conf.ProductPhotoPath + order.ImgPath
+	if conf.Config.System.UploadModel == consts.UploadModelLocal {
+		order.ImgPath = conf.Config.PhotoPath.PhotoHost + conf.Config.System.HttpPort + conf.Config.PhotoPath.ProductPhotoPath + order.ImgPath
 	}
 
 	return ctl.RespSuccessWithData(order), nil
