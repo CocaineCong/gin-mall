@@ -5,7 +5,7 @@ import (
 	"errors"
 	"sync"
 
-	"mall/conf"
+	conf "mall/config"
 	"mall/consts"
 	"mall/pkg/utils/ctl"
 	util "mall/pkg/utils/log"
@@ -40,8 +40,8 @@ func (s *FavoriteSrv) FavoriteList(ctx context.Context, req *types.FavoritesServ
 		return
 	}
 	for i := range favorites {
-		if conf.UploadModel == consts.UploadModelLocal {
-			favorites[i].ImgPath = conf.PhotoHost + conf.HttpPort + conf.ProductPhotoPath + favorites[i].ImgPath
+		if conf.Config.System.UploadModel == consts.UploadModelLocal {
+			favorites[i].ImgPath = conf.Config.PhotoPath.PhotoHost + conf.Config.System.HttpPort + conf.Config.PhotoPath.ProductPhotoPath + favorites[i].ImgPath
 		}
 	}
 

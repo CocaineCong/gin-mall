@@ -8,14 +8,15 @@ import (
 	"github.com/sirupsen/logrus"
 	"gopkg.in/sohlich/elogrus.v7"
 
-	"mall/conf"
+	conf "mall/config"
 )
 
 var EsClient *elastic.Client
 
 // InitEs 初始化es
 func InitEs() {
-	esConn := fmt.Sprintf("http://%s:%s", conf.EsHost, conf.EsPort)
+	eConfig := conf.Config.Es
+	esConn := fmt.Sprintf("http://%s:%s", eConfig.EsHost, eConfig.EsPort)
 	client, err := elastic.NewClient(elastic.SetSniff(false), elastic.SetURL(esConn))
 	if err != nil {
 		log.Panic(err)
@@ -25,7 +26,8 @@ func InitEs() {
 
 // EsHookLog 初始化log日志
 func EsHookLog() *elogrus.ElasticHook {
-	hook, err := elogrus.NewElasticHook(EsClient, conf.EsHost, logrus.DebugLevel, conf.EsIndex)
+	eConfig := conf.Config.Es
+	hook, err := elogrus.NewElasticHook(EsClient, eConfig.EsHost, logrus.DebugLevel, eConfig.EsIndex)
 	if err != nil {
 		log.Panic(err)
 	}

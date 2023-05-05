@@ -12,7 +12,7 @@ import (
 	"gorm.io/gorm/schema"
 	"gorm.io/plugin/dbresolver"
 
-	"mall/conf"
+	conf "mall/config"
 )
 
 var (
@@ -20,8 +20,9 @@ var (
 )
 
 func InitMySQL() {
-	pathRead := strings.Join([]string{conf.DbUser, ":", conf.DbPassWord, "@tcp(", conf.DbHost, ":", conf.DbPort, ")/", conf.DbName, "?charset=utf8&parseTime=true"}, "")
-	pathWrite := strings.Join([]string{conf.DbUser, ":", conf.DbPassWord, "@tcp(", conf.DbHost, ":", conf.DbPort, ")/", conf.DbName, "?charset=utf8&parseTime=true"}, "")
+	mConfig := conf.Config.MySql["default"]
+	pathRead := strings.Join([]string{mConfig.UserName, ":", mConfig.Password, "@tcp(", mConfig.DbHost, ":", mConfig.DbPort, ")/", mConfig.DbName, "?charset=" + mConfig.Charset + "&parseTime=true"}, "")
+	pathWrite := strings.Join([]string{mConfig.UserName, ":", mConfig.Password, "@tcp(", mConfig.DbHost, ":", mConfig.DbPort, ")/", mConfig.DbName, "?charset=" + mConfig.Charset + "&parseTime=true"}, "")
 
 	var ormLogger logger.Interface
 	if gin.Mode() == "debug" {

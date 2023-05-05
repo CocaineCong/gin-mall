@@ -34,7 +34,7 @@ func UserRegisterHandler() gin.HandlerFunc {
 	}
 }
 
-// UserLogin 用户登陆接口
+// UserLoginHandler 用户登陆接口
 func UserLoginHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var req types.UserServiceReq

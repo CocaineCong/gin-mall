@@ -3,7 +3,7 @@ package email
 import (
 	"gopkg.in/mail.v2"
 
-	"mall/conf"
+	conf "mall/config"
 )
 
 type EmailSender struct {
@@ -13,10 +13,11 @@ type EmailSender struct {
 }
 
 func NewEmailSender() *EmailSender {
+	eConfig := conf.Config.Email
 	return &EmailSender{
-		SmtpHost:      conf.SmtpHost,
-		SmtpEmailFrom: conf.SmtpEmail,
-		SmtpPass:      conf.SmtpPass,
+		SmtpHost:      eConfig.SmtpHost,
+		SmtpEmailFrom: eConfig.SmtpEmail,
+		SmtpPass:      eConfig.SmtpPass,
 	}
 }
 
