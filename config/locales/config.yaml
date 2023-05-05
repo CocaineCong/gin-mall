@@ -41,9 +41,9 @@ cache:
 
 email:
   address: http://localhost:8080/#/vaild/email/
-  smtpHost: smtp.qq.com
-  smtpEmail: 294350394@qq.com
-  smtpPass: xpattsfmyzascahj
+  smtpHost:
+  smtpEmail:
+  smtpPass:
 
 encryptSecret:
   jwtSecret: "FanOne666Secret"
@@ -51,10 +51,10 @@ encryptSecret:
   phoneSecret: "PhoneSecret"
 
 oss:
-  AccessKeyId: OK9bPk4pCopfd5GezCB5tZKsGQZZt8WpHegWnVfm
-  AccessKeySecret: dl9sVQXEH3TDhxSVeou63f_XsufSCfNjMwrI6vky
-  BucketName: hey-story-test
-  QiNiuServer: http://rrqjsm17i.hd-bkt.clouddn.com/
+  AccessKeyId:
+  AccessKeySecret:
+  BucketName:
+  QiNiuServer:
 
 photoPath:
   photoHost: http://127.0.0.1

@@ -2,8 +2,9 @@ system:
   domain: mall
   version: 1.0
   env: "dev"
-  HttpPort: ":4000"
-  UploadModel: "local" # 如果上传到oss就是oss，上传到本地就是local
+  HttpPort: ":5001"
+  Host: "localhost"
+  UploadModel: "local"
 
 mysql:
   default:
@@ -40,7 +41,7 @@ cache:
 
 email:
   address: http://localhost:8080/#/vaild/email/
-  smtpHost: smtp.qq.com
+  smtpHost:
   smtpEmail:
   smtpPass:
 
@@ -55,10 +56,15 @@ oss:
   BucketName:
   QiNiuServer:
 
-path:
-  Host: http://127.0.0.1
+photoPath:
+  photoHost: http://127.0.0.1
   ProductPath: /static/imgs/product/
   AvatarPath: /static/imgs/avatar/
+
+es:
+  EsHost: 127.0.0.1
+  EsPort: 9200
+  EsIndex: mylog
 
 rabbitMq:
   rabbitMQ: amqp
