@@ -11,7 +11,7 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build  -ldflags="-w -s" -o ../main
 WORKDIR /app
 RUN mkdir publish  \
     && cp main publish  \
-    && cp -r conf publish
+    && cp -r config publish
 
 FROM busybox:1.28.4
 
