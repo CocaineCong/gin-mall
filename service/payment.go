@@ -140,5 +140,5 @@ func (s *PaymentSrv) PayDown(ctx context.Context, req *types.PaymentDownReq) (re
 		return
 	}
 
-	return ctl.RespSuccess(), nil
+	return
 }

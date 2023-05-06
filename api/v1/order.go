@@ -21,13 +21,13 @@ func CreateOrderHandler() gin.HandlerFunc {
 			resp, err := l.OrderCreate(ctx.Request.Context(), &req)
 			if err != nil {
 				log.LogrusObj.Infoln(err)
-				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+				ctx.JSON(http.StatusInternalServerError, ErrorResponse(ctx, err))
 				return
 			}
 			ctx.JSON(http.StatusOK, resp)
 		} else {
 			log.LogrusObj.Infoln(err)
-			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+			ctx.JSON(http.StatusBadRequest, ErrorResponse(ctx, err))
 		}
 	}
 }
@@ -46,13 +46,13 @@ func ListOrdersHandler() gin.HandlerFunc {
 			resp, err := l.OrderList(ctx.Request.Context(), &req)
 			if err != nil {
 				log.LogrusObj.Infoln(err)
-				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+				ctx.JSON(http.StatusInternalServerError, ErrorResponse(ctx, err))
 				return
 			}
 			ctx.JSON(http.StatusOK, resp)
 		} else {
 			log.LogrusObj.Infoln(err)
-			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+			ctx.JSON(http.StatusBadRequest, ErrorResponse(ctx, err))
 		}
 	}
 }
@@ -68,13 +68,13 @@ func ShowOrderHandler() gin.HandlerFunc {
 			resp, err := l.OrderShow(ctx.Request.Context(), &req)
 			if err != nil {
 				log.LogrusObj.Infoln(err)
-				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+				ctx.JSON(http.StatusInternalServerError, ErrorResponse(ctx, err))
 				return
 			}
 			ctx.JSON(http.StatusOK, resp)
 		} else {
 			log.LogrusObj.Infoln(err)
-			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+			ctx.JSON(http.StatusBadRequest, ErrorResponse(ctx, err))
 		}
 	}
 }
@@ -89,13 +89,13 @@ func DeleteOrderHandler() gin.HandlerFunc {
 			resp, err := l.OrderDelete(ctx.Request.Context(), &req)
 			if err != nil {
 				log.LogrusObj.Infoln(err)
-				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+				ctx.JSON(http.StatusInternalServerError, ErrorResponse(ctx, err))
 				return
 			}
 			ctx.JSON(http.StatusOK, resp)
 		} else {
 			log.LogrusObj.Infoln(err)
-			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+			ctx.JSON(http.StatusBadRequest, ErrorResponse(ctx, err))
 		}
 	}
 }

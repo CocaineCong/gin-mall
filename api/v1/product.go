@@ -25,13 +25,13 @@ func CreateProductHandler() gin.HandlerFunc {
 			resp, err := l.ProductCreate(ctx.Request.Context(), files, &req)
 			if err != nil {
 				log.LogrusObj.Infoln(err)
-				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+				ctx.JSON(http.StatusInternalServerError, ErrorResponse(ctx, err))
 				return
 			}
 			ctx.JSON(http.StatusOK, resp)
 		} else {
 			log.LogrusObj.Infoln(err)
-			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+			ctx.JSON(http.StatusBadRequest, ErrorResponse(ctx, err))
 		}
 	}
 }
@@ -53,20 +53,17 @@ func ListProductsHandler() gin.HandlerFunc {
 			// 创建子span
 			// span, _ := track.WithSpan(spanCtx, "JaegerTest")
 			// carrier, _ := track.GetCarrier(span)
-			// fmt.Println("span:", span)
-			// fmt.Println("spanCtx:", spanCtx)
-			// fmt.Println("spanCtxInterface:", spanCtxInterface)
 			l := service.GetProductSrv()
 			resp, err := l.ProductList(ctx.Request.Context(), &req)
 			if err != nil {
 				log.LogrusObj.Infoln(err)
-				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+				ctx.JSON(http.StatusInternalServerError, ErrorResponse(ctx, err))
 				return
 			}
 			ctx.JSON(http.StatusOK, resp)
 		} else {
 			log.LogrusObj.Infoln(err)
-			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+			ctx.JSON(http.StatusBadRequest, ErrorResponse(ctx, err))
 		}
 	}
 }
@@ -82,13 +79,13 @@ func ShowProductHandler() gin.HandlerFunc {
 			resp, err := l.ProductShow(ctx.Request.Context(), &req)
 			if err != nil {
 				log.LogrusObj.Infoln(err)
-				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+				ctx.JSON(http.StatusInternalServerError, ErrorResponse(ctx, err))
 				return
 			}
 			ctx.JSON(http.StatusOK, resp)
 		} else {
 			log.LogrusObj.Infoln(err)
-			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+			ctx.JSON(http.StatusBadRequest, ErrorResponse(ctx, err))
 		}
 	}
 }
@@ -104,13 +101,13 @@ func DeleteProductHandler() gin.HandlerFunc {
 			resp, err := l.ProductDelete(ctx.Request.Context(), &req)
 			if err != nil {
 				log.LogrusObj.Infoln(err)
-				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+				ctx.JSON(http.StatusInternalServerError, ErrorResponse(ctx, err))
 				return
 			}
 			ctx.JSON(http.StatusOK, resp)
 		} else {
 			log.LogrusObj.Infoln(err)
-			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+			ctx.JSON(http.StatusBadRequest, ErrorResponse(ctx, err))
 		}
 	}
 }
@@ -126,13 +123,13 @@ func UpdateProductHandler() gin.HandlerFunc {
 			resp, err := l.ProductUpdate(ctx.Request.Context(), &req)
 			if err != nil {
 				log.LogrusObj.Infoln(err)
-				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+				ctx.JSON(http.StatusInternalServerError, ErrorResponse(ctx, err))
 				return
 			}
 			ctx.JSON(http.StatusOK, resp)
 		} else {
 			log.LogrusObj.Infoln(err)
-			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+			ctx.JSON(http.StatusBadRequest, ErrorResponse(ctx, err))
 		}
 	}
 }
@@ -151,13 +148,13 @@ func SearchProductsHandler() gin.HandlerFunc {
 			resp, err := l.ProductSearch(ctx.Request.Context(), &req)
 			if err != nil {
 				log.LogrusObj.Infoln(err)
-				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+				ctx.JSON(http.StatusInternalServerError, ErrorResponse(ctx, err))
 				return
 			}
 			ctx.JSON(http.StatusOK, resp)
 		} else {
 			log.LogrusObj.Infoln(err)
-			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+			ctx.JSON(http.StatusBadRequest, ErrorResponse(ctx, err))
 		}
 	}
 }
@@ -170,20 +167,20 @@ func ListProductImgHandler() gin.HandlerFunc {
 			// 参数校验
 			if req.ID == 0 {
 				err = errors.New("参数错误,id不能为空")
-				ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+				ctx.JSON(http.StatusBadRequest, ErrorResponse(ctx, err))
 				return
 			}
 			l := service.GetProductSrv()
 			resp, err := l.ProductImgList(ctx.Request.Context(), &req)
 			if err != nil {
 				log.LogrusObj.Infoln(err)
-				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+				ctx.JSON(http.StatusInternalServerError, ErrorResponse(ctx, err))
 				return
 			}
 			ctx.JSON(http.StatusOK, resp)
 		} else {
 			log.LogrusObj.Infoln(err)
-			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+			ctx.JSON(http.StatusBadRequest, ErrorResponse(ctx, err))
 		}
 	}
 }

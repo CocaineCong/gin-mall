@@ -4,7 +4,6 @@ import (
 	"context"
 	"sync"
 
-	"mall/pkg/utils/ctl"
 	util "mall/pkg/utils/log"
 	"mall/repository/db/dao"
 	"mall/types"
@@ -30,5 +29,11 @@ func (s *CarouselSrv) ListCarousel(ctx context.Context, req *types.ListCarouselR
 		util.LogrusObj.Error(err)
 		return
 	}
-	return ctl.RespList(carousels, int64(len(carousels))), nil
+
+	resp = &types.DataListResp{
+		Item:  carousels,
+		Total: int64(len(carousels)),
+	}
+
+	return
 }

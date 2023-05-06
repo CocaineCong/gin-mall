@@ -22,13 +22,13 @@ func CreateAddressHandler() gin.HandlerFunc {
 			resp, err := l.AddressCreate(ctx.Request.Context(), &req)
 			if err != nil {
 				log.LogrusObj.Infoln(err)
-				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+				ctx.JSON(http.StatusInternalServerError, ErrorResponse(ctx, err))
 				return
 			}
 			ctx.JSON(http.StatusOK, resp)
 		} else {
 			log.LogrusObj.Infoln(err)
-			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+			ctx.JSON(http.StatusBadRequest, ErrorResponse(ctx, err))
 		}
 
 	}
@@ -45,13 +45,13 @@ func ShowAddressHandler() gin.HandlerFunc {
 			resp, err := l.AddressShow(ctx.Request.Context(), &req)
 			if err != nil {
 				log.LogrusObj.Infoln(err)
-				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+				ctx.JSON(http.StatusInternalServerError, ErrorResponse(ctx, err))
 				return
 			}
 			ctx.JSON(http.StatusOK, resp)
 		} else {
 			log.LogrusObj.Infoln(err)
-			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+			ctx.JSON(http.StatusBadRequest, ErrorResponse(ctx, err))
 		}
 	}
 }
@@ -70,13 +70,13 @@ func ListAddressHandler() gin.HandlerFunc {
 			resp, err := l.AddressList(ctx.Request.Context(), &req)
 			if err != nil {
 				log.LogrusObj.Infoln(err)
-				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+				ctx.JSON(http.StatusInternalServerError, ErrorResponse(ctx, err))
 				return
 			}
 			ctx.JSON(http.StatusOK, resp)
 		} else {
 			log.LogrusObj.Infoln(err)
-			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+			ctx.JSON(http.StatusBadRequest, ErrorResponse(ctx, err))
 		}
 	}
 }
@@ -92,13 +92,13 @@ func UpdateAddressHandler() gin.HandlerFunc {
 			resp, err := l.AddressUpdate(ctx.Request.Context(), &req)
 			if err != nil {
 				log.LogrusObj.Infoln(err)
-				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+				ctx.JSON(http.StatusInternalServerError, ErrorResponse(ctx, err))
 				return
 			}
 			ctx.JSON(http.StatusOK, resp)
 		} else {
 			log.LogrusObj.Infoln(err)
-			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+			ctx.JSON(http.StatusBadRequest, ErrorResponse(ctx, err))
 		}
 	}
 }
@@ -114,13 +114,13 @@ func DeleteAddressHandler() gin.HandlerFunc {
 			resp, err := l.AddressDelete(ctx.Request.Context(), &req)
 			if err != nil {
 				log.LogrusObj.Infoln(err)
-				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+				ctx.JSON(http.StatusInternalServerError, ErrorResponse(ctx, err))
 				return
 			}
 			ctx.JSON(http.StatusOK, resp)
 		} else {
 			log.LogrusObj.Infoln(err)
-			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+			ctx.JSON(http.StatusBadRequest, ErrorResponse(ctx, err))
 		}
 	}
 }

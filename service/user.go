@@ -74,7 +74,7 @@ func (s *UserSrv) UserRegister(ctx context.Context, req *types.UserRegisterReq) 
 		return
 	}
 
-	return ctl.RespSuccess(), nil
+	return
 }
 
 // UserLogin 用户登陆函数
@@ -107,13 +107,13 @@ func (s *UserSrv) UserLogin(ctx context.Context, req *types.UserServiceReq) (res
 		CreateAt: user.CreatedAt.Unix(),
 	}
 
-	userTokenResp := ctl.TokenData{
+	resp = ctl.TokenData{
 		User:         userResp,
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 	}
 
-	return ctl.RespSuccessWithData(userTokenResp), nil
+	return
 }
 
 // UserInfoUpdate 用户修改信息
@@ -137,7 +137,7 @@ func (s *UserSrv) UserInfoUpdate(ctx context.Context, req *types.UserInfoUpdateR
 		return nil, err
 	}
 
-	return ctl.RespSuccess(), nil
+	return
 }
 
 // UserAvatarUpload 更新头像
@@ -173,7 +173,7 @@ func (s *UserSrv) UserAvatarUpload(ctx context.Context, file multipart.File, fil
 		return nil, err
 	}
 
-	return ctl.RespSuccess(), nil
+	return
 }
 
 // SendEmail 发送邮件
@@ -196,7 +196,8 @@ func (s *UserSrv) SendEmail(ctx context.Context, req *types.SendEmailServiceReq)
 		log.LogrusObj.Error(err)
 		return
 	}
-	return ctl.RespSuccess(), nil
+
+	return
 }
 
 // Valid 验证内容
@@ -251,7 +252,7 @@ func (s *UserSrv) Valid(ctx context.Context, req *types.ValidEmailServiceReq) (r
 		return
 	}
 
-	userResp := &types.UserInfoResp{
+	resp = &types.UserInfoResp{
 		ID:       user.ID,
 		UserName: user.UserName,
 		NickName: user.NickName,
@@ -261,6 +262,5 @@ func (s *UserSrv) Valid(ctx context.Context, req *types.ValidEmailServiceReq) (r
 		CreateAt: user.CreatedAt.Unix(),
 	}
 
-	// 成功则返回用户的信息
-	return ctl.RespSuccessWithData(userResp), err
+	return
 }

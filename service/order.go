@@ -77,7 +77,8 @@ func (s *OrderSrv) OrderCreate(ctx context.Context, req *types.OrderCreateReq) (
 		Member: orderNum,
 	}
 	cache.RedisClient.ZAdd(OrderTimeKey, data)
-	return ctl.RespSuccess(), nil
+
+	return
 }
 
 func (s *OrderSrv) OrderList(ctx context.Context, req *types.OrderListReq) (resp interface{}, err error) {
@@ -97,7 +98,12 @@ func (s *OrderSrv) OrderList(ctx context.Context, req *types.OrderListReq) (resp
 		}
 	}
 
-	return ctl.RespList(orders, total), nil
+	resp = types.DataListResp{
+		Item:  orders,
+		Total: total,
+	}
+
+	return
 }
 
 func (s *OrderSrv) OrderShow(ctx context.Context, req *types.OrderShowReq) (resp interface{}, err error) {
@@ -115,7 +121,9 @@ func (s *OrderSrv) OrderShow(ctx context.Context, req *types.OrderShowReq) (resp
 		order.ImgPath = conf.Config.PhotoPath.PhotoHost + conf.Config.System.HttpPort + conf.Config.PhotoPath.ProductPhotoPath + order.ImgPath
 	}
 
-	return ctl.RespSuccessWithData(order), nil
+	resp = order
+
+	return
 }
 
 func (s *OrderSrv) OrderDelete(ctx context.Context, req *types.OrderDeleteReq) (resp interface{}, err error) {
@@ -130,5 +138,5 @@ func (s *OrderSrv) OrderDelete(ctx context.Context, req *types.OrderDeleteReq) (
 		return
 	}
 
-	return ctl.RespSuccess(), nil
+	return
 }

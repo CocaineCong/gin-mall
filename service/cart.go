@@ -46,7 +46,7 @@ func (s *CartSrv) CartCreate(ctx context.Context, req *types.CartCreateReq) (res
 		err = errors.New(e.GetMsg(status))
 		return
 	}
-	return ctl.RespSuccess(), nil
+	return
 }
 
 // CartList 购物车
@@ -61,7 +61,13 @@ func (s *CartSrv) CartList(ctx context.Context, req *types.CartListReq) (resp in
 		util.LogrusObj.Error(err)
 		return
 	}
-	return ctl.RespList(carts, int64(len(carts))), nil // TODO 无分页，之后考虑要不要加
+
+	resp = &types.DataListResp{
+		Item:  carts, // TODO 无分页，之后考虑要不要加
+		Total: int64(len(carts)),
+	}
+
+	return
 }
 
 // CartUpdate 修改购物车信息
@@ -77,7 +83,7 @@ func (s *CartSrv) CartUpdate(ctx context.Context, req *types.UpdateCartServiceRe
 		return
 	}
 
-	return ctl.RespSuccess(), nil
+	return
 }
 
 // CartDelete 删除购物车
@@ -92,5 +98,6 @@ func (s *CartSrv) CartDelete(ctx context.Context, req *types.CartDeleteReq) (res
 		util.LogrusObj.Error(err)
 		return
 	}
-	return ctl.RespSuccess(), nil
+
+	return
 }
