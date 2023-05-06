@@ -14,8 +14,7 @@ conf/config.ini
 .idea
 # Dependency directories (remove the comment below to include it)
 # vendor/
-conf/config.ini
-conf/locales/config.yaml
+config/locales/config.yaml
 go.sum
 ci
 main
