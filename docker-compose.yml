@@ -1,13 +1,13 @@
 version: '1'
 
 services:
-  civil:
+  mall:
     build: ./
     image: mall:2.0
     container_name: mall
     restart: always
     environment:
-      MYSQL_DSN: "root:root@tcp/mall_db?charset=utf8&parseTime=True&loc=Local"
+      MYSQL_DSN: "root:root@tcp/mall?charset=utf8&parseTime=True&loc=Local"
     ports:
       - 3000:3000
     depends_on:
@@ -22,7 +22,7 @@ services:
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: mall_db
+      MYSQL_DATABASE: mall
     volumes:
       - /var/lib/mysql:/var/lib/mysql
     ports:
