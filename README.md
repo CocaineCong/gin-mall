@@ -117,45 +117,84 @@ gin-mall/
 - static : 存放静态文件
 
 # 配置文件
-`conf/config.ini` 文件配置
-
-```ini
+`config/locales/config.yaml` 文件配置
+如果还没接触相关应用，可以在`cmd/loading.go`文件中进行注释
+```yaml
 #debug开发模式,release生产模式
-[service]
-AppMode = debug
-HttpPort = :3000
+system:
+    domain: mall
+    version: 1.0
+    env: "dev"
+    HttpPort: ":5001"
+    Host: "localhost"
+    UploadModel: "local"
 
-[mysql]
-Db = mysql
-DbHost = 127.0.0.1
-DbPort = 3306
-DbUser = root
-DbPassWord = root
-DbName =
+mysql:
+    default:
+    dialect: "mysql"
+    dbHost: "127.0.0.1"
+    dbPort: "3306"
+    dbName: "mall"
+    userName: "root"
+    password: "root"
+    charset: "utf8mb4"
 
-[redis]
-RedisDb = redis
-RedisAddr = 127.0.0.1:6379
-RedisPw =
-RedisDbName =
+kafka:
+    default:
+    debug: true
+    address: localhost:9092
+    requiredAck: -1 # 发送完数据后是否需要拿多少个副本确认 -1 需要全部
+    readTimeout: 30 # 默认30s
+    writeTimeout: 30 # 默认30s
+    maxOpenRequests: 5  # 在发送阻塞之前，允许有多少个未完成的请求，默认为5
+    partition: 2 # 分区生成方案 0根据topic进行hash、1随机、2轮询
 
-[qiniu]
-AccessKey =
-SerectKey =
-Bucket =
-QiniuServer =
+redis:
+    redisDbName: 4
+    redisHost: 127.0.0.1
+    redisPort: 6379
+    redisPassword: 123456
+    redisNetwork: "tcp"
 
-[email]
-ValidEmail=http://localhost:8080/#/vaild/email/
-SmtpHost=smtp.qq.com
-SmtpEmail=
-SmtpPass=
-#SMTP服务的通行证
+cache:
+    cacheType: redis
+    cacheEmpires: 600
+    cacheWarmUp:
+    cacheServer:
 
-[es]
-EsHost = 127.0.0.1
-EsPort = 9200
-EsIndex = mylog
+email:
+    address: http://localhost:8080/#/vaild/email/
+    smtpHost:
+    smtpEmail:
+    smtpPass:
+
+encryptSecret:
+    jwtSecret: "FanOne666Secret"
+    emailSecret: "EmailSecret"
+    phoneSecret: "PhoneSecret"
+
+oss:
+    AccessKeyId:
+    AccessKeySecret:
+    BucketName:
+    QiNiuServer:
+
+photoPath:
+    photoHost: http://127.0.0.1
+    ProductPath: /static/imgs/product/
+    AvatarPath: /static/imgs/avatar/
+
+es:
+    EsHost: 127.0.0.1
+    EsPort: 9200
+    EsIndex: mylog
+
+rabbitMq:
+    rabbitMQ: amqp
+    rabbitMQUser: guest
+    rabbitMQPassWord: guest
+    rabbitMQHost: localhost
+    rabbitMQPort: 5672
 ```
 
 ## 简要说明
