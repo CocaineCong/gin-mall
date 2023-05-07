@@ -14,6 +14,12 @@ type UserRegisterReq struct {
 	Key      string `form:"key" json:"key"` // 前端进行判断
 }
 
+type UserTokenData struct {
+	User         interface{} `json:"user"`
+	AccessToken  string      `json:"access_token"`
+	RefreshToken string      `json:"refresh_token"`
+}
+
 type UserLoginReq struct {
 	UserName string `form:"user_name" json:"user_name"`
 	Password string `form:"password" json:"password"`

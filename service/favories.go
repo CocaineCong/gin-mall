@@ -45,7 +45,12 @@ func (s *FavoriteSrv) FavoriteList(ctx context.Context, req *types.FavoritesServ
 		}
 	}
 
-	return ctl.RespList(favorites, total), nil
+	resp = &types.DataListResp{
+		Item:  favorites,
+		Total: total,
+	}
+
+	return
 }
 
 // FavoriteCreate 创建收藏夹
@@ -97,7 +102,7 @@ func (s *FavoriteSrv) FavoriteCreate(ctx context.Context, req *types.FavoriteCre
 		return
 	}
 
-	return ctl.RespSuccess(), nil
+	return
 }
 
 // FavoriteDelete 删除收藏夹
@@ -109,5 +114,5 @@ func (s *FavoriteSrv) FavoriteDelete(ctx context.Context, req *types.FavoriteDel
 		return
 	}
 
-	return ctl.RespSuccess(), nil
+	return
 }

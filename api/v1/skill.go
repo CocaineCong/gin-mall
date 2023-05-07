@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"mall/pkg/utils/ctl"
 	"mall/pkg/utils/log"
 	"mall/service"
 	"mall/types"
@@ -21,13 +22,13 @@ func ImportSkillProductHandler() gin.HandlerFunc {
 			resp, err := l.Import(ctx.Request.Context(), file)
 			if err != nil {
 				log.LogrusObj.Infoln(err)
-				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+				ctx.JSON(http.StatusInternalServerError, ErrorResponse(ctx, err))
 				return
 			}
-			ctx.JSON(http.StatusOK, resp)
+			ctx.JSON(http.StatusOK, ctl.RespSuccess(ctx, resp))
 		} else {
 			log.LogrusObj.Infoln(err)
-			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+			ctx.JSON(http.StatusBadRequest, ErrorResponse(ctx, err))
 		}
 	}
 }
@@ -42,13 +43,13 @@ func InitSkillProductHandler() gin.HandlerFunc {
 			resp, err := l.InitSkillGoods(ctx.Request.Context())
 			if err != nil {
 				log.LogrusObj.Infoln(err)
-				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+				ctx.JSON(http.StatusInternalServerError, ErrorResponse(ctx, err))
 				return
 			}
-			ctx.JSON(http.StatusOK, resp)
+			ctx.JSON(http.StatusOK, ctl.RespSuccess(ctx, resp))
 		} else {
 			log.LogrusObj.Infoln(err)
-			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+			ctx.JSON(http.StatusBadRequest, ErrorResponse(ctx, err))
 		}
 	}
 }
@@ -63,13 +64,13 @@ func SkillProductHandler() gin.HandlerFunc {
 			resp, err := l.SkillProduct(ctx.Request.Context(), &req)
 			if err != nil {
 				log.LogrusObj.Infoln(err)
-				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+				ctx.JSON(http.StatusInternalServerError, ErrorResponse(ctx, err))
 				return
 			}
-			ctx.JSON(http.StatusOK, resp)
+			ctx.JSON(http.StatusOK, ctl.RespSuccess(ctx, resp))
 		} else {
 			log.LogrusObj.Infoln(err)
-			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+			ctx.JSON(http.StatusBadRequest, ErrorResponse(ctx, err))
 		}
 	}
 }

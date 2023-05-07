@@ -8,6 +8,7 @@ import (
 
 	"mall/consts"
 	"mall/pkg/e"
+	"mall/pkg/utils/ctl"
 	"mall/pkg/utils/log"
 	"mall/service"
 	"mall/types"
@@ -23,13 +24,13 @@ func UserRegisterHandler() gin.HandlerFunc {
 			resp, err := l.UserRegister(ctx.Request.Context(), &req)
 			if err != nil {
 				log.LogrusObj.Infoln(err)
-				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+				ctx.JSON(http.StatusInternalServerError, ErrorResponse(ctx, err))
 				return
 			}
-			ctx.JSON(http.StatusOK, resp)
+			ctx.JSON(http.StatusOK, ctl.RespSuccess(ctx, resp))
 		} else {
 			log.LogrusObj.Infoln(err)
-			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+			ctx.JSON(http.StatusBadRequest, ErrorResponse(ctx, err))
 		}
 	}
 }
@@ -45,13 +46,13 @@ func UserLoginHandler() gin.HandlerFunc {
 			resp, err := l.UserLogin(ctx.Request.Context(), &req)
 			if err != nil {
 				log.LogrusObj.Infoln(err)
-				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+				ctx.JSON(http.StatusInternalServerError, ErrorResponse(ctx, err))
 				return
 			}
-			ctx.JSON(http.StatusOK, resp)
+			ctx.JSON(http.StatusOK, ctl.RespSuccess(ctx, resp))
 		} else {
 			log.LogrusObj.Infoln(err)
-			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+			ctx.JSON(http.StatusBadRequest, ErrorResponse(ctx, err))
 		}
 	}
 }
@@ -66,13 +67,13 @@ func UserUpdateHandler() gin.HandlerFunc {
 			resp, err := l.UserInfoUpdate(ctx.Request.Context(), &req)
 			if err != nil {
 				log.LogrusObj.Infoln(err)
-				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+				ctx.JSON(http.StatusInternalServerError, ErrorResponse(ctx, err))
 				return
 			}
-			ctx.JSON(http.StatusOK, resp)
+			ctx.JSON(http.StatusOK, ctl.RespSuccess(ctx, resp))
 		} else {
 			log.LogrusObj.Infoln(err)
-			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+			ctx.JSON(http.StatusBadRequest, ErrorResponse(ctx, err))
 		}
 	}
 }
@@ -86,7 +87,7 @@ func UploadAvatarHandler() gin.HandlerFunc {
 			file, fileHeader, _ := ctx.Request.FormFile("file")
 			if fileHeader == nil {
 				err := errors.New(e.GetMsg(e.ErrorUploadFile))
-				ctx.JSON(consts.IlleageRequest, ErrorResponse(err))
+				ctx.JSON(consts.IlleageRequest, ErrorResponse(ctx, err))
 				log.LogrusObj.Infoln(err)
 				return
 			}
@@ -95,13 +96,13 @@ func UploadAvatarHandler() gin.HandlerFunc {
 			resp, err := l.UserAvatarUpload(ctx.Request.Context(), file, fileSize, &req)
 			if err != nil {
 				log.LogrusObj.Infoln(err)
-				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+				ctx.JSON(http.StatusInternalServerError, ErrorResponse(ctx, err))
 				return
 			}
-			ctx.JSON(http.StatusOK, resp)
+			ctx.JSON(http.StatusOK, ctl.RespSuccess(ctx, resp))
 		} else {
 			log.LogrusObj.Infoln(err)
-			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+			ctx.JSON(http.StatusBadRequest, ErrorResponse(ctx, err))
 		}
 	}
 }
@@ -116,13 +117,13 @@ func SendEmailHandler() gin.HandlerFunc {
 			resp, err := l.SendEmail(ctx.Request.Context(), &req)
 			if err != nil {
 				log.LogrusObj.Infoln(err)
-				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+				ctx.JSON(http.StatusInternalServerError, ErrorResponse(ctx, err))
 				return
 			}
-			ctx.JSON(http.StatusOK, resp)
+			ctx.JSON(http.StatusOK, ctl.RespSuccess(ctx, resp))
 		} else {
 			log.LogrusObj.Infoln(err)
-			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+			ctx.JSON(http.StatusBadRequest, ErrorResponse(ctx, err))
 		}
 	}
 }
@@ -137,13 +138,13 @@ func ValidEmailHandler() gin.HandlerFunc {
 			resp, err := l.Valid(ctx.Request.Context(), &req)
 			if err != nil {
 				log.LogrusObj.Infoln(err)
-				ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
+				ctx.JSON(http.StatusInternalServerError, ErrorResponse(ctx, err))
 				return
 			}
-			ctx.JSON(http.StatusOK, resp)
+			ctx.JSON(http.StatusOK, ctl.RespSuccess(ctx, resp))
 		} else {
 			log.LogrusObj.Infoln(err)
-			ctx.JSON(http.StatusBadRequest, ErrorResponse(err))
+			ctx.JSON(http.StatusBadRequest, ErrorResponse(ctx, err))
 		}
 	}
 }

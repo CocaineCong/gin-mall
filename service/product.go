@@ -58,7 +58,9 @@ func (s *ProductSrv) ProductShow(ctx context.Context, req *types.ProductShowReq)
 		pResp.ImgPath = conf.Config.PhotoPath.PhotoHost + conf.Config.System.HttpPort + conf.Config.PhotoPath.ProductPhotoPath + pResp.ImgPath
 	}
 
-	return ctl.RespSuccessWithData(pResp), nil
+	resp = pResp
+
+	return
 }
 
 // 创建商品
@@ -131,7 +133,7 @@ func (s *ProductSrv) ProductCreate(ctx context.Context, files []*multipart.FileH
 
 	wg.Wait()
 
-	return ctl.RespSuccess(), nil
+	return
 }
 
 func (s *ProductSrv) ProductList(ctx context.Context, req *types.ProductListReq) (resp interface{}, err error) {
@@ -173,7 +175,12 @@ func (s *ProductSrv) ProductList(ctx context.Context, req *types.ProductListReq)
 		pRespList = append(pRespList, pResp)
 	}
 
-	return ctl.RespList(pRespList, total), nil
+	resp = &types.DataListResp{
+		Item:  pRespList,
+		Total: total,
+	}
+
+	return
 }
 
 // ProductDelete 删除商品
@@ -184,7 +191,7 @@ func (s *ProductSrv) ProductDelete(ctx context.Context, req *types.ProductDelete
 		log.LogrusObj.Error(err)
 		return
 	}
-	return ctl.RespSuccess(), nil
+	return
 }
 
 // 更新商品
@@ -205,7 +212,7 @@ func (s *ProductSrv) ProductUpdate(ctx context.Context, req *types.ProductUpdate
 		return
 	}
 
-	return ctl.RespSuccess(), nil
+	return
 }
 
 // 搜索商品 TODO 后续用脚本同步数据MySQL到ES，用ES进行搜索
@@ -242,7 +249,12 @@ func (s *ProductSrv) ProductSearch(ctx context.Context, req *types.ProductSearch
 		pRespList = append(pRespList, pResp)
 	}
 
-	return ctl.RespList(pRespList, count), nil
+	resp = &types.DataListResp{
+		Item:  pRespList,
+		Total: count,
+	}
+
+	return
 }
 
 // ProductImgList 获取商品列表图片
@@ -253,5 +265,11 @@ func (s *ProductSrv) ProductImgList(ctx context.Context, req *types.ListProductI
 			productImgs[i].ImgPath = conf.Config.PhotoPath.PhotoHost + conf.Config.System.HttpPort + conf.Config.PhotoPath.ProductPhotoPath + productImgs[i].ImgPath
 		}
 	}
-	return ctl.RespList(productImgs, int64(len(productImgs))), nil
+
+	resp = &types.DataListResp{
+		Item:  productImgs,
+		Total: int64(len(productImgs)),
+	}
+
+	return
 }

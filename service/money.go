@@ -37,10 +37,11 @@ func (s *MoneySrv) MoneyShow(ctx context.Context, req *types.MoneyShowReq) (resp
 		return
 	}
 	util.Encrypt.SetKey(req.Key)
-	mResp := &types.MoneyShowResp{
+	resp = &types.MoneyShowResp{
 		UserID:    user.ID,
 		UserName:  user.UserName,
 		UserMoney: util.Encrypt.AesDecoding(user.Money),
 	}
-	return ctl.RespSuccessWithData(mResp), nil
+
+	return
 }

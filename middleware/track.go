@@ -4,11 +4,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/opentracing/opentracing-go"
 
+	"mall/consts"
 	"mall/pkg/utils/track"
-)
-
-var (
-	SpanCTX = "span-ctx"
 )
 
 func Jaeger() gin.HandlerFunc {
@@ -26,7 +23,7 @@ func Jaeger() gin.HandlerFunc {
 		}
 		defer span.Finish()
 
-		c.Set(SpanCTX, opentracing.ContextWithSpan(c, span))
+		c.Set(consts.SpanCTX, opentracing.ContextWithSpan(c, span))
 		c.Next()
 	}
 }

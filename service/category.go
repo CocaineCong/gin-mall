@@ -4,7 +4,6 @@ import (
 	"context"
 	"sync"
 
-	"mall/pkg/utils/ctl"
 	util "mall/pkg/utils/log"
 	"mall/repository/db/dao"
 	"mall/types"
@@ -39,5 +38,10 @@ func (s *CategorySrv) CategoryList(ctx context.Context, req *types.ListCategoryR
 		})
 	}
 
-	return ctl.RespList(cResp, int64(len(cResp))), nil
+	resp = &types.DataListResp{
+		Item:  cResp,
+		Total: int64(len(cResp)),
+	}
+
+	return
 }

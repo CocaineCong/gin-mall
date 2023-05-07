@@ -70,7 +70,7 @@ func (s *SkillProductSrv) Import(ctx context.Context, file multipart.File) (resp
 		return
 	}
 
-	return ctl.RespSuccess(), nil
+	return
 }
 
 // 直接放到这里，初始化秒杀商品信息，将mysql的信息存入redis中
@@ -108,7 +108,7 @@ func (s *SkillProductSrv) SkillProduct(ctx context.Context, req *types.SkillProd
 		util.LogrusObj.Error(err)
 		return
 	}
-	return ctl.RespSuccess(), nil
+	return
 }
 
 // 加锁
