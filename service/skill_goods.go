@@ -46,7 +46,7 @@ func (s *SkillProductSrv) Import(ctx context.Context, file multipart.File) (resp
 	}
 	rows := xlFile.GetRows("Sheet1")
 	length := len(rows[1:])
-	skillGoods := make([]*model.SkillProduct, length, length)
+	skillGoods := make([]*model.SkillProduct, length)
 	for index, colCell := range rows {
 		if index == 0 {
 			continue
@@ -80,8 +80,8 @@ func (s *SkillProductSrv) InitSkillGoods(ctx context.Context) (interface{}, erro
 	// 加载到redis
 	for i := range skillGoods {
 		fmt.Println(*skillGoods[i])
-		r.HSet("SK"+strconv.Itoa(int(skillGoods[i].Id)), "num", skillGoods[i].Num)
-		r.HSet("SK"+strconv.Itoa(int(skillGoods[i].Id)), "money", skillGoods[i].Money)
+		r.HSet(cache.RedisContext, "SK"+strconv.Itoa(int(skillGoods[i].Id)), "num", skillGoods[i].Num)
+		r.HSet(cache.RedisContext, "SK"+strconv.Itoa(int(skillGoods[i].Id)), "money", skillGoods[i].Money)
 	}
 	return nil, nil
 }
@@ -93,7 +93,7 @@ func (s *SkillProductSrv) SkillProduct(ctx context.Context, req *types.SkillProd
 		return nil, err
 	}
 	uId := u.Id
-	mo, _ := cache.RedisClient.HGet("SK"+strconv.Itoa(int(req.SkillProductId)), "money").Float64()
+	mo, _ := cache.RedisClient.HGet(cache.RedisContext, "SK"+strconv.Itoa(int(req.SkillProductId)), "money").Float64()
 	sk := &model.SkillProduct2MQ{
 		ProductId:      req.ProductId,
 		BossId:         req.BossId,
@@ -115,8 +115,12 @@ func (s *SkillProductSrv) SkillProduct(ctx context.Context, req *types.SkillProd
 func RedissonSecKillGoods(sk *model.SkillProduct2MQ) error {
 	p := strconv.Itoa(int(sk.SkillProductId))
 	uuid := getUuid(p)
-	_, err := cache.RedisClient.Del(p).Result()
-	lockSuccess, err := cache.RedisClient.SetNX(p, uuid, time.Second*3).Result()
+	_, err := cache.RedisClient.Del(cache.RedisContext, p).Result()
+	if err != nil {
+		fmt.Println("del lock fail", err)
+		return errors.New("del lock fail")
+	}
+	lockSuccess, err := cache.RedisClient.SetNX(cache.RedisContext, p, uuid, time.Second*3).Result()
 	if err != nil || !lockSuccess {
 		fmt.Println("get lock fail", err)
 		return errors.New("get lock fail")
@@ -124,9 +128,9 @@ func RedissonSecKillGoods(sk *model.SkillProduct2MQ) error {
 		fmt.Println("get lock success")
 	}
 	_ = SendSecKillGoodsToMQ(sk)
-	value, _ := cache.RedisClient.Get(p).Result()
+	value, _ := cache.RedisClient.Get(cache.RedisContext, p).Result()
 	if value == uuid { // compare value,if equal then del
-		_, err := cache.RedisClient.Del(p).Result()
+		_, err := cache.RedisClient.Del(cache.RedisContext, p).Result()
 		if err != nil {
 			fmt.Println("unlock fail")
 			return nil

@@ -80,6 +80,7 @@ type Email struct {
 type Redis struct {
 	RedisHost     string `yaml:"redisHost"`
 	RedisPort     string `yaml:"redisPort"`
+	RedisUsername string `yaml:"redisUsername"`
 	RedisPassword string `yaml:"redisPwd"`
 	RedisDbName   int    `yaml:"redisDbName"`
 	RedisNetwork  string `yaml:"redisNetwork"`
