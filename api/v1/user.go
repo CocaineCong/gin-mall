@@ -8,6 +8,7 @@ import (
 
 	"mall/consts"
 	"mall/pkg/e"
+	"mall/pkg/utils/ctl"
 	"mall/pkg/utils/log"
 	"mall/service"
 	"mall/types"
@@ -26,7 +27,7 @@ func UserRegisterHandler() gin.HandlerFunc {
 				ctx.JSON(http.StatusInternalServerError, ErrorResponse(ctx, err))
 				return
 			}
-			ctx.JSON(http.StatusOK, resp)
+			ctx.JSON(http.StatusOK, ctl.RespSuccess(ctx, resp))
 		} else {
 			log.LogrusObj.Infoln(err)
 			ctx.JSON(http.StatusBadRequest, ErrorResponse(ctx, err))
@@ -48,7 +49,7 @@ func UserLoginHandler() gin.HandlerFunc {
 				ctx.JSON(http.StatusInternalServerError, ErrorResponse(ctx, err))
 				return
 			}
-			ctx.JSON(http.StatusOK, resp)
+			ctx.JSON(http.StatusOK, ctl.RespSuccess(ctx, resp))
 		} else {
 			log.LogrusObj.Infoln(err)
 			ctx.JSON(http.StatusBadRequest, ErrorResponse(ctx, err))
@@ -69,7 +70,7 @@ func UserUpdateHandler() gin.HandlerFunc {
 				ctx.JSON(http.StatusInternalServerError, ErrorResponse(ctx, err))
 				return
 			}
-			ctx.JSON(http.StatusOK, resp)
+			ctx.JSON(http.StatusOK, ctl.RespSuccess(ctx, resp))
 		} else {
 			log.LogrusObj.Infoln(err)
 			ctx.JSON(http.StatusBadRequest, ErrorResponse(ctx, err))
@@ -98,7 +99,7 @@ func UploadAvatarHandler() gin.HandlerFunc {
 				ctx.JSON(http.StatusInternalServerError, ErrorResponse(ctx, err))
 				return
 			}
-			ctx.JSON(http.StatusOK, resp)
+			ctx.JSON(http.StatusOK, ctl.RespSuccess(ctx, resp))
 		} else {
 			log.LogrusObj.Infoln(err)
 			ctx.JSON(http.StatusBadRequest, ErrorResponse(ctx, err))
@@ -119,7 +120,7 @@ func SendEmailHandler() gin.HandlerFunc {
 				ctx.JSON(http.StatusInternalServerError, ErrorResponse(ctx, err))
 				return
 			}
-			ctx.JSON(http.StatusOK, resp)
+			ctx.JSON(http.StatusOK, ctl.RespSuccess(ctx, resp))
 		} else {
 			log.LogrusObj.Infoln(err)
 			ctx.JSON(http.StatusBadRequest, ErrorResponse(ctx, err))
@@ -140,7 +141,7 @@ func ValidEmailHandler() gin.HandlerFunc {
 				ctx.JSON(http.StatusInternalServerError, ErrorResponse(ctx, err))
 				return
 			}
-			ctx.JSON(http.StatusOK, resp)
+			ctx.JSON(http.StatusOK, ctl.RespSuccess(ctx, resp))
 		} else {
 			log.LogrusObj.Infoln(err)
 			ctx.JSON(http.StatusBadRequest, ErrorResponse(ctx, err))

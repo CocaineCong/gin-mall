@@ -1,11 +1,13 @@
 package ctl
 
 import (
-	"context"
+	"errors"
+	"fmt"
+	"regexp"
 
 	"github.com/gin-gonic/gin"
 
-	"mall/middleware"
+	"mall/consts"
 	"mall/pkg/e"
 )
 
@@ -18,54 +20,29 @@ type Response struct {
 	TrackId string      `json:"track_id"`
 }
 
-// TokenData 带有token的Data结构
-type TokenData struct {
-	User         interface{} `json:"user"`
-	AccessToken  string      `json:"access_token"`
-	RefreshToken string      `json:"refresh_token"`
-}
-
 // TrackedErrorResponse 有追踪信息的错误反应
 type TrackedErrorResponse struct {
 	Response
 	TrackId string `json:"track_id"`
 }
 
-// RespSuccess 成功返回
-func RespSuccess(ctx *gin.Context, code ...int) *Response {
-	spanCtxInterface, _ := ctx.Get(middleware.SpanCTX)
-	var spanCtx context.Context
-	spanCtx = spanCtxInterface.(context.Context)
+// RespSuccess 带data成功返回
+func RespSuccess(ctx *gin.Context, data interface{}, code ...int) *Response {
+	trackId, _ := getTrackIdFromCtx(ctx)
 	status := e.SUCCESS
 	if code != nil {
 		status = code[0]
 	}
 
-	r := &Response{
-		Status:  status,
-		Data:    "操作成功",
-		Msg:     e.GetMsg(status),
-		TrackId: spanCtx.Value(middleware.SpanCTX).(string),
-	}
-
-	return r
-}
-
-// RespSuccessWithData 带data成功返回
-func RespSuccessWithData(ctx *gin.Context, data interface{}, code ...int) *Response {
-	spanCtxInterface, _ := ctx.Get(middleware.SpanCTX)
-	var spanCtx context.Context
-	spanCtx = spanCtxInterface.(context.Context)
-	status := e.SUCCESS
-	if code != nil {
-		status = code[0]
+	if data == nil {
+		data = "操作成功"
 	}
 
 	r := &Response{
 		Status:  status,
 		Data:    data,
 		Msg:     e.GetMsg(status),
-		TrackId: spanCtx.Value(middleware.SpanCTX).(string),
+		TrackId: trackId,
 	}
 
 	return r
@@ -73,9 +50,7 @@ func RespSuccessWithData(ctx *gin.Context, data interface{}, code ...int) *Respo
 
 // RespError 错误返回
 func RespError(ctx *gin.Context, err error, data string, code ...int) *TrackedErrorResponse {
-	spanCtxInterface, _ := ctx.Get(middleware.SpanCTX)
-	var spanCtx context.Context
-	spanCtx = spanCtxInterface.(context.Context)
+	trackId, _ := getTrackIdFromCtx(ctx)
 	status := e.ERROR
 	if code != nil {
 		status = code[0]
@@ -88,8 +63,20 @@ func RespError(ctx *gin.Context, err error, data string, code ...int) *TrackedEr
 			Data:   data,
 			Error:  err.Error(),
 		},
-		TrackId: spanCtx.Value(middleware.SpanCTX).(string),
+		TrackId: trackId,
 	}
 
 	return r
+}
+
+func getTrackIdFromCtx(ctx *gin.Context) (trackId string, err error) {
+	spanCtxInterface, _ := ctx.Get(consts.SpanCTX)
+	str := fmt.Sprintf("%v", spanCtxInterface)
+	re := regexp.MustCompile(`([0-9a-fA-F]{16})`)
+
+	match := re.FindStringSubmatch(str)
+	if len(match) > 0 {
+		return match[1], nil
+	}
+	return "", errors.New("获取 track id 错误")
 }

@@ -1,4 +1,4 @@
-version: '1'
+version: '3.7'
 
 services:
   mall:
@@ -9,7 +9,7 @@ services:
     environment:
       MYSQL_DSN: "root:root@tcp/mall?charset=utf8&parseTime=True&loc=Local"
     ports:
-      - 3000:3000
+      - "3000:3000"
     depends_on:
       - mysql
       - redis
@@ -26,16 +26,17 @@ services:
     volumes:
       - /var/lib/mysql:/var/lib/mysql
     ports:
-      - 3306:3306
+      - "3306:3306"
 
   redis:
     container_name: redis
     image: redis:latest
     restart: always
+    command: redis-server --require pass 123456
     volumes:
       - /usr/local/redis:/usr/local/redis
     ports:
-      - 6379:6379
+      - "6379:6379"
 
   kibana:
     image: docker.elastic.co/kibana/kibana:7.1.0
@@ -46,7 +47,7 @@ services:
       - TIMELION_ENABLED=true
       - XPACK_MONITORING_COLLECTION_ENABLED="true"
     ports:
-      - 5601:5601
+      - "5601:5601"
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.1.0
@@ -66,5 +67,5 @@ services:
       - /usr/local/elasticsearch/data:/usr/local/elasticsearch/data
       - /usr/local/elasticsearch/config/es/config:/usr/local/elasticsearch/config
     ports:
-      - 9200:9200
+      - "9200:9200"
     restart: always

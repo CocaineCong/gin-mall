@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"mall/consts"
+	"mall/pkg/utils/ctl"
 	"mall/pkg/utils/log"
 	"mall/service"
 	"mall/types"
@@ -24,7 +25,7 @@ func CreateCartHandler() gin.HandlerFunc {
 				ctx.JSON(http.StatusInternalServerError, ErrorResponse(ctx, err))
 				return
 			}
-			ctx.JSON(http.StatusOK, resp)
+			ctx.JSON(http.StatusOK, ctl.RespSuccess(ctx, resp))
 		} else {
 			log.LogrusObj.Infoln(err)
 			ctx.JSON(http.StatusBadRequest, ErrorResponse(ctx, err))
@@ -49,7 +50,7 @@ func ListCartHandler() gin.HandlerFunc {
 				ctx.JSON(http.StatusInternalServerError, ErrorResponse(ctx, err))
 				return
 			}
-			ctx.JSON(http.StatusOK, resp)
+			ctx.JSON(http.StatusOK, ctl.RespSuccess(ctx, resp))
 		} else {
 			log.LogrusObj.Infoln(err)
 			ctx.JSON(http.StatusBadRequest, ErrorResponse(ctx, err))
@@ -71,7 +72,7 @@ func UpdateCartHandler() gin.HandlerFunc {
 				ctx.JSON(http.StatusInternalServerError, ErrorResponse(ctx, err))
 				return
 			}
-			ctx.JSON(http.StatusOK, resp)
+			ctx.JSON(http.StatusOK, ctl.RespSuccess(ctx, resp))
 		} else {
 			log.LogrusObj.Infoln(err)
 			ctx.JSON(http.StatusBadRequest, ErrorResponse(ctx, err))
@@ -93,7 +94,7 @@ func DeleteCartHandler() gin.HandlerFunc {
 				ctx.JSON(http.StatusInternalServerError, ErrorResponse(ctx, err))
 				return
 			}
-			ctx.JSON(http.StatusOK, resp)
+			ctx.JSON(http.StatusOK, ctl.RespSuccess(ctx, resp))
 		} else {
 			log.LogrusObj.Infoln(err)
 			ctx.JSON(http.StatusBadRequest, ErrorResponse(ctx, err))

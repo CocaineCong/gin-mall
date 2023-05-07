@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"mall/consts"
+	"mall/pkg/utils/ctl"
 	"mall/pkg/utils/log"
 	"mall/service"
 	"mall/types"
@@ -25,7 +26,7 @@ func CreateAddressHandler() gin.HandlerFunc {
 				ctx.JSON(http.StatusInternalServerError, ErrorResponse(ctx, err))
 				return
 			}
-			ctx.JSON(http.StatusOK, resp)
+			ctx.JSON(http.StatusOK, ctl.RespSuccess(ctx, resp))
 		} else {
 			log.LogrusObj.Infoln(err)
 			ctx.JSON(http.StatusBadRequest, ErrorResponse(ctx, err))
@@ -48,7 +49,7 @@ func ShowAddressHandler() gin.HandlerFunc {
 				ctx.JSON(http.StatusInternalServerError, ErrorResponse(ctx, err))
 				return
 			}
-			ctx.JSON(http.StatusOK, resp)
+			ctx.JSON(http.StatusOK, ctl.RespSuccess(ctx, resp))
 		} else {
 			log.LogrusObj.Infoln(err)
 			ctx.JSON(http.StatusBadRequest, ErrorResponse(ctx, err))
@@ -73,7 +74,7 @@ func ListAddressHandler() gin.HandlerFunc {
 				ctx.JSON(http.StatusInternalServerError, ErrorResponse(ctx, err))
 				return
 			}
-			ctx.JSON(http.StatusOK, resp)
+			ctx.JSON(http.StatusOK, ctl.RespSuccess(ctx, resp))
 		} else {
 			log.LogrusObj.Infoln(err)
 			ctx.JSON(http.StatusBadRequest, ErrorResponse(ctx, err))
@@ -95,7 +96,7 @@ func UpdateAddressHandler() gin.HandlerFunc {
 				ctx.JSON(http.StatusInternalServerError, ErrorResponse(ctx, err))
 				return
 			}
-			ctx.JSON(http.StatusOK, resp)
+			ctx.JSON(http.StatusOK, ctl.RespSuccess(ctx, resp))
 		} else {
 			log.LogrusObj.Infoln(err)
 			ctx.JSON(http.StatusBadRequest, ErrorResponse(ctx, err))
@@ -117,7 +118,7 @@ func DeleteAddressHandler() gin.HandlerFunc {
 				ctx.JSON(http.StatusInternalServerError, ErrorResponse(ctx, err))
 				return
 			}
-			ctx.JSON(http.StatusOK, resp)
+			ctx.JSON(http.StatusOK, ctl.RespSuccess(ctx, resp))
 		} else {
 			log.LogrusObj.Infoln(err)
 			ctx.JSON(http.StatusBadRequest, ErrorResponse(ctx, err))

@@ -27,11 +27,3 @@ func ErrorResponse(ctx *gin.Context, err error) *ctl.TrackedErrorResponse {
 
 	return ctl.RespError(ctx, err, "参数错误", e.InvalidParams)
 }
-
-func SuccessResponse(ctx *gin.Context, resp interface{}) *ctl.Response {
-	return nil
-}
-
-func SuccessResponseList(ctx *gin.Context, resp interface{}) *ctl.Response {
-	return nil
-}

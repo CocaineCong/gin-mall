@@ -107,7 +107,7 @@ func (s *UserSrv) UserLogin(ctx context.Context, req *types.UserServiceReq) (res
 		CreateAt: user.CreatedAt.Unix(),
 	}
 
-	resp = ctl.TokenData{
+	resp = &types.UserTokenData{
 		User:         userResp,
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,

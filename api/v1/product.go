@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"mall/consts"
+	"mall/pkg/utils/ctl"
 	"mall/pkg/utils/log"
 	"mall/service"
 	"mall/types"
@@ -28,7 +29,7 @@ func CreateProductHandler() gin.HandlerFunc {
 				ctx.JSON(http.StatusInternalServerError, ErrorResponse(ctx, err))
 				return
 			}
-			ctx.JSON(http.StatusOK, resp)
+			ctx.JSON(http.StatusOK, ctl.RespSuccess(ctx, resp))
 		} else {
 			log.LogrusObj.Infoln(err)
 			ctx.JSON(http.StatusBadRequest, ErrorResponse(ctx, err))
@@ -60,7 +61,7 @@ func ListProductsHandler() gin.HandlerFunc {
 				ctx.JSON(http.StatusInternalServerError, ErrorResponse(ctx, err))
 				return
 			}
-			ctx.JSON(http.StatusOK, resp)
+			ctx.JSON(http.StatusOK, ctl.RespSuccess(ctx, resp))
 		} else {
 			log.LogrusObj.Infoln(err)
 			ctx.JSON(http.StatusBadRequest, ErrorResponse(ctx, err))
@@ -82,7 +83,7 @@ func ShowProductHandler() gin.HandlerFunc {
 				ctx.JSON(http.StatusInternalServerError, ErrorResponse(ctx, err))
 				return
 			}
-			ctx.JSON(http.StatusOK, resp)
+			ctx.JSON(http.StatusOK, ctl.RespSuccess(ctx, resp))
 		} else {
 			log.LogrusObj.Infoln(err)
 			ctx.JSON(http.StatusBadRequest, ErrorResponse(ctx, err))
@@ -104,7 +105,7 @@ func DeleteProductHandler() gin.HandlerFunc {
 				ctx.JSON(http.StatusInternalServerError, ErrorResponse(ctx, err))
 				return
 			}
-			ctx.JSON(http.StatusOK, resp)
+			ctx.JSON(http.StatusOK, ctl.RespSuccess(ctx, resp))
 		} else {
 			log.LogrusObj.Infoln(err)
 			ctx.JSON(http.StatusBadRequest, ErrorResponse(ctx, err))
@@ -126,7 +127,7 @@ func UpdateProductHandler() gin.HandlerFunc {
 				ctx.JSON(http.StatusInternalServerError, ErrorResponse(ctx, err))
 				return
 			}
-			ctx.JSON(http.StatusOK, resp)
+			ctx.JSON(http.StatusOK, ctl.RespSuccess(ctx, resp))
 		} else {
 			log.LogrusObj.Infoln(err)
 			ctx.JSON(http.StatusBadRequest, ErrorResponse(ctx, err))
@@ -151,7 +152,7 @@ func SearchProductsHandler() gin.HandlerFunc {
 				ctx.JSON(http.StatusInternalServerError, ErrorResponse(ctx, err))
 				return
 			}
-			ctx.JSON(http.StatusOK, resp)
+			ctx.JSON(http.StatusOK, ctl.RespSuccess(ctx, resp))
 		} else {
 			log.LogrusObj.Infoln(err)
 			ctx.JSON(http.StatusBadRequest, ErrorResponse(ctx, err))
@@ -177,7 +178,7 @@ func ListProductImgHandler() gin.HandlerFunc {
 				ctx.JSON(http.StatusInternalServerError, ErrorResponse(ctx, err))
 				return
 			}
-			ctx.JSON(http.StatusOK, resp)
+			ctx.JSON(http.StatusOK, ctl.RespSuccess(ctx, resp))
 		} else {
 			log.LogrusObj.Infoln(err)
 			ctx.JSON(http.StatusBadRequest, ErrorResponse(ctx, err))
