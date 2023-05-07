@@ -1,9 +1,10 @@
 package conf
 
 import (
-	yaml "gopkg.in/yaml.v2"
 	"io/ioutil"
 	"strings"
+
+	yaml "gopkg.in/yaml.v2"
 )
 
 // Dictinary 字典
@@ -46,7 +47,7 @@ func T(key string) string {
 		for k, v := range dic {
 			if ks, ok := k.(string); ok {
 				if ks == path {
-					if dic, ok = v.(map[interface{}]interface{}); ok == false {
+					if dic, ok = v.(map[interface{}]interface{}); !ok {
 						return path
 					}
 				}

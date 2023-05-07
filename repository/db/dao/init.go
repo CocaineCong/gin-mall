@@ -58,7 +58,8 @@ func InitMySQL() {
 			Replicas: []gorm.Dialector{mysql.Open(pathWrite), mysql.Open(pathWrite)}, // 读操作
 			Policy:   dbresolver.RandomPolicy{},                                      // sources/replicas 负载均衡策略
 		}))
-	Migration()
+
+	_db = _db.Set("gorm:table_options", "charset=utf8mb4")
 }
 
 func NewDBClient(ctx context.Context) *gorm.DB {
