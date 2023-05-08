@@ -27,7 +27,7 @@ docker-up:
 	./
 	docker run \
 	-it \
-	--1name mall_server \
+	--name mall_server \
 	--network host \
 	-d gin_mall:3.0
 	@echo "container run success at localhost:5001"
