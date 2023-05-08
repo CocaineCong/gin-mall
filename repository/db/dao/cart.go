@@ -61,7 +61,6 @@ func (dao *CartDao) GetCartById(pId, uId, bId uint) (cart *model.Cart, err error
 		Where("user_id = ? AND product_id = ? AND boss_id = ?", uId, pId, bId).
 		First(&cart).Error
 	return
-
 }
 
 // ListCartByUserId 获取 Cart 通过 user_id
