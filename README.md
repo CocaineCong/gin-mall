@@ -36,10 +36,10 @@ go build -o ../main
 ./main
 ```
 ## 脚本运行
-项目根目录内置了Dockerfile、Makefile、docker-compose.yml等文件
+项目根目录内置了 Dockerfile、Makefile、docker-compose.yml 等文件
 目的是快速构建项目环境，简易化项目运行难度
 
-下面介绍Makefile中内置的几条指令，只需要在控制台**当前项目根目录下**输入对应指令即可自动运行
+下面介绍 Makefile 中内置的几条指令，只需要在控制台**当前项目根目录下**输入对应指令即可自动运行
 ```bash
 make                # 构建二进制文件并自动运行
 make build          # 构建二进制文件
@@ -72,22 +72,22 @@ make docker-down    # 停止并删除容器
 - 添加ELK体系，方便日志查看和管理
 
 # 项目规划
-- [ ] 考虑加入kafka或是rabbitmq，新增一个秒杀专场 \
-- [x] 优化 service 返回的参数，加上返回值 error，因为go的函数返回都是要有error的，这才是go的代码风格（我也不懂go为啥要这样设置，很多优秀的开源项目都是这样写函数的返回值） \
-- [x] 抽离 service 的结构体到 types，引入 sync.Once 模块，重构 service 层 \
-- [ ] 优化鉴权模块，加上 refreshToken，将 token 改成 accessToken \
-- [ ] 抽离登陆，引入SSO\
-- [x] 优化日志输出，统一用日志对象 \
-- [x] 考虑 cmd 和 loading 这两个文件夹是否合并\
-- [ ] 加入 Jaeger 进行链路追踪\
-- [ ] 加入 Prometheus 监控中间件\
-- [ ] 优化ToC应用的 SQL JOIN 语句\
+- [ ] 考虑加入kafka或是rabbitmq，新增一个秒杀专场 
+- [x] 优化 service 返回的参数，加上返回值 error，因为go的函数返回都是要有error的，这才是go的代码风格（我也不懂go为啥要这样设置，很多优秀的开源项目都是这样写函数的返回值） 
+- [x] 抽离 service 的结构体到 types，引入 sync.Once 模块，重构 service 层 
+- [x] 优化鉴权模块，加上 refreshToken，将 token 改成 accessToken 
+- [ ] 抽离登陆，引入SSO
+- [x] 优化日志输出，统一用日志对象 
+- [x] 考虑 cmd 和 loading 这两个文件夹是否合并
+- [x] 加入 Jaeger 进行链路追踪
+- [ ] 加入 Prometheus 监控中间件
+- [ ] 优化ToC应用的 SQL JOIN 语句
 - [ ] MySQL到ES的数据同步，将搜索改成查找ES（注意一下，这里最好引入kafka，mysql推到kafka，kafka再推到es，确保一下ack）
 
 
 # 主要依赖、
-| 名称         | 版本    |
-| ------------ | ------- |
+| 名称           | 版本      |
+|--------------|---------|
 | golang       | 1.18    |
 | gin          | v1.9.0  |
 | gorm         | v1.9.6  |
@@ -161,7 +161,7 @@ redis:
     redisDbName: 4
     redisHost: 127.0.0.1
     redisPort: 6379
-    redisUername: default
+    redisUsername: default
     redisPassword: 123456
     redisNetwork: "tcp"
 
@@ -213,7 +213,7 @@ rabbitMq:
 4. 本项目运用了gorm的读写分离，所以要保证mysql的数据一致性。
 5. 引入了ELK体系，可以通过docker-compose全部up起来，也可以本地跑(确保ES和Kibana都开启)
 6. 用户创建默认金额为 **1w** ，默认头像为 `static/imgs/avatar/avatar.jpg`
-# 如何倒入并测试接口
+# 如何导入并测试接口
 
 打开postman，点击导入
 
@@ -228,8 +228,13 @@ rabbitMq:
 
 ![展示](doc/4.效果.png)
 
-接下来点击Collection标题（gin-mall）
+接下来点击Collection标题(gin-mall)
 在`Variables`中新增一个名为`url`的变量，Initial value和Current value均填入`localhost:5001/api/v1/`，然后保存，就可以开始测试了
+
+![创建环境变量](doc/6.postman创建环境变量.png)
+
+![创建环境变量](doc/7.创建url变量.png)
+
 
 这里是用postman查询es，Kibana也可以查看es！
 
