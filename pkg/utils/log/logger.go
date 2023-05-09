@@ -7,8 +7,6 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
-
-	"mall/repository/es"
 )
 
 var LogrusObj *logrus.Logger
@@ -37,8 +35,8 @@ func InitLog() {
 		所以这里的ELK体系加了注释，如果想引入可以直接注释去掉，
 		如果不想引入这样注释掉也是没问题的。
 	*/
-	hook := es.EsHookLog()
-	logger.AddHook(hook)
+	// hook := es.EsHookLog()
+	// logger.AddHook(hook)
 	LogrusObj = logger
 }
 

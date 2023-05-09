@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/go-redis/redis"
+	"github.com/redis/go-redis/v9"
 
 	conf "mall/config"
 	"mall/consts"
@@ -76,7 +76,7 @@ func (s *OrderSrv) OrderCreate(ctx context.Context, req *types.OrderCreateReq) (
 		Score:  float64(time.Now().Unix()) + 15*time.Minute.Seconds(),
 		Member: orderNum,
 	}
-	cache.RedisClient.ZAdd(OrderTimeKey, data)
+	cache.RedisClient.ZAdd(cache.RedisContext, OrderTimeKey, data)
 
 	return
 }
