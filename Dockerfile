@@ -7,7 +7,7 @@ WORKDIR /app
 COPY . .
 RUN go mod tidy
 WORKDIR /app/cmd
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build  -ldflags="-w -s" -o ../main
+RUN CGO_ENABLED=0 GOOS=linux go build  -ldflags="-w -s" -o ../main
 WORKDIR /app
 RUN mkdir publish  \
     && cp main publish  \
@@ -21,6 +21,6 @@ COPY --from=builder /app/publish .
 
 # 指定运行时环境变量
 ENV GIN_MODE=release
-EXPOSE 3000
+EXPOSE 5001
 
 ENTRYPOINT ["./main"]
