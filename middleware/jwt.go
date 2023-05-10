@@ -28,7 +28,7 @@ func AuthMiddleware() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		nAtoken, nRtoken, err := util.ParseRefreshToken(accessToken, refreshToken)
+		newAccessToken, newRefreshToken, err := util.ParseRefreshToken(accessToken, refreshToken)
 		if err != nil {
 			code = e.ErrorAuthCheckTokenFail
 		}
@@ -37,11 +37,12 @@ func AuthMiddleware() gin.HandlerFunc {
 				"status": code,
 				"msg":    e.GetMsg(code),
 				"data":   "鉴权失败",
+				"error":  err.Error(),
 			})
 			c.Abort()
 			return
 		}
-		claims, err := util.ParseToken(accessToken)
+		claims, err := util.ParseToken(newAccessToken)
 		if err != nil {
 			code = e.ErrorAuthCheckTokenFail
 			c.JSON(http.StatusInternalServerError, gin.H{
@@ -52,7 +53,7 @@ func AuthMiddleware() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		SetToken(c, nAtoken, nRtoken)
+		SetToken(c, newAccessToken, newRefreshToken)
 		c.Request = c.Request.WithContext(ctl.NewContext(c.Request.Context(), &ctl.UserInfo{Id: claims.ID}))
 		ctl.InitUserInfo(c.Request.Context())
 		c.Next()
