@@ -8,6 +8,7 @@ import (
 	"mall/pkg/utils/track"
 	"mall/repository/cache"
 	"mall/repository/db/dao"
+	"mall/repository/es"
 	"mall/repository/kafka"
 )
 
@@ -17,7 +18,7 @@ func Loading() {
 	dao.InitMySQL()
 	cache.InitCache()
 	// rabbitmq.InitRabbitMQ() // 如果需要接入RabbitMQ可以打开这个注释
-	// es.InitEs() // 如果需要接入ELK可以打开这个注释
+	es.InitEs() // 如果需要接入ELK可以打开这个注释
 	kafka.InitKafka()
 	track.InitJaeger()
 	util.InitLog() // 如果接入ELK请进入这个func打开注释
