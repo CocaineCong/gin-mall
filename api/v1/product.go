@@ -47,13 +47,6 @@ func ListProductsHandler() gin.HandlerFunc {
 			if req.PageSize == 0 {
 				req.PageSize = consts.BaseProductPageSize
 			}
-			// TODO 考虑把track id放到response中，success的resp没封装好
-			// spanCtxInterface, _ := ctx.Get(middleware.SpanCTX)
-			// var spanCtx context.Context
-			// spanCtx = spanCtxInterface.(context.Context)
-			// 创建子span
-			// span, _ := track.WithSpan(spanCtx, "JaegerTest")
-			// carrier, _ := track.GetCarrier(span)
 			l := service.GetProductSrv()
 			resp, err := l.ProductList(ctx.Request.Context(), &req)
 			if err != nil {

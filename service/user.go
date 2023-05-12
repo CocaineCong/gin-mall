@@ -208,7 +208,7 @@ func (s *UserSrv) Valid(ctx context.Context, req *types.ValidEmailServiceReq) (r
 	var operationType uint
 	// 验证token
 	if req.Token == "" {
-		err = errors.New("Token不存在")
+		err = errors.New("token不存在")
 		log.LogrusObj.Error(err)
 		return
 	}
@@ -252,6 +252,31 @@ func (s *UserSrv) Valid(ctx context.Context, req *types.ValidEmailServiceReq) (r
 		return
 	}
 
+	resp = &types.UserInfoResp{
+		ID:       user.ID,
+		UserName: user.UserName,
+		NickName: user.NickName,
+		Email:    user.Email,
+		Status:   user.Status,
+		Avatar:   user.AvatarURL(),
+		CreateAt: user.CreatedAt.Unix(),
+	}
+
+	return
+}
+
+// UserInfoShow 用户信息展示
+func (s *UserSrv) UserInfoShow(ctx context.Context, req *types.UserInfoShowReq) (resp interface{}, err error) {
+	u, err := ctl.GetUserInfo(ctx)
+	if err != nil {
+		log.LogrusObj.Error(err)
+		return
+	}
+	user, err := dao.NewUserDao(ctx).GetUserById(u.Id)
+	if err != nil {
+		log.LogrusObj.Error(err)
+		return
+	}
 	resp = &types.UserInfoResp{
 		ID:       user.ID,
 		UserName: user.UserName,

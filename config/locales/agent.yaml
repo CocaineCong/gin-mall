@@ -1,0 +1,14 @@
+agent:
+  # Service name is showed in UI.
+  service_name: ${SW_AGENT_NAME:mall}
+  # To obtain the environment variable key for the instance name, if it cannot be obtained, an instance name will be automatically generated.
+  instance_env_name: SW_AGENT_INSTANCE_NAME
+  # Sampling rate of tracing data, which is a floating-point value that must be between 0 and 1.
+  sampler: ${SW_AGENT_SAMPLE:1}
+
+reporter:
+  grpc:
+    # The gRPC server address of the backend service.
+    backend_service: ${SW_AGENT_REPORTER_GRPC_BACKEND_SERVICE:127.0.0.1:11800}
+    # The maximum count of segment for reporting tracing data.
+    max_send_queue: ${SW_AGENT_REPORTER_GRPC_MAX_SEND_QUEUE:5000}

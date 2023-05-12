@@ -1,5 +1,9 @@
 version: '3.7'
 
+networks:
+    mall:
+        driver: bridge
+
 services:
   mysql:
     container_name: mysql
@@ -40,22 +44,84 @@ services:
       - "5601:5601"
 
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.1.0
-    container_name: es
-    environment:
-      - cluster.name=fanone
-      - node.name=es
-      - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms64m -Xmx251m"
-      - discovery.seed_hosts=es
-      - cluster.initial_master_nodes=es
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    volumes:
-      - /usr/local/elasticsearch/data:/usr/local/elasticsearch/data
-      - /usr/local/elasticsearch/config/es/config:/usr/local/elasticsearch/config
-    ports:
-      - "9200:9200"
-    restart: always
+      image: elasticsearch:8.4.2
+      container_name: elasticsearch
+      environment:
+          # cluster.name: fanone
+          # node.name: es
+          bootstrap.memory_lock: true
+          ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+          # discovery.seed_hosts: es
+          discovery.type: single-node
+          # cluster.initial_master_nodes: es
+          ingest.geoip.downloader.enabled: false
+          TZ: Asia/Shanghai
+          xpack.security.enabled: false
+      healthcheck:
+          test: ["CMD-SHELL", "curl -sf http://localhost:9200/_cluster/health || exit 1"] #⼼跳检测，成功之后不再执⾏后⾯的退出
+          interval: 60s #⼼跳检测间隔周期
+          timeout: 10s
+          retries: 3
+          start_period: 60s #⾸次检测延迟时间
+      ulimits:
+          memlock:
+              soft: -1
+              hard: -1
+      volumes:
+          - /usr/local/elasticsearch/data:/usr/local/elasticsearch/data
+          - /usr/local/elasticsearch/config/es/config:/usr/local/elasticsearch/config
+      ports:
+          - "9200:9200"
+      restart: always
+      networks:
+          - mall
+
+  skywalking-oap:
+      image: apache/skywalking-oap-server:9.3.0
+      container_name: skywalking-oap
+      depends_on:
+          elasticsearch:
+              condition: service_healthy
+      links:
+          - elasticsearch
+      environment:
+          SW_HEALTH_CHECKER: default
+          SW_STORAGE: elasticsearch
+          SW_STORAGE_ES_CLUSTER_NODES: elasticsearch:9200
+          JAVA_OPTS: "-Xms2048m -Xmx2048m"
+          TZ: Asia/Shanghai
+          SW_TELEMETRY: prometheus
+      healthcheck:
+          test: ["CMD-SHELL", "/skywalking/bin/swctl ch"]
+          interval: 30s
+          timeout: 10s
+          retries: 3
+          start_period: 10s
+      restart: on-failure
+      ports:
+          - "11800:11800"
+          - "12800:12800"
+      networks:
+          - mall
+
+  skywalking-ui:
+      image: apache/skywalking-ui:9.3.0
+      depends_on:
+          skywalking-oap:
+              condition: service_healthy
+      links:
+          - skywalking-oap
+      ports:
+          - "8080:8080"
+      environment:
+          SW_OAP_ADDRESS: http://skywalking-oap:12800
+          SW_HEALTH_CHECKER: default
+          TZ: Asia/Shanghai
+      healthcheck:
+          test: ["CMD-SHELL", "curl -sf http://localhost:8080 || exit 1"] #⼼跳检测，成功之后不再执⾏后⾯的退出
+          interval: 60s #⼼跳检测间隔周期
+          timeout: 10s
+          retries: 3
+          start_period: 60s #⾸次检测延迟时间
+      networks:
+          - mall
