@@ -23,3 +23,6 @@ static/imgs/product
 
 # config
 config/locales/config.yaml
+
+# macOS
+.DS_Store
