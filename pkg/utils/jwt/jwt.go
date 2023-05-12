@@ -1,6 +1,7 @@
 package jwt
 
 import (
+	"errors"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -61,22 +62,28 @@ func ParseToken(token string) (*Claims, error) {
 
 // ParseRefreshToken 验证用户token
 func ParseRefreshToken(aToken, rToken string) (newAToken, newRToken string, err error) {
-	_, err = jwt.Parse(rToken, func(token *jwt.Token) (interface{}, error) {
-		return "", err
-	})
-
-	var claims Claims
-	_, err = jwt.ParseWithClaims(aToken, &claims, func(token *jwt.Token) (interface{}, error) {
-		return "", err
-	})
-
-	v, _ := err.(*jwt.ValidationError)
-
-	if v.Errors == jwt.ValidationErrorExpired {
-		return GenerateToken(claims.ID, claims.Username)
+	accessClaim, err := ParseToken(aToken)
+	if err != nil {
+		return
 	}
 
-	return
+	refreshClaim, err := ParseToken(rToken)
+	if err != nil {
+		return
+	}
+
+	if accessClaim.ExpiresAt > time.Now().Unix() {
+		// 如果 access_token 没过期,每一次请求都刷新 refresh_token 和 access_token
+		return GenerateToken(accessClaim.ID, accessClaim.Username)
+	}
+
+	if refreshClaim.ExpiresAt > time.Now().Unix() {
+		// 如果 access_token 过期了,但是 refresh_token 没过期, 刷新 refresh_token 和 access_token
+		return GenerateToken(accessClaim.ID, accessClaim.Username)
+	}
+
+	// 如果两者都过期了,重新登陆
+	return "", "", errors.New("身份过期，重新登陆")
 }
 
 // EmailClaims

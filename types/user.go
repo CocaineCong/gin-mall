@@ -29,6 +29,9 @@ type UserInfoUpdateReq struct {
 	NickName string `form:"nick_name" json:"nick_name"`
 }
 
+type UserInfoShowReq struct {
+}
+
 type SendEmailServiceReq struct {
 	Email    string `form:"email" json:"email"`
 	Password string `form:"password" json:"password"`

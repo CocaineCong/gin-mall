@@ -78,6 +78,27 @@ func UserUpdateHandler() gin.HandlerFunc {
 	}
 }
 
+func ShowUserInfoHandler() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		var req types.UserInfoShowReq
+
+		if err := ctx.ShouldBind(&req); err == nil {
+			// 参数校验
+			l := service.GetUserSrv()
+			resp, err := l.UserInfoShow(ctx.Request.Context(), &req)
+			if err != nil {
+				log.LogrusObj.Infoln(err)
+				ctx.JSON(http.StatusInternalServerError, ErrorResponse(ctx, err))
+				return
+			}
+			ctx.JSON(http.StatusOK, ctl.RespSuccess(ctx, resp))
+		} else {
+			log.LogrusObj.Infoln(err)
+			ctx.JSON(http.StatusBadRequest, ErrorResponse(ctx, err))
+		}
+	}
+}
+
 func UploadAvatarHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var req types.UserServiceReq
