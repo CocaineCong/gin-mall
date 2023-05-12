@@ -5,6 +5,8 @@ import (
 
 	conf "mall/config"
 	"mall/routes"
+
+	_ "github.com/apache/skywalking-go"
 )
 
 func main() {
