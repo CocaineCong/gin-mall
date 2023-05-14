@@ -50,7 +50,9 @@ make env-down       # 停止并删除环境
 make docker-up      # 以容器方式拉起项目
 make docker-down    # 停止并删除容器
 ```
-对于第一次运行本项目，我们需要执行如下命令
+对于第一次运行本项目，可以按如下顺序执行
+1. 在Makefile中的前几行修改`ARCH`和`OS`以对应自己的电脑系统，在注释中提供了可选项
+2. 运行如下代码
 ```bash
 make env-up tools build # 拉起项目环境、编译Agent、构建项目二进制文件
 ./main                  # 运行项目
