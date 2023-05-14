@@ -14,7 +14,7 @@ type ProductSearchReq struct {
 
 type ProductCreateReq struct {
 	ID            uint   `form:"id" json:"id"`
-	Name          string `fom:"name" json:"name"`
+	Name          string `form:"name" json:"name"`
 	CategoryID    uint   `form:"category_id" json:"category_id"`
 	Title         string `form:"title" json:"title" `
 	Info          string `form:"info" json:"info" `
