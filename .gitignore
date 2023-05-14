@@ -24,5 +24,8 @@ static/imgs/product
 # config
 config/locales/config.yaml
 
+# tools
+/tools
+
 # macOS
 .DS_Store
