@@ -1,0 +1,5 @@
+package dao
+
+func migrate() {
+
+}
