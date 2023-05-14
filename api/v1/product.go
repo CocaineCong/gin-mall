@@ -21,7 +21,7 @@ func CreateProductHandler() gin.HandlerFunc {
 		if err := ctx.ShouldBind(&req); err == nil {
 			// 参数校验
 			form, _ := ctx.MultipartForm()
-			files := form.File["file"]
+			files := form.File["image"]
 			l := service.GetProductSrv()
 			resp, err := l.ProductCreate(ctx.Request.Context(), files, &req)
 			if err != nil {

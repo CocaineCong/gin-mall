@@ -32,6 +32,14 @@ type UserInfoUpdateReq struct {
 type UserInfoShowReq struct {
 }
 
+type UserFollowingReq struct {
+	Id uint `json:"id" form:"id"`
+}
+
+type UserUnFollowingReq struct {
+	Id uint `json:"id" form:"id"`
+}
+
 type SendEmailServiceReq struct {
 	Email    string `form:"email" json:"email"`
 	Password string `form:"password" json:"password"`
