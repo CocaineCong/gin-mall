@@ -5,6 +5,7 @@ import (
 
 	"gorm.io/gorm"
 
+	"mall/pkg/utils/log"
 	"mall/repository/db/model"
 )
 
@@ -18,6 +19,64 @@ func NewUserDao(ctx context.Context) *UserDao {
 
 func NewUserDaoByDB(db *gorm.DB) *UserDao {
 	return &UserDao{db}
+}
+
+// FollowUser userId 关注了 followerId
+func (dao *UserDao) FollowUser(uId, followerId uint) (err error) {
+	u, f := new(model.User), new(model.User)
+	dao.DB.Model(&model.User{}).Where(`id = ?`, uId).First(&u)
+	dao.DB.Model(&model.User{}).Where(`id = ?`, followerId).First(&f)
+	err = dao.DB.Model(&f).Association(`Relations`).
+		Append([]model.User{*u})
+	if err != nil {
+		log.LogrusObj.Error(err)
+		return err
+	}
+
+	return
+}
+
+// UnFollowUser 不再关注
+func (dao *UserDao) UnFollowUser(uId, followerId uint) (err error) {
+	u, f := new(model.User), new(model.User)
+	dao.DB.Model(&model.User{}).Where(`id = ?`, uId).First(&u)
+	dao.DB.Model(&model.User{}).Where(`id = ?`, followerId).First(&f)
+	err = dao.DB.Model(&u).Association(`Relations`).Delete(f)
+	if err != nil {
+		log.LogrusObj.Error(err)
+		return
+	}
+	return
+}
+
+// ListFollowing 展示关注的人 我关注的人
+func (dao *UserDao) ListFollowing(userId uint) (f []*model.User, err error) {
+	u := new(model.User)
+	f = make([]*model.User, 0)
+	dao.DB.Model(&model.User{}).Where(`id = ?`, userId).First(&u)
+	err = dao.DB.Model(&u).Association(`Relations`).
+		Find(&f)
+	if err != nil {
+		log.LogrusObj.Error(err)
+		return
+	}
+
+	return
+}
+
+// ListFollower 展示关注者，粉丝，关注我的人
+func (dao *UserDao) ListFollower(userId int64) (f []*model.User, err error) {
+	u := new(model.User)
+	f = make([]*model.User, 0)
+	dao.DB.Model(&model.User{}).Where(`id = ?`, userId).First(&u)
+	err = dao.DB.Model(&f).Association(`Relations`).
+		Find(&u)
+	if err != nil {
+		log.LogrusObj.Error(err)
+		return
+	}
+
+	return
 }
 
 // GetUserById 根据 id 获取用户

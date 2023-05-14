@@ -1,8 +1,6 @@
 package middleware
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 
 	"mall/consts"
@@ -20,7 +18,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		refreshToken := c.GetHeader("refresh_token")
 		if accessToken == "" {
 			code = e.InvalidParams
-			c.JSON(http.StatusBadRequest, gin.H{
+			c.JSON(200, gin.H{
 				"status": code,
 				"msg":    e.GetMsg(code),
 				"data":   "Token不能为空",
@@ -33,7 +31,7 @@ func AuthMiddleware() gin.HandlerFunc {
 			code = e.ErrorAuthCheckTokenFail
 		}
 		if code != e.SUCCESS {
-			c.JSON(http.StatusInternalServerError, gin.H{
+			c.JSON(200, gin.H{
 				"status": code,
 				"msg":    e.GetMsg(code),
 				"data":   "鉴权失败",
@@ -45,7 +43,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		claims, err := util.ParseToken(newAccessToken)
 		if err != nil {
 			code = e.ErrorAuthCheckTokenFail
-			c.JSON(http.StatusInternalServerError, gin.H{
+			c.JSON(200, gin.H{
 				"status": code,
 				"msg":    e.GetMsg(code),
 				"data":   err.Error(),
