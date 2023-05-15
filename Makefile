@@ -2,17 +2,36 @@
 # For windows, can use 'systeminfo | findstr /C:"System Type"' to get ARCH
 # Or easily, just use 'amd64' for windows
 
-ARCH = arm64 # amd64 arm64
+# amd64 arm64
+ARCH = arm64
+
+# linux darwin windows
+OS = darwin
+
 DIR := $(shell pwd)
 OUTPUT = main
 
-AGENT_PATH = $(DIR)/tools/skywalking-go-agent--darwin-arm64
+BINARY = skywalking-go-agent
+TOOLS_PATH = $(DIR)/tools
+AGENT_SOURCE_PATH = $(DIR)/skywalking-go/tools/go-agent
+AGENT_PATH = $(TOOLS_PATH)/$(BINARY)-$(VERSION)-$(OS)-$(ARCH)
 AGENT_CONFIG = $(DIR)/config/locales/agent.yaml
 
 CONTAINER_NAME = gin_mall_server
 IMAGE_NAME = gin_mall:3.0
 
-.PHONY: run		# 构建同时运行
+GO = go
+GO_BUILD = $(GO) build
+GO_BUILD_FLAGS = -v
+GO_BUILD_LDFLAGS = -X main.version=$(VERSION)
+
+.PHONY: tools
+tools:
+	cd $(AGENT_SOURCE_PATH) && make deps
+	cd $(AGENT_SOURCE_PATH) && \
+	GOOS=$(OS) GOARCH=$(ARCH) $(GO_BUILD) $(GO_BUILD_FLAGS) -ldflags "$(GO_BUILD_LDFLAGS)" -o $(TOOLS_PATH)/$(BINARY)-$(VERSION)-$(OS)-$(ARCH) ./cmd
+
+.PHONY: run			# 构建同时运行
 test:
 	@make build
 	@./$(OUTPUT)
@@ -20,7 +39,7 @@ test:
 .PHONY: build		# 构建项目
 build:
 	@echo "build project to ./$(OUTPUT)"
-	go build \
+	$(GO_BUILD) \
 	-toolexec="$(AGENT_PATH) -config $(AGENT_CONFIG)" \
 	-a -o ./$(OUTPUT) ./cmd
 
