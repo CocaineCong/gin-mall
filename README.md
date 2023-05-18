@@ -26,7 +26,7 @@
 普通运行
 ```go
 cd ./cmd
-go run main.go loading.go
+go run main.go
 ```
 以二进制文件运行
 ```go

@@ -7,7 +7,7 @@ import (
 	"github.com/redis/go-redis/v9"
 	logging "github.com/sirupsen/logrus"
 
-	conf "mall/config"
+	conf "github.com/CocaineCong/gin-mall/config"
 )
 
 // RedisClient Redis缓存客户端单例

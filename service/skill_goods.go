@@ -16,13 +16,13 @@ import (
 	xlsx "github.com/360EntSecGroup-Skylar/excelize"
 	"github.com/streadway/amqp"
 
-	"mall/pkg/utils/ctl"
-	util "mall/pkg/utils/log"
-	"mall/repository/cache"
-	"mall/repository/db/dao"
-	"mall/repository/db/model"
-	"mall/repository/rabbitmq"
-	"mall/types"
+	"github.com/CocaineCong/gin-mall/pkg/utils/ctl"
+	util "github.com/CocaineCong/gin-mall/pkg/utils/log"
+	"github.com/CocaineCong/gin-mall/repository/cache"
+	"github.com/CocaineCong/gin-mall/repository/db/dao"
+	"github.com/CocaineCong/gin-mall/repository/db/model"
+	"github.com/CocaineCong/gin-mall/repository/rabbitmq"
+	"github.com/CocaineCong/gin-mall/types"
 )
 
 var SkillProductSrvIns *SkillProductSrv

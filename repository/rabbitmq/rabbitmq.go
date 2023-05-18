@@ -5,7 +5,7 @@ import (
 
 	"github.com/streadway/amqp"
 
-	conf "mall/config"
+	conf "github.com/CocaineCong/gin-mall/config"
 )
 
 // RabbitMQ rabbitMQ链接单例

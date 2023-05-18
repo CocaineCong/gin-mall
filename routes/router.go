@@ -7,8 +7,8 @@ import (
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 
-	api "mall/api/v1"
-	"mall/middleware"
+	api "github.com/CocaineCong/gin-mall/api/v1"
+	"github.com/CocaineCong/gin-mall/middleware"
 )
 
 // NewRouter 路由配置

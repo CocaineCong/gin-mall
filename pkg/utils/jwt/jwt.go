@@ -6,7 +6,7 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 
-	"mall/consts"
+	"github.com/CocaineCong/gin-mall/consts"
 )
 
 var jwtSecret = []byte("FanOne")
