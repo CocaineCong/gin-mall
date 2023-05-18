@@ -6,14 +6,14 @@ import (
 	"strconv"
 	"sync"
 
-	conf "mall/config"
-	"mall/consts"
-	"mall/pkg/utils/ctl"
-	"mall/pkg/utils/log"
-	util "mall/pkg/utils/upload"
-	"mall/repository/db/dao"
-	"mall/repository/db/model"
-	"mall/types"
+	conf "github.com/CocaineCong/gin-mall/config"
+	"github.com/CocaineCong/gin-mall/consts"
+	"github.com/CocaineCong/gin-mall/pkg/utils/ctl"
+	"github.com/CocaineCong/gin-mall/pkg/utils/log"
+	util "github.com/CocaineCong/gin-mall/pkg/utils/upload"
+	"github.com/CocaineCong/gin-mall/repository/db/dao"
+	"github.com/CocaineCong/gin-mall/repository/db/model"
+	"github.com/CocaineCong/gin-mall/types"
 )
 
 var ProductSrvIns *ProductSrv

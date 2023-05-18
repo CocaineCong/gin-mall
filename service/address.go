@@ -4,11 +4,11 @@ import (
 	"context"
 	"sync"
 
-	"mall/pkg/utils/ctl"
-	util "mall/pkg/utils/log"
-	"mall/repository/db/dao"
-	"mall/repository/db/model"
-	"mall/types"
+	"github.com/CocaineCong/gin-mall/pkg/utils/ctl"
+	util "github.com/CocaineCong/gin-mall/pkg/utils/log"
+	"github.com/CocaineCong/gin-mall/repository/db/dao"
+	"github.com/CocaineCong/gin-mall/repository/db/model"
+	"github.com/CocaineCong/gin-mall/types"
 )
 
 var AddressSrvIns *AddressSrv

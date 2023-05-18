@@ -7,7 +7,7 @@ import (
 	"github.com/qiniu/go-sdk/v7/auth/qbox"
 	"github.com/qiniu/go-sdk/v7/storage"
 
-	conf "mall/config"
+	conf "github.com/CocaineCong/gin-mall/config"
 )
 
 // UploadToQiNiu 封装上传图片到七牛云然后返回状态和图片的url，单张

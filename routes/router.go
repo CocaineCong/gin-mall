@@ -7,8 +7,8 @@ import (
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 
-	api "mall/api/v1"
-	"mall/middleware"
+	api "github.com/CocaineCong/gin-mall/api/v1"
+	"github.com/CocaineCong/gin-mall/middleware"
 )
 
 // NewRouter 路由配置
@@ -33,9 +33,9 @@ func NewRouter() *gin.Engine {
 		v1.GET("product/list", api.ListProductsHandler())
 		v1.GET("product/show", api.ShowProductHandler())
 		v1.POST("product/search", api.SearchProductsHandler())
-		v1.GET("imgs/list", api.ListProductImgHandler())   // 商品图片
-		v1.GET("category/list", api.ListCategoryHandler()) // 商品分类
-		v1.GET("carousels", api.ListCarouselsHandler())    // 轮播图
+		v1.GET("product/imgs/list", api.ListProductImgHandler()) // 商品图片
+		v1.GET("category/list", api.ListCategoryHandler())       // 商品分类
+		v1.GET("carousels", api.ListCarouselsHandler())          // 轮播图
 
 		authed := v1.Group("/") // 需要登陆保护
 		authed.Use(middleware.AuthMiddleware())

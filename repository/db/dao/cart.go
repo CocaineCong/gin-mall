@@ -5,9 +5,9 @@ import (
 
 	"gorm.io/gorm"
 
-	"mall/pkg/e"
-	"mall/repository/db/model"
-	"mall/types"
+	"github.com/CocaineCong/gin-mall/pkg/e"
+	"github.com/CocaineCong/gin-mall/repository/db/model"
+	"github.com/CocaineCong/gin-mall/types"
 )
 
 type CartDao struct {

@@ -7,8 +7,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"mall/consts"
-	"mall/pkg/e"
+	"github.com/CocaineCong/gin-mall/consts"
+	"github.com/CocaineCong/gin-mall/pkg/e"
 )
 
 // Response 基础序列化器

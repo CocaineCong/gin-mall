@@ -5,7 +5,7 @@ import (
 
 	"gorm.io/gorm"
 
-	"mall/repository/db/model"
+	"github.com/CocaineCong/gin-mall/repository/db/model"
 )
 
 type CategoryDao struct {

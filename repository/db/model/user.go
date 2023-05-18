@@ -4,8 +4,8 @@ import (
 	"github.com/jinzhu/gorm"
 	"golang.org/x/crypto/bcrypt"
 
-	conf "mall/config"
-	"mall/consts"
+	conf "github.com/CocaineCong/gin-mall/config"
+	"github.com/CocaineCong/gin-mall/consts"
 )
 
 // User 用户模型
