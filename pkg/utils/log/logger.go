@@ -2,10 +2,11 @@ package log
 
 import (
 	"log"
-	"mall/repository/es"
 	"os"
 	"path"
 	"time"
+
+	"github.com/CocaineCong/gin-mall/repository/es"
 
 	"github.com/sirupsen/logrus"
 )

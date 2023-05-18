@@ -8,7 +8,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"gopkg.in/sohlich/elogrus.v7"
 
-	conf "mall/config"
+	conf "github.com/CocaineCong/gin-mall/config"
 )
 
 var EsClient *elastic.Client

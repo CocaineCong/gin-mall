@@ -11,7 +11,7 @@ mysql:
     dialect: "mysql"
     dbHost: "127.0.0.1"
     dbPort: "3306"
-    dbName: "mall"
+    dbName: "mall_db"
     userName: "root"
     password: "root"
     charset: "utf8mb4"

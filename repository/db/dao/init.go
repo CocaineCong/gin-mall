@@ -12,7 +12,7 @@ import (
 	"gorm.io/gorm/schema"
 	"gorm.io/plugin/dbresolver"
 
-	conf "mall/config"
+	conf "github.com/CocaineCong/gin-mall/config"
 )
 
 var (
@@ -60,6 +60,7 @@ func InitMySQL() {
 		}))
 
 	_db = _db.Set("gorm:table_options", "charset=utf8mb4")
+	migrate()
 }
 
 func NewDBClient(ctx context.Context) *gorm.DB {

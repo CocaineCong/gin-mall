@@ -5,8 +5,8 @@ import (
 
 	"gorm.io/gorm"
 
-	"mall/repository/db/model"
-	"mall/types"
+	"github.com/CocaineCong/gin-mall/repository/db/model"
+	"github.com/CocaineCong/gin-mall/types"
 )
 
 type ProductDao struct {
