@@ -89,7 +89,7 @@ make env-up tools build # 拉起项目环境、编译Agent、构建项目二进�
 - [x] 优化日志输出，统一用日志对象 
 - [x] 考虑 cmd 和 loading 这两个文件夹是否合并
 - [x] 加入 Jaeger 进行链路追踪
-- [ ] 加入 Prometheus 监控中间件
+- [x] 加入 Skywalking 监控中间件
 - [ ] 优化ToC应用的 SQL JOIN 语句
 - [ ] MySQL到ES的数据同步，将搜索改成查找ES（注意一下，这里最好引入kafka，mysql推到kafka，kafka再推到es，确保一下ack）
 
@@ -134,8 +134,11 @@ gin-mall
 ```
 
 # 配置文件
-`config/locales/config.yaml` 文件配置
-如果还没接触相关应用，可以在`cmd/loading.go`文件中进行注释
+
+`config/locales/config.yaml` 文件配置,配置文件可以将`config.yaml.example`重命名为`config.yaml`。
+
+如果还没接触相关应用，可以在`cmd/main.go`文件中进行注释
+
 ```yaml
 #debug开发模式,release生产模式
 system:
@@ -216,7 +219,7 @@ rabbitMq:
 ```
 
 ## 简要说明
-1. `mysql` 是存储主要数据。
+1. `mysql` 是存储主要的数据。
 2. `redis` 用来存储商品的浏览次数。
 3. 由于使用的是AES对称加密算法，这个算法并不保存在数据库或是文件中，是第一次登录的时候需要给的值，因为第一次登录系统会送1w作为初始金额进行购物，所以对其的加密，后续支付必须要再次输入，否则无法进行购物。
 4. 本项目运用了gorm的读写分离，所以要保证mysql的数据一致性。
