@@ -89,7 +89,7 @@ make env-up tools build # 拉起项目环境、编译Agent、构建项目二进�
 - [x] 优化日志输出，统一用日志对象 
 - [x] 考虑 cmd 和 loading 这两个文件夹是否合并
 - [x] 加入 Jaeger 进行链路追踪
-- [ ] 加入 Prometheus 监控中间件
+- [x] 加入 Skywalking 监控中间件
 - [ ] 优化ToC应用的 SQL JOIN 语句
 - [ ] MySQL到ES的数据同步，将搜索改成查找ES（注意一下，这里最好引入kafka，mysql推到kafka，kafka再推到es，确保一下ack）
 
@@ -134,8 +134,11 @@ gin-mall
 ```
 
 # 配置文件
-`config/locales/config.yaml` 文件配置
-如果还没接触相关应用，可以在`cmd/loading.go`文件中进行注释
+
+`config/locales/config.yaml` 文件配置,配置文件可以将`config.yaml.example`重命名为`config.yaml`。
+
+如果还没接触相关应用，可以在`cmd/main.go`文件中进行注释
+
 ```yaml
 #debug开发模式,release生产模式
 system:
