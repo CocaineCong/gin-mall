@@ -37,7 +37,7 @@ func CreateProductHandler() gin.HandlerFunc {
 	}
 }
 
-// ListProducts 商品列表
+// ListProductsHandler 商品列表
 func ListProductsHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var req types.ProductListReq
