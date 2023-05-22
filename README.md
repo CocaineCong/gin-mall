@@ -18,9 +18,16 @@
 
 由于整合上传oss和上传到本地，需要在 conf 中进行配置 `UploadModel` 字段，上传到 oss 则配置 oss，上传本地则配置 local
 
-其中我个人用到的测试sql数据都放在了`doc/mall_sql`文件当中
+其中我个人用到的测试sql数据都放在了`config/sql/`文件当中
 
-# 项目运行
+# 前端 (coding)🧑🏻‍💻
+
+项目前端地址：[react-mall](https://github.com/CocaineCong/react-mall)
+
+前端采用`react+antd+axios+redux`,还在coding,功能还不完善,也希望有意向的同学可以一起完善
+
+
+# 项目运行✨
 本项目采用GOMODULE管理依赖，同时接入 [skywalking-go](https://github.com/apache/skywalking-go)
 ## 手动运行
 普通运行
