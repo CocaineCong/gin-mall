@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/olivere/elastic/v7"
+	"github.com/CocaineCong/eslogrus"
+	elastic "github.com/elastic/go-elasticsearch"
 	"github.com/sirupsen/logrus"
-	"gopkg.in/sohlich/elogrus.v7"
 
 	conf "github.com/CocaineCong/gin-mall/config"
 )
@@ -17,7 +17,10 @@ var EsClient *elastic.Client
 func InitEs() {
 	eConfig := conf.Config.Es
 	esConn := fmt.Sprintf("http://%s:%s", eConfig.EsHost, eConfig.EsPort)
-	client, err := elastic.NewClient(elastic.SetSniff(false), elastic.SetURL(esConn))
+	cfg := elastic.Config{
+		Addresses: []string{esConn},
+	}
+	client, err := elastic.NewClient(cfg)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -25,9 +28,9 @@ func InitEs() {
 }
 
 // EsHookLog 初始化log日志
-func EsHookLog() *elogrus.ElasticHook {
+func EsHookLog() *eslogrus.ElasticHook {
 	eConfig := conf.Config.Es
-	hook, err := elogrus.NewElasticHook(EsClient, eConfig.EsHost, logrus.DebugLevel, eConfig.EsIndex)
+	hook, err := eslogrus.NewElasticHook(EsClient, eConfig.EsHost, logrus.DebugLevel, eConfig.EsIndex)
 	if err != nil {
 		log.Panic(err)
 	}

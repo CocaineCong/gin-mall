@@ -47,13 +47,9 @@ services:
       image: elasticsearch:8.4.2
       container_name: elasticsearch
       environment:
-          # cluster.name: fanone
-          # node.name: es
           bootstrap.memory_lock: true
           ES_JAVA_OPTS: "-Xms512m -Xmx512m"
-          # discovery.seed_hosts: es
           discovery.type: single-node
-          # cluster.initial_master_nodes: es
           ingest.geoip.downloader.enabled: false
           TZ: Asia/Shanghai
           xpack.security.enabled: false
