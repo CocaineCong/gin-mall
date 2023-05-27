@@ -33,7 +33,7 @@ services:
       - "6379:6379"
 
   kibana:
-    image: docker.elastic.co/kibana/kibana:7.1.0
+    image: docker.elastic.co/kibana/kibana:8.4.2
     container_name: kibana
     environment:
       - I18N_LOCALE=zh-CN
@@ -47,12 +47,16 @@ services:
       image: elasticsearch:8.4.2
       container_name: elasticsearch
       environment:
-          bootstrap.memory_lock: true
+          # cluster.name: fanone
+          # node.name: es
+          bootstrap.memory_lock: "true"
           ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+          # discovery.seed_hosts: es
           discovery.type: single-node
-          ingest.geoip.downloader.enabled: false
+          # cluster.initial_master_nodes: es
+          ingest.geoip.downloader.enabled: "false"
           TZ: Asia/Shanghai
-          xpack.security.enabled: false
+          xpack.security.enabled: "false"
       healthcheck:
           test: ["CMD-SHELL", "curl -sf http://localhost:9200/_cluster/health || exit 1"] #⼼跳检测，成功之后不再执⾏后⾯的退出
           interval: 60s #⼼跳检测间隔周期

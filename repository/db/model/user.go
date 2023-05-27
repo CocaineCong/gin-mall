@@ -42,7 +42,7 @@ func (user *User) CheckPassword(password string) bool {
 	return err == nil
 }
 
-// AvatarUrl 头像地址
+// AvatarURL 头像地址
 func (user *User) AvatarURL() string {
 	if conf.Config.System.UploadModel == consts.UploadModelOss {
 		return user.Avatar

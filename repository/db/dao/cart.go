@@ -2,7 +2,6 @@ package dao
 
 import (
 	"context"
-
 	"gorm.io/gorm"
 
 	"github.com/CocaineCong/gin-mall/pkg/e"
@@ -41,7 +40,8 @@ func (dao *CartDao) CreateCart(pId, uId, bId uint) (cart *model.Cart, status int
 			return
 		}
 		return cart, e.SUCCESS, err
-	} else if cart.Num < cart.MaxNum {
+	}
+	if cart.Num < cart.MaxNum {
 		// 小于最大 num
 		cart.Num++
 		err = dao.DB.Save(&cart).Error
@@ -49,10 +49,9 @@ func (dao *CartDao) CreateCart(pId, uId, bId uint) (cart *model.Cart, status int
 			return
 		}
 		return cart, e.ErrorProductExistCart, err
-	} else {
-		// 大于最大num
-		return cart, e.ErrorProductMoreCart, err
 	}
+	// 大于最大num
+	return cart, e.ErrorProductMoreCart, err
 }
 
 // GetCartById 获取Cart通过Id
