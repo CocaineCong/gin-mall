@@ -12,8 +12,8 @@ mysql:
     dbHost: "127.0.0.1"
     dbPort: "3306"
     dbName: "mall_db"
-    userName: "root"
-    password: "root"
+    userName: "mall"
+    password: "123456"
     charset: "utf8mb4"
 
 kafka:

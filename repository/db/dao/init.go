@@ -60,7 +60,11 @@ func InitMySQL() {
 		}))
 
 	_db = _db.Set("gorm:table_options", "charset=utf8mb4")
-	migrate()
+	err = migrate()
+	if err != nil {
+		panic(err)
+	}
+	return
 }
 
 func NewDBClient(ctx context.Context) *gorm.DB {
