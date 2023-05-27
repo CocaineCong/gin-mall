@@ -49,14 +49,14 @@ services:
       environment:
           # cluster.name: fanone
           # node.name: es
-          bootstrap.memory_lock: true
+          bootstrap.memory_lock: "true"
           ES_JAVA_OPTS: "-Xms512m -Xmx512m"
           # discovery.seed_hosts: es
           discovery.type: single-node
           # cluster.initial_master_nodes: es
-          ingest.geoip.downloader.enabled: false
+          ingest.geoip.downloader.enabled: "false"
           TZ: Asia/Shanghai
-          xpack.security.enabled: false
+          xpack.security.enabled: "false"
       healthcheck:
           test: ["CMD-SHELL", "curl -sf http://localhost:9200/_cluster/health || exit 1"] #⼼跳检测，成功之后不再执⾏后⾯的退出
           interval: 60s #⼼跳检测间隔周期
