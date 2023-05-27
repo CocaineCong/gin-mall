@@ -33,7 +33,7 @@ services:
       - "6379:6379"
 
   kibana:
-    image: docker.elastic.co/kibana/kibana:7.1.0
+    image: docker.elastic.co/kibana/kibana:8.4.2
     container_name: kibana
     environment:
       - I18N_LOCALE=zh-CN
