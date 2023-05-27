@@ -47,7 +47,7 @@ go build -o ../main
 项目根目录内置了 Dockerfile、Makefile、docker-compose.yml 等文件
 目的是快速构建项目环境，简易化项目运行难度
 
-下面介绍 Makefile 中内置的几条指令，只需要在控制台**当前项目根目录下**输入对应指令即可自动运行
+下面介绍 Makefile 中内置的几条指令，可根据需要在控制台**当前项目根目录下**进行相应操作的执行
 ```bash
 make tools          # 构建Skywalking-Agent二进制文件
 make                # 构建二进制文件并自动运行
