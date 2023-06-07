@@ -15,7 +15,7 @@ import (
 // ProductUploadToLocalStatic 上传到本地文件中
 func ProductUploadToLocalStatic(file multipart.File, bossId uint, productName string) (filePath string, err error) {
 	bId := strconv.Itoa(int(bossId))
-	basePath := "." + conf.Config.PhotoPath.ProductPhotoPath + "boss" + bId + "/"
+	basePath := "." + conf.Config.PhotoPath.ProductPath + "boss" + bId + "/"
 	if !DirExistOrNot(basePath) {
 		CreateDir(basePath)
 	}

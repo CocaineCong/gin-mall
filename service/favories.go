@@ -41,7 +41,7 @@ func (s *FavoriteSrv) FavoriteList(ctx context.Context, req *types.FavoritesServ
 	}
 	for i := range favorites {
 		if conf.Config.System.UploadModel == consts.UploadModelLocal {
-			favorites[i].ImgPath = conf.Config.PhotoPath.PhotoHost + conf.Config.System.HttpPort + conf.Config.PhotoPath.ProductPhotoPath + favorites[i].ImgPath
+			favorites[i].ImgPath = conf.Config.PhotoPath.PhotoHost + conf.Config.System.HttpPort + conf.Config.PhotoPath.ProductPath + favorites[i].ImgPath
 		}
 	}
 
