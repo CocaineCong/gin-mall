@@ -55,7 +55,7 @@ func (s *ProductSrv) ProductShow(ctx context.Context, req *types.ProductShowReq)
 	}
 	if conf.Config.System.UploadModel == consts.UploadModelLocal {
 		pResp.BossAvatar = conf.Config.PhotoPath.PhotoHost + conf.Config.System.HttpPort + conf.Config.PhotoPath.AvatarPath + pResp.BossAvatar
-		pResp.ImgPath = conf.Config.PhotoPath.PhotoHost + conf.Config.System.HttpPort + conf.Config.PhotoPath.ProductPhotoPath + pResp.ImgPath
+		pResp.ImgPath = conf.Config.PhotoPath.PhotoHost + conf.Config.System.HttpPort + conf.Config.PhotoPath.ProductPath + pResp.ImgPath
 	}
 
 	resp = pResp
@@ -170,7 +170,7 @@ func (s *ProductSrv) ProductList(ctx context.Context, req *types.ProductListReq)
 		}
 		if conf.Config.System.UploadModel == consts.UploadModelLocal {
 			pResp.BossAvatar = conf.Config.PhotoPath.PhotoHost + conf.Config.System.HttpPort + conf.Config.PhotoPath.AvatarPath + pResp.BossAvatar
-			pResp.ImgPath = conf.Config.PhotoPath.PhotoHost + conf.Config.System.HttpPort + conf.Config.PhotoPath.ProductPhotoPath + pResp.ImgPath
+			pResp.ImgPath = conf.Config.PhotoPath.PhotoHost + conf.Config.System.HttpPort + conf.Config.PhotoPath.ProductPath + pResp.ImgPath
 		}
 		pRespList = append(pRespList, pResp)
 	}
@@ -244,7 +244,7 @@ func (s *ProductSrv) ProductSearch(ctx context.Context, req *types.ProductSearch
 		}
 		if conf.Config.System.UploadModel == consts.UploadModelLocal {
 			pResp.BossAvatar = conf.Config.PhotoPath.PhotoHost + conf.Config.System.HttpPort + conf.Config.PhotoPath.AvatarPath + pResp.BossAvatar
-			pResp.ImgPath = conf.Config.PhotoPath.PhotoHost + conf.Config.System.HttpPort + conf.Config.PhotoPath.ProductPhotoPath + pResp.ImgPath
+			pResp.ImgPath = conf.Config.PhotoPath.PhotoHost + conf.Config.System.HttpPort + conf.Config.PhotoPath.ProductPath + pResp.ImgPath
 		}
 		pRespList = append(pRespList, pResp)
 	}
@@ -262,7 +262,7 @@ func (s *ProductSrv) ProductImgList(ctx context.Context, req *types.ListProductI
 	productImgs, _ := dao.NewProductImgDao(ctx).ListProductImgByProductId(req.ID)
 	for i := range productImgs {
 		if conf.Config.System.UploadModel == consts.UploadModelLocal {
-			productImgs[i].ImgPath = conf.Config.PhotoPath.PhotoHost + conf.Config.System.HttpPort + conf.Config.PhotoPath.ProductPhotoPath + productImgs[i].ImgPath
+			productImgs[i].ImgPath = conf.Config.PhotoPath.PhotoHost + conf.Config.System.HttpPort + conf.Config.PhotoPath.ProductPath + productImgs[i].ImgPath
 		}
 	}
 

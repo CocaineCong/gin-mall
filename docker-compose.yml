@@ -34,7 +34,7 @@ services:
 
   jaeger:
     container_name: jaeger
-    image: jagertracing/all-in-one:1.26
+    image: jaegertracing/all-in-one:latest
     ports:
       - "16686:16686"
     restart: always
