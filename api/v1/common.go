@@ -25,5 +25,5 @@ func ErrorResponse(ctx *gin.Context, err error) *ctl.TrackedErrorResponse {
 		return ctl.RespError(ctx, err, "JSON类型不匹配")
 	}
 
-	return ctl.RespError(ctx, err, "参数错误", e.InvalidParams)
+	return ctl.RespError(ctx, err, err.Error(), e.InvalidParams)
 }

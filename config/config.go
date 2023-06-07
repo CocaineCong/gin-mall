@@ -94,9 +94,9 @@ type EncryptSecret struct {
 }
 
 type LocalPhotoPath struct {
-	PhotoHost        string `yaml:"photoHost"`
-	ProductPhotoPath string `yaml:"productPhotoPath"`
-	AvatarPath       string `yaml:"avatarPath"`
+	PhotoHost   string `yaml:"photoHost"`
+	ProductPath string `yaml:"productPath"`
+	AvatarPath  string `yaml:"avatarPath"`
 }
 
 type Cache struct {

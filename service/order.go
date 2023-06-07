@@ -94,7 +94,7 @@ func (s *OrderSrv) OrderList(ctx context.Context, req *types.OrderListReq) (resp
 	}
 	for i := range orders {
 		if conf.Config.System.UploadModel == consts.UploadModelLocal {
-			orders[i].ImgPath = conf.Config.PhotoPath.PhotoHost + conf.Config.System.HttpPort + conf.Config.PhotoPath.ProductPhotoPath + orders[i].ImgPath
+			orders[i].ImgPath = conf.Config.PhotoPath.PhotoHost + conf.Config.System.HttpPort + conf.Config.PhotoPath.ProductPath + orders[i].ImgPath
 		}
 	}
 
@@ -118,7 +118,7 @@ func (s *OrderSrv) OrderShow(ctx context.Context, req *types.OrderShowReq) (resp
 		return
 	}
 	if conf.Config.System.UploadModel == consts.UploadModelLocal {
-		order.ImgPath = conf.Config.PhotoPath.PhotoHost + conf.Config.System.HttpPort + conf.Config.PhotoPath.ProductPhotoPath + order.ImgPath
+		order.ImgPath = conf.Config.PhotoPath.PhotoHost + conf.Config.System.HttpPort + conf.Config.PhotoPath.ProductPath + order.ImgPath
 	}
 
 	resp = order
