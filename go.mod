@@ -31,6 +31,7 @@ require (
 
 require (
 	github.com/CocaineCong/eslogrus v1.0.1 // indirect
+	github.com/CocaineCong/secret v1.0.4 // indirect
 	github.com/HdrHistogram/hdrhistogram-go v1.1.2 // indirect
 	github.com/bytedance/sonic v1.8.0 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect

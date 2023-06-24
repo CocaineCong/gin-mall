@@ -86,11 +86,12 @@ type Redis struct {
 	RedisNetwork  string `yaml:"redisNetwork"`
 }
 
-// 加密的东西
+// EncryptSecret 加密的东西
 type EncryptSecret struct {
 	JwtSecret   string `yaml:"jwtSecret"`
 	EmailSecret string `yaml:"emailSecret"`
 	PhoneSecret string `yaml:"phoneSecret"`
+	MoneySecret string `yaml:"moneySecret"`
 }
 
 type LocalPhotoPath struct {
