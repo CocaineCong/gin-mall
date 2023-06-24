@@ -64,7 +64,6 @@ func InitMySQL() {
 	if err != nil {
 		panic(err)
 	}
-	return
 }
 
 func NewDBClient(ctx context.Context) *gorm.DB {

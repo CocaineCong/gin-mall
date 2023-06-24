@@ -26,5 +26,6 @@ func (dao *SkillGoodsDao) CreateByList(in []*model.SkillProduct) error {
 
 func (dao *SkillGoodsDao) ListSkillGoods() (resp []*model.SkillProduct, err error) {
 	err = dao.Model(&model.SkillProduct{}).Where("num > 0").Find(&resp).Error
+
 	return
 }

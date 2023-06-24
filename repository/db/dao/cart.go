@@ -2,6 +2,7 @@ package dao
 
 import (
 	"context"
+
 	"gorm.io/gorm"
 
 	"github.com/CocaineCong/gin-mall/pkg/e"
@@ -57,8 +58,10 @@ func (dao *CartDao) CreateCart(pId, uId, bId uint) (cart *model.Cart, status int
 // GetCartById 获取Cart通过Id
 func (dao *CartDao) GetCartById(pId, uId, bId uint) (cart *model.Cart, err error) {
 	err = dao.DB.Model(&model.Cart{}).
-		Where("user_id = ? AND product_id = ? AND boss_id = ?", uId, pId, bId).
+		Where("user_id = ? AND product_id = ? AND boss_id = ?",
+			uId, pId, bId).
 		First(&cart).Error
+
 	return
 }
 
