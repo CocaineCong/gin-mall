@@ -1,8 +1,9 @@
 package v1
 
 import (
-	"github.com/CocaineCong/gin-mall/consts"
 	"net/http"
+
+	"github.com/CocaineCong/gin-mall/consts"
 
 	"github.com/gin-gonic/gin"
 
@@ -18,7 +19,7 @@ func CreateCartHandler() gin.HandlerFunc {
 		if err := ctx.ShouldBind(&req); err != nil {
 			// 参数校验
 			log.LogrusObj.Infoln(err)
-			ctx.JSON(http.StatusBadRequest, ErrorResponse(ctx, err))
+			ctx.JSON(http.StatusOK, ErrorResponse(ctx, err))
 			return
 		}
 
@@ -26,11 +27,10 @@ func CreateCartHandler() gin.HandlerFunc {
 		resp, err := l.CartCreate(ctx.Request.Context(), &req)
 		if err != nil {
 			log.LogrusObj.Infoln(err)
-			ctx.JSON(http.StatusInternalServerError, ErrorResponse(ctx, err))
+			ctx.JSON(http.StatusOK, ErrorResponse(ctx, err))
 			return
 		}
 		ctx.JSON(http.StatusOK, ctl.RespSuccess(ctx, resp))
-		return
 	}
 }
 
@@ -41,7 +41,7 @@ func ListCartHandler() gin.HandlerFunc {
 		if err := ctx.ShouldBind(&req); err != nil {
 			// 参数校验
 			log.LogrusObj.Infoln(err)
-			ctx.JSON(http.StatusBadRequest, ErrorResponse(ctx, err))
+			ctx.JSON(http.StatusOK, ErrorResponse(ctx, err))
 			return
 		}
 		if req.PageSize == 0 {
@@ -52,11 +52,10 @@ func ListCartHandler() gin.HandlerFunc {
 		resp, err := l.CartList(ctx.Request.Context(), &req)
 		if err != nil {
 			log.LogrusObj.Infoln(err)
-			ctx.JSON(http.StatusInternalServerError, ErrorResponse(ctx, err))
+			ctx.JSON(http.StatusOK, ErrorResponse(ctx, err))
 			return
 		}
 		ctx.JSON(http.StatusOK, ctl.RespSuccess(ctx, resp))
-		return
 	}
 }
 
@@ -67,7 +66,7 @@ func UpdateCartHandler() gin.HandlerFunc {
 		if err := ctx.ShouldBind(&req); err != nil {
 			// 参数校验
 			log.LogrusObj.Infoln(err)
-			ctx.JSON(http.StatusBadRequest, ErrorResponse(ctx, err))
+			ctx.JSON(http.StatusOK, ErrorResponse(ctx, err))
 			return
 		}
 
@@ -75,11 +74,10 @@ func UpdateCartHandler() gin.HandlerFunc {
 		resp, err := l.CartUpdate(ctx.Request.Context(), &req)
 		if err != nil {
 			log.LogrusObj.Infoln(err)
-			ctx.JSON(http.StatusInternalServerError, ErrorResponse(ctx, err))
+			ctx.JSON(http.StatusOK, ErrorResponse(ctx, err))
 			return
 		}
 		ctx.JSON(http.StatusOK, ctl.RespSuccess(ctx, resp))
-		return
 	}
 }
 
@@ -90,7 +88,7 @@ func DeleteCartHandler() gin.HandlerFunc {
 		if err := ctx.ShouldBind(&req); err != nil {
 			// 参数校验
 			log.LogrusObj.Infoln(err)
-			ctx.JSON(http.StatusBadRequest, ErrorResponse(ctx, err))
+			ctx.JSON(http.StatusOK, ErrorResponse(ctx, err))
 			return
 		}
 
@@ -98,10 +96,9 @@ func DeleteCartHandler() gin.HandlerFunc {
 		resp, err := l.CartDelete(ctx.Request.Context(), &req)
 		if err != nil {
 			log.LogrusObj.Infoln(err)
-			ctx.JSON(http.StatusInternalServerError, ErrorResponse(ctx, err))
+			ctx.JSON(http.StatusOK, ErrorResponse(ctx, err))
 			return
 		}
 		ctx.JSON(http.StatusOK, ctl.RespSuccess(ctx, resp))
-		return
 	}
 }

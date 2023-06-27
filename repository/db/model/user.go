@@ -1,7 +1,9 @@
 package model
 
 import (
+	"github.com/CocaineCong/secret"
 	"github.com/jinzhu/gorm"
+	"github.com/spf13/cast"
 	"golang.org/x/crypto/bcrypt"
 
 	conf "github.com/CocaineCong/gin-mall/config"
@@ -27,26 +29,48 @@ const (
 )
 
 // SetPassword 设置密码
-func (user *User) SetPassword(password string) error {
+func (u *User) SetPassword(password string) error {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), PassWordCost)
 	if err != nil {
 		return err
 	}
-	user.PasswordDigest = string(bytes)
+	u.PasswordDigest = string(bytes)
 	return nil
 }
 
 // CheckPassword 校验密码
-func (user *User) CheckPassword(password string) bool {
-	err := bcrypt.CompareHashAndPassword([]byte(user.PasswordDigest), []byte(password))
+func (u *User) CheckPassword(password string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(u.PasswordDigest), []byte(password))
 	return err == nil
 }
 
 // AvatarURL 头像地址
-func (user *User) AvatarURL() string {
+func (u *User) AvatarURL() string {
 	if conf.Config.System.UploadModel == consts.UploadModelOss {
-		return user.Avatar
+		return u.Avatar
 	}
 	pConfig := conf.Config.PhotoPath
-	return pConfig.PhotoHost + conf.Config.System.HttpPort + pConfig.AvatarPath + user.Avatar
+	return pConfig.PhotoHost + conf.Config.System.HttpPort + pConfig.AvatarPath + u.Avatar
+}
+
+// EncryptMoney 加密金额
+func (u *User) EncryptMoney(key string) (err error) {
+	aesObj, err := secret.NewAesEncrypt(conf.Config.EncryptSecret.MoneySecret, key, "", secret.AesEncrypt128, secret.AesModeTypeCBC)
+	if err != nil {
+		return
+	}
+	u.Money = aesObj.SecretEncrypt(u.Money)
+
+	return
+}
+
+// DecryptMoney 解密金额
+func (u *User) DecryptMoney(key string) (money float64, err error) {
+	aesObj, err := secret.NewAesEncrypt(conf.Config.EncryptSecret.MoneySecret, key, "", secret.AesEncrypt128, secret.AesModeTypeCBC)
+	if err != nil {
+		return
+	}
+
+	money = cast.ToFloat64(aesObj.SecretDecrypt(u.Money))
+	return
 }

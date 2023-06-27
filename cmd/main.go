@@ -24,7 +24,6 @@ func main() {
 
 // loading一些配置
 func loading() {
-	// 建议的Pay Key：Ek1+Ep1==Ek2+Ep2
 	conf.InitConfig()
 	dao.InitMySQL()
 	cache.InitCache()

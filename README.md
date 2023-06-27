@@ -98,9 +98,10 @@ make env-up tools build # 拉起项目环境、编译Agent、构建项目二进�
 - [x] 加入 Jaeger 进行链路追踪
 - [x] 加入 Skywalking 监控中间件
 - [ ] 优化ToC应用的 SQL JOIN 语句
-- [ ] MySQL到ES的数据同步，将搜索改成查找ES（注意一下，这里最好引入kafka，mysql推到kafka，kafka再推到es，确保一下ack）
+- [ ] MySQL到ES的数据同步，将搜索改成查找ES（注意一下，这里最好引入kafka，mysql推到kafka，kafka再推到es，确保一下ack 或者 flink CDC那套）
 - [ ] makefile 适配 windows
-- [ ] docker-compose的redis，mysql集齐
+- [ ] docker-compose的redis，mysql集群
+- [x] 支付密码支持6位
 
 # 主要依赖
 | 名称           | 版本      |
