@@ -101,10 +101,13 @@ func (dao *OrderDao) ShowOrderById(id, uId uint) (r *types.OrderListResp, err er
 
 // DeleteOrderById 获取订单详情
 func (dao *OrderDao) DeleteOrderById(id, uId uint) error {
-	return dao.DB.Model(&model.Order{}).Where("id=? AND user_id = ?", id, uId).Delete(&model.Order{}).Error
+	return dao.DB.Model(&model.Order{}).
+		Where("id=? AND user_id = ?", id, uId).
+		Delete(&model.Order{}).Error
 }
 
 // UpdateOrderById 更新订单详情
 func (dao *OrderDao) UpdateOrderById(id, uId uint, order *model.Order) error {
-	return dao.DB.Where("id = ? AND user_id = ?", id, uId).Updates(order).Error
+	return dao.DB.Where("id = ? AND user_id = ?", id, uId).
+		Updates(order).Error
 }

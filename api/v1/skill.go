@@ -17,7 +17,7 @@ func ImportSkillProductHandler() gin.HandlerFunc {
 		if err := ctx.ShouldBind(&req); err != nil {
 			// 参数校验
 			log.LogrusObj.Infoln(err)
-			ctx.JSON(http.StatusBadRequest, ErrorResponse(ctx, err))
+			ctx.JSON(http.StatusOK, ErrorResponse(ctx, err))
 			return
 		}
 
@@ -26,11 +26,10 @@ func ImportSkillProductHandler() gin.HandlerFunc {
 		resp, err := l.Import(ctx.Request.Context(), file)
 		if err != nil {
 			log.LogrusObj.Infoln(err)
-			ctx.JSON(http.StatusInternalServerError, ErrorResponse(ctx, err))
+			ctx.JSON(http.StatusOK, ErrorResponse(ctx, err))
 			return
 		}
 		ctx.JSON(http.StatusOK, ctl.RespSuccess(ctx, resp))
-		return
 	}
 }
 
@@ -40,7 +39,7 @@ func InitSkillProductHandler() gin.HandlerFunc {
 		if err := ctx.ShouldBind(&req); err != nil {
 			// 参数校验
 			log.LogrusObj.Infoln(err)
-			ctx.JSON(http.StatusBadRequest, ErrorResponse(ctx, err))
+			ctx.JSON(http.StatusOK, ErrorResponse(ctx, err))
 			return
 		}
 
@@ -48,11 +47,10 @@ func InitSkillProductHandler() gin.HandlerFunc {
 		resp, err := l.InitSkillGoods(ctx.Request.Context())
 		if err != nil {
 			log.LogrusObj.Infoln(err)
-			ctx.JSON(http.StatusInternalServerError, ErrorResponse(ctx, err))
+			ctx.JSON(http.StatusOK, ErrorResponse(ctx, err))
 			return
 		}
 		ctx.JSON(http.StatusOK, ctl.RespSuccess(ctx, resp))
-		return
 	}
 }
 
@@ -62,7 +60,7 @@ func SkillProductHandler() gin.HandlerFunc {
 		if err := ctx.ShouldBind(&req); err != nil {
 			// 参数校验
 			log.LogrusObj.Infoln(err)
-			ctx.JSON(http.StatusBadRequest, ErrorResponse(ctx, err))
+			ctx.JSON(http.StatusOK, ErrorResponse(ctx, err))
 			return
 		}
 
@@ -70,10 +68,9 @@ func SkillProductHandler() gin.HandlerFunc {
 		resp, err := l.SkillProduct(ctx.Request.Context(), &req)
 		if err != nil {
 			log.LogrusObj.Infoln(err)
-			ctx.JSON(http.StatusInternalServerError, ErrorResponse(ctx, err))
+			ctx.JSON(http.StatusOK, ErrorResponse(ctx, err))
 			return
 		}
 		ctx.JSON(http.StatusOK, ctl.RespSuccess(ctx, resp))
-		return
 	}
 }

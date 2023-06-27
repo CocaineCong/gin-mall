@@ -18,14 +18,14 @@ func UserRegisterHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var req types.UserRegisterReq
 		if err := ctx.ShouldBind(&req); err != nil {
-			// 参数校验
 			log.LogrusObj.Infoln(err)
 			ctx.JSON(http.StatusOK, ErrorResponse(ctx, err))
 			return
 		}
 
-		if len(req.Key) != 16 {
-			err := errors.New("key长度错误")
+		// 参数校验
+		if req.Key == "" || len(req.Key) != consts.EncryptMoneyKeyLength {
+			err := errors.New("key长度错误,必须是6位数")
 			ctx.JSON(http.StatusOK, ErrorResponse(ctx, err))
 			return
 		}
@@ -38,7 +38,6 @@ func UserRegisterHandler() gin.HandlerFunc {
 			return
 		}
 		ctx.JSON(http.StatusOK, ctl.RespSuccess(ctx, resp))
-		return
 	}
 }
 
@@ -61,7 +60,6 @@ func UserLoginHandler() gin.HandlerFunc {
 			return
 		}
 		ctx.JSON(http.StatusOK, ctl.RespSuccess(ctx, resp))
-		return
 	}
 }
 
@@ -83,7 +81,6 @@ func UserUpdateHandler() gin.HandlerFunc {
 			return
 		}
 		ctx.JSON(http.StatusOK, ctl.RespSuccess(ctx, resp))
-		return
 	}
 }
 
@@ -105,7 +102,6 @@ func ShowUserInfoHandler() gin.HandlerFunc {
 			return
 		}
 		ctx.JSON(http.StatusOK, ctl.RespSuccess(ctx, resp))
-		return
 	}
 }
 
@@ -135,7 +131,6 @@ func UploadAvatarHandler() gin.HandlerFunc {
 			return
 		}
 		ctx.JSON(http.StatusOK, ctl.RespSuccess(ctx, resp))
-		return
 	}
 }
 
@@ -158,7 +153,6 @@ func SendEmailHandler() gin.HandlerFunc {
 			return
 		}
 		ctx.JSON(http.StatusOK, ctl.RespSuccess(ctx, resp))
-		return
 	}
 }
 
@@ -180,7 +174,6 @@ func UserFollowingHandler() gin.HandlerFunc {
 			return
 		}
 		ctx.JSON(http.StatusOK, ctl.RespSuccess(ctx, resp))
-		return
 	}
 }
 
@@ -202,7 +195,6 @@ func UserUnFollowingHandler() gin.HandlerFunc {
 			return
 		}
 		ctx.JSON(http.StatusOK, ctl.RespSuccess(ctx, resp))
-		return
 	}
 }
 
@@ -224,6 +216,5 @@ func ValidEmailHandler() gin.HandlerFunc {
 			return
 		}
 		ctx.JSON(http.StatusOK, ctl.RespSuccess(ctx, resp))
-		return
 	}
 }

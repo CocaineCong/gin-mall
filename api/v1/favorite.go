@@ -19,7 +19,7 @@ func CreateFavoriteHandler() gin.HandlerFunc {
 		if err := ctx.ShouldBind(&req); err != nil {
 			// 参数校验
 			log.LogrusObj.Infoln(err)
-			ctx.JSON(http.StatusBadRequest, ErrorResponse(ctx, err))
+			ctx.JSON(http.StatusOK, ErrorResponse(ctx, err))
 			return
 		}
 
@@ -27,11 +27,10 @@ func CreateFavoriteHandler() gin.HandlerFunc {
 		resp, err := l.FavoriteCreate(ctx.Request.Context(), &req)
 		if err != nil {
 			log.LogrusObj.Infoln(err)
-			ctx.JSON(http.StatusInternalServerError, ErrorResponse(ctx, err))
+			ctx.JSON(http.StatusOK, ErrorResponse(ctx, err))
 			return
 		}
 		ctx.JSON(http.StatusOK, ctl.RespSuccess(ctx, resp))
-		return
 	}
 }
 
@@ -42,7 +41,7 @@ func ListFavoritesHandler() gin.HandlerFunc {
 		if err := ctx.ShouldBind(&req); err != nil {
 			// 参数校验
 			log.LogrusObj.Infoln(err)
-			ctx.JSON(http.StatusBadRequest, ErrorResponse(ctx, err))
+			ctx.JSON(http.StatusOK, ErrorResponse(ctx, err))
 			return
 		}
 		if req.PageSize == 0 {
@@ -53,11 +52,10 @@ func ListFavoritesHandler() gin.HandlerFunc {
 		resp, err := l.FavoriteList(ctx.Request.Context(), &req)
 		if err != nil {
 			log.LogrusObj.Infoln(err)
-			ctx.JSON(http.StatusInternalServerError, ErrorResponse(ctx, err))
+			ctx.JSON(http.StatusOK, ErrorResponse(ctx, err))
 			return
 		}
 		ctx.JSON(http.StatusOK, ctl.RespSuccess(ctx, resp))
-		return
 	}
 }
 
@@ -68,7 +66,7 @@ func DeleteFavoriteHandler() gin.HandlerFunc {
 		if err := ctx.ShouldBind(&req); err != nil {
 			// 参数校验
 			log.LogrusObj.Infoln(err)
-			ctx.JSON(http.StatusBadRequest, ErrorResponse(ctx, err))
+			ctx.JSON(http.StatusOK, ErrorResponse(ctx, err))
 			return
 		}
 
@@ -76,10 +74,9 @@ func DeleteFavoriteHandler() gin.HandlerFunc {
 		resp, err := l.FavoriteDelete(ctx.Request.Context(), &req)
 		if err != nil {
 			log.LogrusObj.Infoln(err)
-			ctx.JSON(http.StatusInternalServerError, ErrorResponse(ctx, err))
+			ctx.JSON(http.StatusOK, ErrorResponse(ctx, err))
 			return
 		}
 		ctx.JSON(http.StatusOK, ctl.RespSuccess(ctx, resp))
-		return
 	}
 }

@@ -11,7 +11,6 @@ import (
 	"github.com/CocaineCong/gin-mall/consts"
 	"github.com/CocaineCong/gin-mall/pkg/utils/ctl"
 	"github.com/CocaineCong/gin-mall/pkg/utils/email"
-	"github.com/CocaineCong/gin-mall/pkg/utils/encryption"
 	"github.com/CocaineCong/gin-mall/pkg/utils/jwt"
 	"github.com/CocaineCong/gin-mall/pkg/utils/log"
 	util "github.com/CocaineCong/gin-mall/pkg/utils/upload"
@@ -35,11 +34,6 @@ func GetUserSrv() *UserSrv {
 
 // UserRegister 用户注册
 func (s *UserSrv) UserRegister(ctx context.Context, req *types.UserRegisterReq) (resp interface{}, err error) {
-	var user *model.User
-	if req.Key == "" || len(req.Key) != 16 {
-		return nil, errors.New("密钥长度不足")
-	}
-	encryption.Encrypt.SetKey(req.Key)
 	userDao := dao.NewUserDao(ctx)
 	_, exist, err := userDao.ExistOrNotByUserName(req.UserName)
 	if err != nil {
@@ -47,24 +41,30 @@ func (s *UserSrv) UserRegister(ctx context.Context, req *types.UserRegisterReq) 
 		return
 	}
 	if exist {
-		return nil, errors.New("用户已经存在了")
+		err = errors.New("用户已经存在了")
+		return
 	}
-	user = &model.User{
+	user := &model.User{
 		NickName: req.NickName,
 		UserName: req.UserName,
 		Status:   model.Active,
-		Money:    encryption.Encrypt.AesEncoding("10000"), // 初始金额
+		Money:    consts.UserInitMoney,
 	}
 	// 加密密码
 	if err = user.SetPassword(req.Password); err != nil {
 		log.LogrusObj.Error(err)
 		return
 	}
-
+	// 加密money
+	if err = user.EncryptMoney(req.Key); err != nil {
+		log.LogrusObj.Error(err)
+		return
+	}
+	// 默认头像走的local
+	user.Avatar = consts.UserDefaultAvatarLocal
 	if conf.Config.System.UploadModel == consts.UploadModelOss {
-		user.Avatar = "http://q1.qlogo.cn/g?b=qq&nk=294350394&s=640"
-	} else {
-		user.Avatar = "avatar.JPG"
+		// 如果配置是走oss，则用url作为默认头像
+		user.Avatar = consts.UserDefaultAvatarOss
 	}
 
 	// 创建用户

@@ -23,15 +23,17 @@ func NewProductDaoByDB(db *gorm.DB) *ProductDao {
 
 // GetProductById 通过 id 获取product
 func (dao *ProductDao) GetProductById(id uint) (product *model.Product, err error) {
-	err = dao.DB.Model(&model.Product{}).Where("id=?", id).
-		First(&product).Error
+	err = dao.DB.Model(&model.Product{}).
+		Where("id=?", id).First(&product).Error
+
 	return
 }
 
 // ShowProductById 通过 id 获取product
 func (dao *ProductDao) ShowProductById(id uint) (product *model.Product, err error) {
-	err = dao.DB.Model(&model.Product{}).Where("id=?", id).
-		First(&product).Error
+	err = dao.DB.Model(&model.Product{}).
+		Where("id=?", id).First(&product).Error
+
 	return
 }
 
@@ -39,18 +41,23 @@ func (dao *ProductDao) ShowProductById(id uint) (product *model.Product, err err
 func (dao *ProductDao) ListProductByCondition(condition map[string]interface{}, page types.BasePage) (products []*model.Product, err error) {
 	err = dao.DB.Where(condition).
 		Offset((page.PageNum - 1) * page.PageSize).
-		Limit(page.PageSize).Find(&products).Error
+		Limit(page.PageSize).
+		Find(&products).Error
+
 	return
 }
 
 // CreateProduct 创建商品
 func (dao *ProductDao) CreateProduct(product *model.Product) error {
-	return dao.DB.Model(&model.Product{}).Create(&product).Error
+	return dao.DB.Model(&model.Product{}).
+		Create(&product).Error
 }
 
 // CountProductByCondition 根据情况获取商品的数量
 func (dao *ProductDao) CountProductByCondition(condition map[string]interface{}) (total int64, err error) {
-	err = dao.DB.Model(&model.Product{}).Where(condition).Count(&total).Error
+	err = dao.DB.Model(&model.Product{}).
+		Where(condition).Count(&total).Error
+
 	return
 }
 
@@ -64,8 +71,8 @@ func (dao *ProductDao) DeleteProduct(pId, uId uint) error {
 
 // UpdateProduct 更新商品
 func (dao *ProductDao) UpdateProduct(pId uint, product *model.Product) error {
-	return dao.DB.Model(&model.Product{}).Where("id=?", pId).
-		Updates(&product).Error
+	return dao.DB.Model(&model.Product{}).
+		Where("id=?", pId).Updates(&product).Error
 }
 
 // SearchProduct 搜索商品
@@ -74,8 +81,7 @@ func (dao *ProductDao) SearchProduct(info string, page types.BasePage) (products
 		Where("name LIKE ? OR info LIKE ?", "%"+info+"%", "%"+info+"%").
 		Offset((page.PageNum - 1) * page.PageSize).
 		Limit(page.PageSize).
-		Find(&products).
-		Error
+		Find(&products).Error
 
 	if err != nil {
 		return
