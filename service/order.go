@@ -50,7 +50,7 @@ func (s *OrderSrv) OrderCreate(ctx context.Context, req *types.OrderCreateReq) (
 		Type:      1,
 	}
 	addressDao := dao.NewAddressDao(ctx)
-	address, err := addressDao.GetAddressByAid(req.AddressID)
+	address, err := addressDao.GetAddressByAid(req.AddressID, u.Id)
 	if err != nil {
 		util.LogrusObj.Error(err)
 		return

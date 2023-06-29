@@ -56,10 +56,12 @@ func (s *UserSrv) UserRegister(ctx context.Context, req *types.UserRegisterReq) 
 		return
 	}
 	// 加密money
-	if err = user.EncryptMoney(req.Key); err != nil {
+	money, err := user.EncryptMoney(req.Key)
+	if err != nil {
 		log.LogrusObj.Error(err)
 		return
 	}
+	user.Money = money
 	// 默认头像走的local
 	user.Avatar = consts.UserDefaultAvatarLocal
 	if conf.Config.System.UploadModel == consts.UploadModelOss {

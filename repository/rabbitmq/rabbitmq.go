@@ -1,23 +1,28 @@
 package rabbitmq
 
 import (
-	"strings"
+	"context"
+	"fmt"
 
-	"github.com/streadway/amqp"
-
-	conf "github.com/CocaineCong/gin-mall/config"
+	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-// RabbitMQ rabbitMQ链接单例
-var RabbitMQ *amqp.Connection
-
-// InitRabbitMQ 在中间件中初始化rabbitMQ链接
-func InitRabbitMQ() {
-	rConfig := conf.Config.RabbitMq
-	pathRabbitMQ := strings.Join([]string{rConfig.RabbitMQ, "://", rConfig.RabbitMQUser, ":", rConfig.RabbitMQPassWord, "@", rConfig.RabbitMQHost, ":", rConfig.RabbitMQPort, "/"}, "")
-	conn, err := amqp.Dial(pathRabbitMQ)
+func SendMessage(ctx context.Context, rabbitMqQueue string, message []byte) error {
+	ch, err := GlobalRabbitMQ.Channel()
 	if err != nil {
-		panic(err)
+		return err
 	}
-	RabbitMQ = conn
+	q, err := ch.QueueDeclare(rabbitMqQueue, false, false, false, false, nil)
+	err = ch.PublishWithContext(ctx, "", q.Name, false, false,
+		amqp.Publishing{ContentType: "text/plain", Body: message})
+	return err
+}
+
+func ConsumeMessage(ctx context.Context, rabbitMqQueue string) (<-chan amqp.Delivery, error) {
+	ch, err := GlobalRabbitMQ.Channel()
+	if err != nil {
+		fmt.Println("err", err)
+	}
+	q, _ := ch.QueueDeclare(rabbitMqQueue, false, false, false, false, nil)
+	return ch.Consume(q.Name, "", true, false, false, false, nil)
 }
