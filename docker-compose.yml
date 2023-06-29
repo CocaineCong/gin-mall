@@ -70,6 +70,18 @@ services:
       networks:
           - mall
 
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"  # AMQP 端口
+      - "15672:15672"  # 管理界面端口
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest  # 设置 RabbitMQ 默认用户名
+      - RABBITMQ_DEFAULT_PASS=guest  # 设置 RabbitMQ 默认密码
+    networks:
+      - mall
+
   kibana:
     image: kibana:8.4.2
     container_name: kibana

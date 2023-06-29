@@ -4,8 +4,9 @@ import (
 	"context"
 	"sync"
 
+	"github.com/spf13/cast"
+
 	"github.com/CocaineCong/gin-mall/pkg/utils/ctl"
-	util "github.com/CocaineCong/gin-mall/pkg/utils/encryption"
 	"github.com/CocaineCong/gin-mall/pkg/utils/log"
 	"github.com/CocaineCong/gin-mall/repository/db/dao"
 	"github.com/CocaineCong/gin-mall/types"
@@ -36,11 +37,15 @@ func (s *MoneySrv) MoneyShow(ctx context.Context, req *types.MoneyShowReq) (resp
 		log.LogrusObj.Error(err)
 		return
 	}
-	util.Encrypt.SetKey(req.Key)
+	money, err := user.DecryptMoney(req.Key)
+	if err != nil {
+		log.LogrusObj.Error(err)
+		return
+	}
 	resp = &types.MoneyShowResp{
 		UserID:    user.ID,
 		UserName:  user.UserName,
-		UserMoney: util.Encrypt.AesDecoding(user.Money),
+		UserMoney: cast.ToString(money),
 	}
 
 	return

@@ -10,6 +10,7 @@ import (
 	"github.com/CocaineCong/gin-mall/repository/db/dao"
 	"github.com/CocaineCong/gin-mall/repository/es"
 	"github.com/CocaineCong/gin-mall/repository/kafka"
+	"github.com/CocaineCong/gin-mall/repository/rabbitmq"
 	"github.com/CocaineCong/gin-mall/routes"
 
 	_ "github.com/apache/skywalking-go"
@@ -27,8 +28,8 @@ func loading() {
 	conf.InitConfig()
 	dao.InitMySQL()
 	cache.InitCache()
-	// rabbitmq.InitRabbitMQ() // 如果需要接入RabbitMQ可以打开这个注释
-	es.InitEs() // 如果需要接入ELK可以打开这个注释
+	rabbitmq.InitRabbitMQ() // 如果需要接入RabbitMQ可以打开这个注释
+	es.InitEs()             // 如果需要接入ELK可以打开这个注释
 	kafka.InitKafka()
 	track.InitJaeger()
 	util.InitLog() // 如果接入ELK请进入这个func打开注释

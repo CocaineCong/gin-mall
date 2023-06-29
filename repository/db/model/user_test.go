@@ -21,7 +21,8 @@ func TestUserModelEncryptMoney(t *testing.T) {
 		Money:    "10000",
 	}
 	t.Logf("u before encrypt money:%s", u.Money)
-	err := u.EncryptMoney(key)
+	money, err := u.EncryptMoney(key)
+	u.Money = money
 	if err != nil {
 		fmt.Println("err EncryptMoney", err)
 	}
