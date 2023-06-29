@@ -54,12 +54,12 @@ func (u *User) AvatarURL() string {
 }
 
 // EncryptMoney 加密金额
-func (u *User) EncryptMoney(key string) (err error) {
+func (u *User) EncryptMoney(key string) (money string, err error) {
 	aesObj, err := secret.NewAesEncrypt(conf.Config.EncryptSecret.MoneySecret, key, "", secret.AesEncrypt128, secret.AesModeTypeCBC)
 	if err != nil {
 		return
 	}
-	u.Money = aesObj.SecretEncrypt(u.Money)
+	money = aesObj.SecretEncrypt(u.Money)
 
 	return
 }

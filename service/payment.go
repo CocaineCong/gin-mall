@@ -4,14 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"strconv"
 	"sync"
 
 	"gorm.io/gorm"
 
 	"github.com/CocaineCong/gin-mall/consts"
 	"github.com/CocaineCong/gin-mall/pkg/utils/ctl"
-	util "github.com/CocaineCong/gin-mall/pkg/utils/encryption"
 	"github.com/CocaineCong/gin-mall/pkg/utils/log"
 	"github.com/CocaineCong/gin-mall/repository/db/dao"
 	"github.com/CocaineCong/gin-mall/repository/db/model"
@@ -31,6 +29,9 @@ func GetPaymentSrv() *PaymentSrv {
 	return PaymentSrvIns
 }
 
+// TODO 目前买家和卖家的支付密码要一致，这个后续优化一下。。
+
+// PayDown 支付操作
 func (s *PaymentSrv) PayDown(ctx context.Context, req *types.PaymentDownReq) (resp interface{}, err error) {
 	u, err := ctl.GetUserInfo(ctx)
 	if err != nil {
@@ -39,7 +40,6 @@ func (s *PaymentSrv) PayDown(ctx context.Context, req *types.PaymentDownReq) (re
 	}
 	err = dao.NewOrderDao(ctx).Transaction(func(tx *gorm.DB) error {
 		uId := u.Id
-		util.Encrypt.SetKey(req.Key)
 
 		payment, err := dao.NewOrderDaoByDB(tx).GetOrderById(req.OrderId, uId)
 		if err != nil {
@@ -58,30 +58,44 @@ func (s *PaymentSrv) PayDown(ctx context.Context, req *types.PaymentDownReq) (re
 		}
 
 		// 对钱进行解密。减去订单。再进行加密。
-		moneyStr := util.Encrypt.AesDecoding(user.Money)
-		moneyFloat, _ := strconv.ParseFloat(moneyStr, 64)
+		moneyFloat, err := user.DecryptMoney(req.Key)
+		if err != nil {
+			log.LogrusObj.Error(err)
+			return err
+		}
 		if moneyFloat-money < 0.0 { // 金额不足进行回滚
 			log.LogrusObj.Error(err)
 			return errors.New("金币不足")
 		}
 
 		finMoney := fmt.Sprintf("%f", moneyFloat-money)
-		user.Money = util.Encrypt.AesEncoding(finMoney)
+		user.Money = finMoney
+		user.Money, err = user.EncryptMoney(req.Key)
+		if err != nil {
+			log.LogrusObj.Error(err)
+			return err
+		}
 
 		err = userDao.UpdateUserById(uId, user)
 		if err != nil { // 更新用户金额失败，回滚
 			log.LogrusObj.Error(err)
 			return err
 		}
+
 		boss, err := userDao.GetUserById(uint(req.BossID))
 		if err != nil {
 			log.LogrusObj.Error(err)
 			return err
 		}
-		moneyStr = util.Encrypt.AesDecoding(boss.Money)
-		moneyFloat, _ = strconv.ParseFloat(moneyStr, 64)
+
+		moneyFloat, _ = boss.DecryptMoney(req.Key)
 		finMoney = fmt.Sprintf("%f", moneyFloat+money)
-		boss.Money = util.Encrypt.AesEncoding(finMoney)
+		boss.Money = finMoney
+		boss.Money, err = boss.EncryptMoney(req.Key)
+		if err != nil {
+			log.LogrusObj.Error(err)
+			return err
+		}
 
 		err = userDao.UpdateUserById(uint(req.BossID), boss)
 		if err != nil { // 更新boss金额失败，回滚
