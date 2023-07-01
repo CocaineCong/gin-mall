@@ -14,12 +14,8 @@ import (
 var RedisClient *redis.Client
 var RedisContext = context.Background()
 
+// InitCache 在中间件中初始化redis链接
 func InitCache() {
-	Redis()
-}
-
-// Redis 在中间件中初始化redis链接
-func Redis() {
 	rConfig := conf.Config.Redis
 	client := redis.NewClient(&redis.Options{
 		Addr:     fmt.Sprintf("%s:%s", rConfig.RedisHost, rConfig.RedisPort),
