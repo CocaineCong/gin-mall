@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"sync"
 
@@ -43,6 +44,21 @@ func (s *SkillProductSrv) InitSkillGoods(ctx context.Context) (resp interface{},
 		return
 	}
 
+	// 导入数据库的同时，初始化缓存
+	for i := range spList {
+		jsonBytes, errx := json.Marshal(spList[i])
+		if errx != nil {
+			log.LogrusObj.Infoln(errx)
+			return
+		}
+		jsonString := string(jsonBytes)
+		_, errx = cache.RedisClient.LPush(ctx, cache.SkillProductListKey, jsonString).Result()
+		if errx != nil {
+			log.LogrusObj.Infoln(errx)
+			return nil, errx
+		}
+	}
+
 	return
 }
 
@@ -61,16 +77,25 @@ func (s *SkillProductSrv) ListSkillGoods(ctx context.Context) (resp interface{},
 		skill, errx := dao.NewSkillGoodsDao(ctx).ListSkillGoods()
 		if errx != nil {
 			log.LogrusObj.Infoln(errx)
-			return
+			return nil, errx
 		}
 
 		for i := range skill {
-			_, errx = rc.LPush(ctx, cache.SkillProductListKey, skill[i]).Result()
+			// 将结构体转换为JSON格式的字符串
+			jsonBytes, errx := json.Marshal(skill[i])
 			if errx != nil {
 				log.LogrusObj.Infoln(errx)
 				return
 			}
+			// 将字节数组转换为字符串
+			jsonString := string(jsonBytes)
+			_, errx = rc.LPush(ctx, cache.SkillProductListKey, jsonString).Result()
+			if errx != nil {
+				log.LogrusObj.Infoln(errx)
+				return nil, errx
+			}
 		}
+		resp = skill
 	} else {
 		resp = skillProductList
 	}
