@@ -259,4 +259,4 @@ rabbitMq:
 
 这里是用postman查询es，Kibana也可以查看es！
 
-![postman-es](doc/5.postman-es.png)
+![postman-es](doc/5.postmen-es.png)
