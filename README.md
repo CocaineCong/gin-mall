@@ -261,3 +261,4 @@ rabbitMq:
 
 ![postman-es](doc/5.postmcn-es.png)
 ![postman-es](doc/5.postmbn-es.png)
+![postman-es](doc/5.postman-es.png)
