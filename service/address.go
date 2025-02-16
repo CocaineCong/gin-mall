@@ -25,6 +25,7 @@ func GetAddressSrv() *AddressSrv {
 	return AddressSrvIns
 }
 
+// 创建地址
 func (s *AddressSrv) AddressCreate(ctx context.Context, req *types.AddressCreateReq) (resp interface{}, err error) {
 	u, err := ctl.GetUserInfo(ctx)
 	if err != nil {
