@@ -17,6 +17,7 @@ var AddressSrvOnce sync.Once
 type AddressSrv struct {
 }
 
+// 获取地址服务实例
 func GetAddressSrv() *AddressSrv {
 	AddressSrvOnce.Do(func() {
 		AddressSrvIns = &AddressSrv{}
