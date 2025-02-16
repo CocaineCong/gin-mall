@@ -18,6 +18,7 @@ var MoneySrvOnce sync.Once
 type MoneySrv struct {
 }
 
+// GetMoneySrv 获取Monkey服务
 func GetMoneySrv() *MoneySrv {
 	MoneySrvOnce.Do(func() {
 		MoneySrvIns = &MoneySrv{}
