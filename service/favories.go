@@ -20,7 +20,7 @@ var FavoriteSrvOnce sync.Once
 type FavoriteSrv struct {
 }
 
-// 获取收藏夹服务
+// GetFavoriteSrv 获取收藏夹服务
 func GetFavoriteSrv() *FavoriteSrv {
 	FavoriteSrvOnce.Do(func() {
 		FavoriteSrvIns = &FavoriteSrv{}
