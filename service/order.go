@@ -28,6 +28,7 @@ var OrderSrvOnce sync.Once
 type OrderSrv struct {
 }
 
+// GetOrderSrv 获取订单服务
 func GetOrderSrv() *OrderSrv {
 	OrderSrvOnce.Do(func() {
 		OrderSrvIns = &OrderSrv{}
